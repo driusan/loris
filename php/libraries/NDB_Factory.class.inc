@@ -189,6 +189,7 @@ class NDB_Factory
             }
                 self::$_db = Database::singleton();
         }
+        /*
         $config = $this->config();
         $dbc    = $config->getSetting('database');
         $db_ref->connect(
@@ -198,6 +199,7 @@ class NDB_Factory
             $dbc['host'],
             true
         );
+         */
         return $db_ref;
     }
 
