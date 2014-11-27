@@ -101,7 +101,7 @@ class NDB_Factory
             Mock::generate("NDB_Config");
             $config = new MockNDB_Config();
         } else {
-            $config = new NDB_Config();
+            $config = NDB_Config::singleton();
         }
 
         self::$_config = $config;
@@ -163,8 +163,9 @@ class NDB_Factory
             if ($db_ref !== null) {
                 return $db_ref;
             }
-            self::$_db = new Database();
+            self::$_db = Database::singleton();
         }
+        /*
         $config = $this->config();
         $dbc = $config->getSetting('database');
         $db_ref->connect(
@@ -173,6 +174,7 @@ class NDB_Factory
             $dbc['password'],
             $dbc['host'], true
         );
+         */
         return $db_ref;
     }
 
