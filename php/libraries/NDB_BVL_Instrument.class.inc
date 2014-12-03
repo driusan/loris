@@ -160,7 +160,7 @@ class NDB_BVL_Instrument extends NDB_Page
      * @throws PEAR:error
      * @access public
      */
-    function factory($instrument, $commentID, $page, $guarantee_exists = true)
+    static function factory($instrument, $commentID, $page, $guarantee_exists = true)
     {
         $class = "NDB_BVL_Instrument_$instrument";
 
