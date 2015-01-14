@@ -213,6 +213,9 @@ class NDB_BVL_Instrument extends NDB_Page
                 );
             }
         } else {
+            if($guarantee_exists === true && !file_exists($base."project/instruments/$class.class.inc")) {
+                throw new Exception("Instrument does not exist");
+            }
             include_once $base."project/instruments/$class.class.inc";
             // Now go ahead and instantiate it
             $obj = new $class;
