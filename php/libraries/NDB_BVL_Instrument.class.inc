@@ -2774,7 +2774,7 @@ class NDB_BVL_Instrument extends NDB_Page
         $this->form->accept($renderer);
 
         $formArray = $renderer->toArray();
-        if($formArray['elements']) {
+        if(isset($formArray['elements'])) {
             foreach($formArray['elements'] as &$element) {
                 $name = $element['name'];
                 if($element['type'] === 'group') {
@@ -2788,7 +2788,7 @@ class NDB_BVL_Instrument extends NDB_Page
             }
         }
 
-        if($formArray['sections']) {
+        if(isset($formArray['sections'])) {
             foreach($formArray['sections'] as &$section) {
                 foreach($section['elements'] as &$element) {
                     $this->_toJSONParseSmarty($element);
