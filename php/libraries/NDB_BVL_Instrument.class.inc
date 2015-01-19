@@ -143,6 +143,7 @@ class NDB_BVL_Instrument extends NDB_Page
     var $preview = false;
 
     var $WrapperTextElements = array();
+    var $WrapperNumericElements = array();
     var $WrapperDateWithStatusElements = array();
     /**
      * Factory generates a new instrument instance of type
@@ -1830,6 +1831,7 @@ class NDB_BVL_Instrument extends NDB_Page
     function addNumericElement($field, $label, $options = null)
     {
         $group[] = $this->createText($field, $label);
+        $this->WrapperNumericElements[$field] = $group[0];
         $group[] = $this->createSelect(
             $field . "_status",
             null,
@@ -2265,6 +2267,16 @@ class NDB_BVL_Instrument extends NDB_Page
                         } else {
                             $el['type'] = 'text';
                         }
+                    }
+                };
+                array_map($mapFunc, $formArray['elements']);
+            }
+
+            if(isset($this->WrapperNumericElements[$elementName])) {
+                $mapFunc = function(&$el) use ($name, $elementName) {
+                    if($el['name'] === $name) {
+                        $el['name'] = $elementName;
+                        $el['type'] = 'numeric';
                     }
                 };
                 array_map($mapFunc, $formArray['elements']);
