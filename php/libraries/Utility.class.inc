@@ -11,7 +11,6 @@
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-require_once 'PEAR.php';
 require_once "NDB_Config.class.inc";
 require_once 'NDB_Factory.class.inc';
 
@@ -27,7 +26,7 @@ require_once 'NDB_Factory.class.inc';
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-class Utility extends PEAR
+class Utility
 {
     /**
      * This is identical to PEAR::isError from PEAR only the function
@@ -100,7 +99,7 @@ class Utility extends PEAR
      * @param string $testdate date of testing (or second date), formatted YYYY-MM-DD
      *
      * @return mixed an array with keys 'year', 'mon', 'day' containing the
-     *               computed age, or a PEAR::Error object
+     *               computed age
      */
     static function calculateAge($dob, $testdate)
     {

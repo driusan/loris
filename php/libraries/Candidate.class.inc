@@ -12,8 +12,6 @@
  * @link     https://www.github.com/aces/Loris-Trunk/
  */
 
-require_once "PEAR.php";
-
 /* Define constants used by the file */
 // error codes
 define('CANDIDATE_INVALID', 1);
@@ -302,7 +300,7 @@ class Candidate
      * @param string $var   The variable to be set
      * @param any    $value The value to be set to
      *
-     * @return true on success, PEAR Error otherwise
+     * @return true on success
      */
     function setData($var, $value=null)
     {

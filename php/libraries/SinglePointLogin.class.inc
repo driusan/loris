@@ -11,7 +11,6 @@
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-require_once 'PEAR.php';
 
 /**
  * SinglePointLogin class
@@ -26,7 +25,7 @@ require_once 'PEAR.php';
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-class SinglePointLogin extends PEAR
+class SinglePointLogin
 {
     /**
      * Defines whether a user is currently logged in
