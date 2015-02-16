@@ -4,8 +4,8 @@
  *
  * PHP Version 5
  *
- * @category Main
- * @package  Behavioural
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Dave MacFarlane <david.macfarlane2@mcgill.ca>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
@@ -17,8 +17,8 @@ require_once "NDB_Form.class.inc";
  * the request and preview what the page should look like. Forbids anything
  * that modifies data or saves to the database.
  *
- * @category Main
- * @package  Behavioural
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Dave MacFarlane <david.macfarlane2@mcgill.ca>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/

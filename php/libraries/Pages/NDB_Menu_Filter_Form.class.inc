@@ -5,8 +5,8 @@
  *
  * PHP Version 5
  *
- * @category Behavioural
- * @package  Main
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Zia Mohaddes  <zia.mohades@gmail.com>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://github.com/aces/Loris-Trunk
@@ -20,8 +20,8 @@ require_once 'NDB_Menu_Filter.class.inc';
  * This class over-rides the NDB_Menu_Filter class by including the functionality
  * to save/process the form.
  *
- * @category Behavioural
- * @package  Main
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Zia Mohaddes  <zia.mohades@gmail.com>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://github.com/aces/Loris-Trunk

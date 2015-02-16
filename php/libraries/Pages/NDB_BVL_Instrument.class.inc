@@ -4,8 +4,8 @@
  *
  * PHP Version 5
  *
- * @category Main
- * @package  Behavioural
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Unknown <example@example.com>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris-Trunk/
@@ -22,8 +22,8 @@ require_once 'HTML/QuickForm/Renderer/Default.php';
  *
  * Throws PEAR errors. Also requires PEAR HTML_Quickform.
  *
- * @category Main
- * @package  Behavioural
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Unknown <example@example.com>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris-Trunk/

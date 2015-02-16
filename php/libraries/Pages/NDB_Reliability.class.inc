@@ -7,8 +7,8 @@
  *
  * PHP Version 5
  *
- * @category Main
- * @package  Loris
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Unknown(Samir?) <example@example.com>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
@@ -18,8 +18,8 @@ require_once "NDB_Form.class.inc";
 /**
  * The class that implements base functionality for Reliability checking.
  *
- * @category Main
- * @package  Loris
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Unknown(Samir?) <example@example.com>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/

@@ -4,8 +4,8 @@
  *
  * PHP Version 5
  *
- * @category Behavioural
- * @package  Main
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Loris team <info-loris.mni@mcgill.ca>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris-Trunk/
@@ -22,8 +22,8 @@ require_once 'HTML/QuickForm/select.php';
  *
  * Used in the likes of access profile, user accounts, certification, etc.
  *
- * @category Behavioural
- * @package  Main
+ * @category PageTypes
+ * @package  Loris-Framework
  * @author   Loris team <info-loris.mni@mcgill.ca>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris-Trunk/
