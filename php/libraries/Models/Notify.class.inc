@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * A static class to encapsulate the notification spooling system
  *

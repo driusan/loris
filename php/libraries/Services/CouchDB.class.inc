@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Services;
 /**
  * This file contains a database wrapper around the CouchDB API for Loris.
  *

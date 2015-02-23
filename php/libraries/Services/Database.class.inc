@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Services;
 /**
  * This file represents an SQL database abstraction layer for use in Loris
  *

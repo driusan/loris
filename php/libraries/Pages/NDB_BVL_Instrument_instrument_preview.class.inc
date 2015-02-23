@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Pages;
 /**
  * File contains Instrument Preview class.
  *

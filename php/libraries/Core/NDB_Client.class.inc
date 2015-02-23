@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Core;
 /**
  * This file contains the NDB_Client class
  *

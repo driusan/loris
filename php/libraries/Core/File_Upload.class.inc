@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Core;
 /**
  * This file contains a wrapper for managing and verifying files that are
  * uploaded through PHP QuickForm and handles putting them in the correct place,

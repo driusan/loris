@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Pages;
 /**
  * This class over-rides the NDB_Menu_Filter class by including the functionality
  * of saving/processing the form.

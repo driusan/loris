@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * The UserPermissions class manages checking of user permissions
  *

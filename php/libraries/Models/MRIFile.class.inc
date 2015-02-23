@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * Contains the MRIFile class used for NeuroDB imaging
  *

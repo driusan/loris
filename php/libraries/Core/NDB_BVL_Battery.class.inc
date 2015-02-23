@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Core;
 /**
  * Behavioural battery of instruments class
  *

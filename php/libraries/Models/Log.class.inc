@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * Log class file
  *

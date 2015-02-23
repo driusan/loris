@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * This file contains a wrapper around imaging comments for a session or File.
  *

@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Services;
 /**
  * This provides the implementation of the Smarty_neurodb class
  *

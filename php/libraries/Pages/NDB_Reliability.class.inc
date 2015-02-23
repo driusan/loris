@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Pages;
 /**
  * This file contains the base class for creating reliability tests.
  * Reliability instruments extend this in a way that is analogous to

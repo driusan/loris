@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * Message class file
  *

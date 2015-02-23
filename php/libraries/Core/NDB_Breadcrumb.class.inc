@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Core;
 /**
  * This file contains the class used for building breadcrumbs in the GUI
  * of Loris

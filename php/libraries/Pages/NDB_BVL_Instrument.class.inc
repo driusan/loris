@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Pages;
 /**
  * This file contains the base class for instruments in Loris
  *

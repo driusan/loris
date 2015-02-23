@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * This is legacy code that should be rewritten, but is currently used - Dave
  *

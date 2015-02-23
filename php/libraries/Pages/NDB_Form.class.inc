@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Pages;
 /**
  * Contains the base code to use for all NeuroDB forms
  *

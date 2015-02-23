@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Pages;
 /**
  * File contains NDB_BVL_InstrumentStatus_ControlPanel class
  *

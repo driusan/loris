@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * Class for managing the status of instrument flags
  *

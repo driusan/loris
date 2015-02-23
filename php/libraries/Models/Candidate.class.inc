@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * This file contains a class which is a wrapper around the concept
  * of a candidate in Loris.

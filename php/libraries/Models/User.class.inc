@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * This file contains the Loris user class
  *

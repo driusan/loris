@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Core;
 /**
  * Contains NDB_Caller class to dispatch to the appropriate library
  * for the URL being loaded.

@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Pages;
 /**
  * This class features the code for the Menu Filter.
  *

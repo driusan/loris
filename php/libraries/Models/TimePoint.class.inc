@@ -1,4 +1,5 @@
 <?php
+namespace Loris\Models;
 /**
  * This file contains a TimePoint class which represent's a single session
  * for a single candidate in Loris.
