@@ -69,7 +69,7 @@ class CouchDBADOSImporter
                     'ADOS_Derived' => array(
                         'Administration' => array(
                             'Type' => "enum('None', 'Partial', 'All')",
-                            'Description' => 'Administration for hello'
+                            'Description' => 'Administration of ADOS'
                         ),
                         'Data_entry' => array(
                             'Type' => "enum('In Progress', 'Complete')",
@@ -77,7 +77,7 @@ class CouchDBADOSImporter
                         ),
                         'Validity' => array(
                             'Type' => "enum('Questionable', 'Invalid', 'Valid')",
-                            'Description' => 'Validity of data for hello'
+                            'Description' => 'Validity of ADOS data'
                         ),
                         'Conflicts_Exist' => array(
                             'Type'        => "enum('Yes', 'No')",
