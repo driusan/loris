@@ -283,7 +283,7 @@ class Utility extends PEAR
         $subprojects = $DB->pselect("SELECT * FROM subproject", array());
 
         $subprojs = array();
-        foreach($subprojects as $row) {
+        foreach ($subprojects as $row) {
             $subprojs[$row['SubprojectID']] = $row['title'];
         }
         return $subprojs;
