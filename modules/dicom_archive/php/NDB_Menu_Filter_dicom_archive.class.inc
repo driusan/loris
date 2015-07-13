@@ -1,7 +1,6 @@
 <?php
-
 /**
- * This class features the code for the menu portion 
+ * This class features the code for the menu portion
  * of the Loris dicom archive.
  *
  * PHP Version 5
@@ -29,7 +28,7 @@ require_once 'NDB_Menu_Filter.class.inc';
 class NDB_Menu_Filter_Dicom_Archive extends NDB_Menu_Filter
 {
     var $dicomArchiveSettings;
-    
+
     /**
      * Determine whether the user has permission to view this page
      *
@@ -40,7 +39,7 @@ class NDB_Menu_Filter_Dicom_Archive extends NDB_Menu_Filter
         $user = User::singleton();
         return $user->hasPermission('dicom_archive_view_allsites');
     }
-    
+
     /**
      * Set up the variables required by NDB_Menu_Filter class for constructing
      * a query
@@ -167,6 +166,7 @@ class NDB_Menu_Filter_Dicom_Archive extends NDB_Menu_Filter
      *
      * @return null
      */
+    /*
     function _setFilterForm()
     {
         $list_of_sites = array('' => 'All');
@@ -208,6 +208,7 @@ class NDB_Menu_Filter_Dicom_Archive extends NDB_Menu_Filter
         
         $this->tpl_data['backURL'] = $_SERVER['REQUEST_URI'];
     }
+     */
 
     /**
      * Setup table rows for the template
@@ -238,21 +239,6 @@ class NDB_Menu_Filter_Dicom_Archive extends NDB_Menu_Filter
             unset($item['TarchiveID']);
 
             foreach ($item as $key => $val) {
-                if ($key == 'Transfer_Status') {
-                    switch ($val) {
-                    case 'Queued':
-                        $this->tpl_data['items'][$x][$i]['class'] 
-                            = "tarchivePendingTransfer";
-                        break;
-                    case 'Not Transferred':
-                        $this->tpl_data['items'][$x][$i]['class'] 
-                            = "tarchiveNotTransferred";
-                        break;
-                    default:    
-                        $this->tpl_data['items'][$x][$i]['class'] 
-                            = "tarchiveTransferred";
-                    } 
-                }
                 if ($key == 'Metadata') {
                     $this->tpl_data['items'][$x][$i]['tarchiveID'] = $tarchiveID;
                 } 

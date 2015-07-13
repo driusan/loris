@@ -593,14 +593,16 @@ class NDB_Menu_Filter extends NDB_Menu
             $this->tpl_data['rowsPerPage'] = $rowsPerPage;
             $this->tpl_data['pageID']      = isset($_GET['pageID']) ?
                 $_GET['pageID'] : 1;
+            $this->tpl_data['simpleHeaders'] = array();
 
             // print out column headings
             $i = 0;
             foreach ($this->headers as $header) {
                 $this->tpl_data['headers'][$i]['name'] = $header;
                 // format header
-                $this->tpl_data['headers'][$i]['displayName']
-                    = ucwords(str_replace('_', ' ', $header));
+                $displayName = ucwords(str_replace('_', ' ', $header));
+                $this->tpl_data['headers'][$i]['displayName'] = $displayName;
+                $this->tpl_data['simpleHeaders'][] = $displayName;
                 // set field ordering
                 if (isset($this->filter['order'])) {
                     $this->tpl_data['headers'][$i]['fieldOrder']
