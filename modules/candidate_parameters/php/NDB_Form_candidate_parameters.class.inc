@@ -135,9 +135,9 @@ class NDB_Form_candidate_parameters extends NDB_Form
         foreach ($emptor_info as $key=>$val) {
             if ($key == 'flagged_reason') {
                 $reason = $DB->pselectOne(
-                    "SELECT Description AS Reason FROM candidate c 
-                                           JOIN caveat_options o ON (o.ID = c.flagged_reason) 
-                                           WHERE CandID=:CandidateID",
+                    "SELECT Description AS Reason FROM candidate c
+                        JOIN caveat_options o ON (o.ID = c.flagged_reason)
+                    WHERE CandID=:CandidateID",
                     array('CandidateID' => $this->identifier)
                 );
                 if (!empty($reason)) {
@@ -150,7 +150,7 @@ class NDB_Form_candidate_parameters extends NDB_Form
         }
 
         $DB->select(
-            "SELECT ParameterTypeID, Value FROM parameter_candidate 
+            "SELECT ParameterTypeID, Value FROM parameter_candidate
                      WHERE CandID='".$this->identifier."'",
             $value_results
         );
@@ -171,9 +171,8 @@ class NDB_Form_candidate_parameters extends NDB_Form
         // Getting participant status default values
         $ps_info = $DB->pselectRow(
             "SELECT study_consent,study_consent_date,study_consent_withdrawal,
-                                    reason_specify,participant_status,participant_suboptions
-                                    FROM participant_status
-                                    WHERE CandID = :cid",
+                    reason_specify,participant_status,participant_suboptions
+             FROM participant_status WHERE CandID = :cid",
             array('cid' => $this->identifier)
         );
         if (empty ($ps_info['participant_status'])) {
