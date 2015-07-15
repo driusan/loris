@@ -45,9 +45,6 @@ class NDB_Form_candidate_parameters extends NDB_Form
     {
         // create user object
         $user =& User::singleton();
-        if (Utility::isErrorX($user)) {
-            return PEAR::raiseError("User Error: ".$user->getMessage());
-        }
 
         // check that the $candID is passed b/c the profile needs to be opened
         if ($this->identifier != $_REQUEST['candID']) {
@@ -58,12 +55,6 @@ class NDB_Form_candidate_parameters extends NDB_Form
         }
 
         $candidate =& Candidate::singleton($this->identifier);
-        if (Utility::isErrorX($candidate)) {
-            return PEAR::raiseError(
-                "Candidate Error 
-                           ($this->identifier): ".$candidate->getMessage()
-            );
-        }
 
         // check user permissions
         return ($user->hasPermission('candidate_parameter_edit')
@@ -80,13 +71,12 @@ class NDB_Form_candidate_parameters extends NDB_Form
         $config =& NDB_Config::singleton();
         //Get the default values
         $value_results = $DB->pselect(
-            "SELECT ParameterTypeID, Value FROM 
-                         parameter_candidate WHERE CandID=:CaID",
+            "SELECT ParameterTypeID, Value
+                FROM parameter_candidate WHERE CandID=:CaID",
             array('CaID' => $this->identifier)
         );
         $candidate_dob = $DB->pselectOne(
-            "SELECT DoB FROM candidate 
-                                         WHERE CandID=:CandidateID",
+            "SELECT DoB FROM candidate WHERE CandID=:CandidateID",
             array('CandidateID' => $this->identifier)
         );
 
@@ -119,22 +109,18 @@ class NDB_Form_candidate_parameters extends NDB_Form
         }
 
         $familyid = $DB->pselectOne(
-            "SELECT FamilyID from family WHERE 
-                                    CandID=:CandidateID",
+            "SELECT FamilyID from family WHERE CandID=:CandidateID",
             array('CandidateID' => $this->identifier)
         );
-        if (Utility::isErrorX($familyid)) {
-            return PEAR::raiseError("Error: ".$familyid->getMessage());
-        } else {
-            $this->tpl_data['familyID'] = $familyid;
-            $relations = $DB->pselect(
-                "SELECT CandID, Relationship_type 
-                                          FROM family WHERE FamilyID=:fam_id AND 
-                                          CandID <> '$this->identifier'",
-                array('fam_id' => $familyid)
-            );
 
-        }
+        $this->tpl_data['familyID'] = $familyid;
+        $relations = $DB->pselect(
+            "SELECT CandID, Relationship_type
+                FROM family WHERE FamilyID=:fam_id AND
+            CandID <> '$this->identifier'",
+            array('fam_id' => $familyid)
+        );
+
         $this->tpl_data['sibling_list'] = array();
         foreach ($relations as $relation) {
             $relation['Relationship_type']    = $this->relationType[$relation['Relationship_type']];
@@ -306,11 +292,10 @@ class NDB_Form_candidate_parameters extends NDB_Form
                 }
                 if ($key == 'ProbandDoB') {
                     $tests = $DB->pselect(
-                        "SELECT f.CommentID, f.Test_name 
-                        FROM flag f JOIN session s ON (f.SessionID=s.ID)
-                        JOIN candidate c ON (c.CandID=s.CandID)
-                        WHERE
-                        c.CandID=:CaID AND f.Test_name LIKE '%proband'",
+                        "SELECT f.CommentID, f.Test_name
+                            FROM flag f JOIN session s ON (f.SessionID=s.ID)
+                                JOIN candidate c ON (c.CandID=s.CandID)
+                            WHERE c.CandID=:CaID AND f.Test_name LIKE '%proband'",
                         array('CaID' => $this->identifier)
                     );
                     foreach ($tests as $test) {
@@ -327,14 +312,9 @@ class NDB_Form_candidate_parameters extends NDB_Form
 
         if (isset($values['FamilyMemberID'])) {
             $fid = $DB->pselectOne("SELECT FamilyID FROM family WHERE CandID=:CaID", array('CaID' => $this->identifier));
-            if (Utility::isErrorX($fid)) {
-                return PEAR::raiseError("Could not family id: ".$fid->getMessage());
-            }
             if (empty($fid)) {
                 $famID = $DB->pselectOne("SELECT max(FamilyID) from family");
-                if (Utility::isErrorX($famID)) {
-                    return PEAR::raiseError("Could not family id: ".$famID->getMessage());
-                }
+
                 if (empty($famID)) {
                     $famID = 0;
                 }
@@ -347,9 +327,6 @@ class NDB_Form_candidate_parameters extends NDB_Form
                      'Relationship_type' => $values['relation_type'],
                     )
                 );
-                if (Utility::isErrorX($success)) {
-                    return PEAR::raiseError("DB Error: ".$success->getMessage());
-                }
 
             }
 
@@ -362,10 +339,6 @@ class NDB_Form_candidate_parameters extends NDB_Form
                  'Relationship_type' => $values['relation_type'],
                 )
             );
-            if (Utility::isErrorX($success)) {
-                return PEAR::raiseError("DB Error: ".$success->getMessage());
-            }
-
         }
         // updating participant status
         if (isset($values['participant_status']) || isset($values['reason_specify'])
@@ -405,12 +378,6 @@ class NDB_Form_candidate_parameters extends NDB_Form
                 $success = $DB->insert("participant_status", $participant_vals);
             }
 
-            if (Utility::isErrorX($success)) {
-                return PEAR::raiseError(
-                    "NDB_Form_candidate_parameters::_process: ".$success->getMessage()
-                );
-            }
-
             $current_status = $DB->pselectOne(
                 "SELECT participant_status FROM participant_status_history
                                               WHERE CandID = :cid ORDER BY data_entry_date DESC",
@@ -428,12 +395,6 @@ class NDB_Form_candidate_parameters extends NDB_Form
                      'reason_specify_status'  => $participant_vals['reason_specify_status'],
                     )
                 );
-                if (Utility::isErrorX($success)) {
-                    return PEAR::raiseError(
-                        "NDB_Form_candidate_parameters::_process: ".$success->getMessage()
-                    );
-                }
-
             }
 
         }
@@ -495,10 +456,10 @@ class NDB_Form_candidate_parameters extends NDB_Form
         $DB =& Database::singleton();
 
         $ret = $DB->selectOne(
-            "SELECT t.$param FROM flag f JOIN $instrument t ON (t.CommentID=f.CommentID) 
+            "SELECT t.$param FROM flag f JOIN $instrument t ON (t.CommentID=f.CommentID)
                                JOIN session s ON (f.SessionID=s.ID) WHERE 
-                               s.CandID=" . $DB->quote($this->identifier) . ' 
-                               AND f.test_name=' . $DB->quote($instrument) . ' 
+                               s.CandID=" . $DB->quote($this->identifier) . '
+                               AND f.test_name=' . $DB->quote($instrument) . '
                                AND t.CommentID NOT LIKE \'DDE_%\''
         );
         if ($ret == array()) {
@@ -516,9 +477,6 @@ class NDB_Form_candidate_parameters extends NDB_Form
         $config =& NDB_Config::singleton();
 
         $candidate =& Candidate::singleton($this->identifier);
-        if (Utility::isErrorX($candidate)) {
-            return PEAR::raiseError("Candidate Error ($this->identifier): ".$candidate->getMessage());
-        }
 
         // candID
         $this->tpl_data['candID'] = $candidate->getData('CandID');
@@ -529,9 +487,9 @@ class NDB_Form_candidate_parameters extends NDB_Form
 
         //Extract the fields from the parameter_type table
         $DB->select(
-            "SELECT pt.ParameterTypeID, pt.Name, pt.Type, Description 
-                     FROM parameter_type as pt, parameter_type_category as ptc, parameter_type_category_rel as ptcr 
-                     WHERE pt.ParameterTypeID=ptcr.ParameterTypeID AND ptcr.ParameterTypeCategoryID=ptc.ParameterTypeCategoryID 
+            "SELECT pt.ParameterTypeID, pt.Name, pt.Type, Description
+                     FROM parameter_type as pt, parameter_type_category as ptc, parameter_type_category_rel as ptcr
+                     WHERE pt.ParameterTypeID=ptcr.ParameterTypeID AND ptcr.ParameterTypeCategoryID=ptc.ParameterTypeCategoryID
                      AND ptc.Name='Candidate Parameters' ORDER BY pt.ParameterTypeID, pt.name ASC",
             $field_results
         );
