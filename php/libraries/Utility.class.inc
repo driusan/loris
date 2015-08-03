@@ -276,7 +276,9 @@ class Utility extends PEAR
      */
     static function getSubprojectList()
     {
-        $config =& NDB_Config::singleton();
+        $factory = NDB_Factory::singleton();
+        $DB     = $factory->database();
+        $config = $factory->config();
 
         // get the list of Subprojects
         $subprojectSettings = $config->getSetting('subprojects');
