@@ -281,5 +281,6 @@ class NDB_Factory
             self::$_timepoints[$sessionID] = TimePoint::singleton($sessionID);
         }
         return self::$_timepoints[$sessionID];
+    }
 }
 ?>
