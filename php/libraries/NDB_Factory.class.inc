@@ -32,9 +32,9 @@ require_once 'CouchDB.class.inc';
  */
 class NDB_Factory
 {
-    public static $_testdb = null;
-    public static $_db     = null;
-    public static $_config = null;
+    public static $testdb = null;
+    public static $db     = null;
+    public static $config = null;
 
     private static $_couchdb    = null;
     private static $_user       = null;
@@ -81,13 +81,13 @@ class NDB_Factory
      */
     function reset()
     {
-        self::$_testdb = null;
-        self::$_db     = null;
+        self::$testdb = null;
+        self::$db     = null;
 
         self::$_couchdb = null;
         self::$_user    = null;
 
-        self::$_config = null;
+        self::$config = null;
 
         self::$_candidates = array();
         self::$_timepoints = array();
@@ -103,8 +103,8 @@ class NDB_Factory
      */
     function config($configfile = "../project/config.xml")
     {
-        if (self::$_config !== null) {
-            return self::$_config;
+        if (self::$config !== null) {
+            return self::$config;
         }
         if ($this->Testing) {
             //Mock::generate("NDB_Config");
@@ -114,7 +114,7 @@ class NDB_Factory
             return $config;
         }
 
-        self::$_config = $config;
+        self::$config = $config;
         $config->load($configfile);
         return $config;
     }
@@ -129,7 +129,7 @@ class NDB_Factory
      */
     public function setConfig(NDB_Config $config)
     {
-        self::$_config = $config;
+        self::$config = $config;
         return $config;
     }
 
@@ -176,18 +176,18 @@ class NDB_Factory
     {
         $db_ref = null;
         if ($this->Testing) {
-            $db_ref = &self::$_testdb;
+            $db_ref = &self::$testdb;
             if ($db_ref !== null) {
                 return $db_ref;
             }
             //Mock::generate("Database");
-            self::$_testdb = new MockDatabase();
+            self::$testdb = new MockDatabase();
         } else {
-            $db_ref = &self::$_db;
+            $db_ref = &self::$db;
             if ($db_ref !== null) {
                 return $db_ref;
             }
-                self::$_db = Database::singleton();
+                self::$db = Database::singleton();
         }
         $config = $this->config();
         $dbc    = $config->getSetting('database');
@@ -211,7 +211,7 @@ class NDB_Factory
      */
     public function setDatabase(Database $db)
     {
-        self::$_db = $db;
+        self::$db = $db;
         return $db;
     }
 
