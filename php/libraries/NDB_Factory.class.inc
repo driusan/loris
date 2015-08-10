@@ -32,12 +32,12 @@ require_once 'CouchDB.class.inc';
  */
 class NDB_Factory
 {
-    public static $_testdb = null;
-    public static $_db     = null;
-    public static $_config = null;
+    private static $_testdb = null;
+    private static $_db     = null;
+    private static $_config = null;
 
-    private static $_couchdb = null;
-    private static $_user    = null;
+    private static $_couchdb    = null;
+    private static $_user       = null;
     private static $_candidates = array();
     private static $_timepoints = array();
 
@@ -258,7 +258,16 @@ class NDB_Factory
         return $couchDB;
     }
 
-    function candidate($CandID) {
+
+    /**
+     * Retrieve a candidate object representing this candidate
+     *
+     * @param integer $CandID The CandID of the candidate
+     *
+     * @return Candidate object
+     */
+    public function candidate($CandID)
+    {
         if (isset(self::$_candidates[$CandID])) {
             return self::$_candidates[$CandID];
         }
@@ -271,7 +280,16 @@ class NDB_Factory
 
     }
 
-    function timepoint($sessionID) {
+    /**
+     * Retrieve a TimePoint object representing this session
+     *
+     * @param integer $sessionID The sessionID of the timepoint
+     *                           to retrieve
+     *
+     * @return TimePoint object for $sessionID
+     */
+    function timepoint($sessionID)
+    {
         if (isset(self::$_timepoints[$sessionID])) {
             return self::$_timepoints[$sessionID];
         }
