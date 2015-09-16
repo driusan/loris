@@ -61,6 +61,7 @@ class NDB_Caller extends PEAR
             $instance = new NDB_Caller();
         }
         return $instance;
+        //throw new LorisException("NDB_Caller::singleton() is deprecated, use NDB_Factory instead");
     }
 
     /**
@@ -133,123 +134,27 @@ class NDB_Caller extends PEAR
 
                 $mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : '';
                 if ($submenu !== null) {
-                    $html = $this->loadMenu($submenu, $mode);
+                    $page = $this->loadMenu($submenu, $mode);
                 } else {
-                    $html = $this->loadMenu($test_name, $mode);
+                    $page = $this->loadMenu($test_name, $mode);
                 }
-
-                $this->type = 'menu';
-                return $html;
             } else if ($this->existsAndRequire("NDB_Form_$test_name.class.inc")) {
                 $identifier = isset($_REQUEST['identifier'])
                     ? $_REQUEST['identifier']
                     : '';
-                $html       = $this->loadForm($test_name, $subtest, $identifier);
-
-                $this->type = 'form';
-                return $html;
-            }
-            // Exit to make sure we don't accidentally mix old style and
-            // new style. If something is a module, it should remain a
-            // module.
-            error_log("Could not load Loris module $test_name.");
-            exit(-1);
-        } else {
-            // Old precedence style for "modules"
-            // it is a menu
-            $proj_menu = $base . "project/libraries/NDB_Menu_$test_name.class.inc";
-            $php_menu  = $base . "php/libraries/NDB_Menu_$test_name.class.inc";
-
-            $proj_menu_filter = $base . "project/libraries/"
-                                      . "NDB_Menu_Filter_$test_name.class.inc";
-            $php_menu_filter  = $base . "php/libraries/"
-                                      . "NDB_Menu_Filter_$test_name.class.inc";
-
-            $proj_menu_filter_form = $base . "project/libraries/"
-                . "NDB_Menu_Filter_Form_$test_name.class.inc";
-            $php_menu_filter_form  = $base . "php/libraries/"
-                . "NDB_Menu_Filter_Form_$test_name.class.inc";
-
-            if (empty($subtest) && ($this->existsAndRequire($proj_menu)
-                || $this->existsAndRequire($php_menu)
-                || $this->existsAndRequire($proj_menu_filter)
-                || $this->existsAndRequire($php_menu_filter)
-                || $this->existsAndRequire($proj_menu_filter_form)
-                || $this->existsAndRequire($php_menu_filter_form))
-            ) {
-
-                $mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : '';
-                $html = $this->loadMenu($test_name, $mode);
-
-                $this->type = 'menu';
-                return $html;
+                $page = $this->loadForm($test_name, $subtest, $identifier);
             }
 
-            // it is a form
-            $proj_form = $base."project/libraries/NDB_Form_$test_name.class.inc";
-            $php_form  = $base."php/libraries/NDB_Form_$test_name.class.inc";
-            if ($this->existsAndRequire($proj_form)
-                || $this->existsAndRequire($php_form)
-            ) {
-
-                $identifier = isset($_REQUEST['identifier'])
-                    ? $_REQUEST['identifier']
-                    : '';
-                $html       = $this->loadForm($test_name, $subtest, $identifier);
-
-                $this->type = 'form';
-                return $html;
+            if (method_exists($page , 'save') && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                $success = $page->save();
             }
-
-            // it is a reliability form
-            $proj_reliable = $base . "project/libraries/"
-                                   . "NDB_Reliability_$test_name.class.inc";
-            $php_reliable  = $base . "php/libraries/"
-                                   . "NDB_Reliability_$test_name.class.inc";
-            if ($this->existsAndRequire($proj_reliable)
-                || $this->existsAndRequire($php_reliable)
-            ) {
-
-                $html = $this->loadReliability(
-                    $test_name,
-                    $subtest,
-                    $_REQUEST['identifier'],
-                    $_REQUEST['reliability_center_id']
-                );
-
-                $this->type = 'reliability';
-                return $html;
+            if (method_exists($page, 'getControlPanel')) {
+                $this->controlPanel = $page->getControlPanel();
             }
-
-            // it is an instrument
-            $phpfile   = $base . "project/instruments/"
-                               . "NDB_BVL_Instrument_$test_name.class.inc";
-            $linstfile = $base."project/instruments/$test_name.linst";
-
-            if ($this->existsAndRequire($phpfile)
-                || $test_name=='instrument_preview'
-            ) {
-                $html = $this->loadInstrument(
-                    $test_name,
-                    $subtest,
-                    $CommentID,
-                    $nextpage
-                );
-
-                $this->type = 'instrument';
-                return $html;
-            } else if (file_exists($linstfile)) {
-                $html = $this->loadInstrument($test_name, $subtest, $CommentID);
-                if (Utility::isErrorX($html)) {
-                    return PEAR::raiseError($html->getMessage());
-                }
-                $this->type = 'instrument';
-                return $html;
-            }
+            return $page->display();
         }
-
         // it is nothing!
-        throw new Exception("This page ($test_name) is under construction.", 404);
+        throw new LorisException("This page ($test_name) is under construction.", 404);
     }
 
     /**
@@ -258,7 +163,7 @@ class NDB_Caller extends PEAR
     * @param string $menu The Menu being loaded
     * @param string $mode The Menu mode
     *
-    * @return string HTML for the menu to display.
+    * @return NDB_Menu for the menu to display.
     */
     function loadMenu($menu, $mode)
     {
@@ -266,16 +171,7 @@ class NDB_Caller extends PEAR
         $menu =& NDB_Menu::factory($menu, $mode);
 
         $success = $menu->setup();
-
-        if (method_exists($menu, 'getControlPanel')) {
-            $this->controlPanel = $menu->getControlPanel();
-        }
-        if (method_exists($menu, 'save')) {
-            $success = $menu->save();
-        }
-        $html = $menu->display();
-
-        return $html;
+        return $menu;
     }
 
     /**
@@ -285,23 +181,12 @@ class NDB_Caller extends PEAR
     * @param string $page       The page of the Form to load
     * @param string $identifier The identifier of the Form
     *
-    * @return string HTML to return to browser
+    * @return NDB_Form for the page to load
     */
     function loadForm($class, $page, $identifier)
     {
         // make an instance of the form's object
-        $form = NDB_Form::factory($class, $page, $identifier);
-
-        if (method_exists($form, 'getControlPanel')) {
-            $this->controlPanel = $form->getControlPanel();
-        }
-        $success = $form->save();
-
-        if (method_exists($form, 'getControlPanel')) {
-            $this->controlPanel = $form->getControlPanel();
-        }
-        $html = $form->display();
-        return $html;
+        return NDB_Form::factory($class, $page, $identifier);
     }
 
     /**
@@ -325,11 +210,7 @@ class NDB_Caller extends PEAR
             $reliability_center_id
         );
 
-        $success = $form->save();
-
-        $html = $form->display();
-
-        return $html;
+        return $form;
     }
 
     /**
@@ -341,7 +222,7 @@ class NDB_Caller extends PEAR
     * @param string $redirectToOnSuccess URL to redirect to if the page is loaded
     *                                    successfully.
     *
-    * @return string HTML of the page to render.
+    * @return NDB_BVL_Instrument of the page
     */
     function loadInstrument(
         $instrumentName,
@@ -374,27 +255,11 @@ class NDB_Caller extends PEAR
             $page
         );
 
-        $this->instrument = $instrument;
-
-        if (method_exists($instrument, 'getControlPanel')) {
-            $this->controlPanel = $instrument->getControlPanel();
-        }
-        if (Utility::isErrorX($instrument)) {
-            return $instrument;
-        }
-
-        // save instrument form data
-        $success = $instrument->save();
-
         if ($redirectToOnSuccess !== null && $success !== false) {
             return "<script language='javascript'>"
                 .   "window.location='$redirectToOnSuccess'"
                 . "</script>";
         }
-        // create an instrument status object
-        $status  = new NDB_BVL_InstrumentStatus;
-        $success = $status->select($commentID);
-
         // freeze the form to prevent data entry
         if ($status->getDataEntryStatus() != 'In Progress'
             || !$user->hasPermission('data_entry')
@@ -404,10 +269,9 @@ class NDB_Caller extends PEAR
                 $instrument->freeze();
             }
         }
-
-        $html = $instrument->display();
-
-        return $html;
+        $status  = new NDB_BVL_InstrumentStatus;
+        $success = $status->select($commentID);
+        return $instrument;
     }
 
     /**
