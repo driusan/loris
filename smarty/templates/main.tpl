@@ -2,7 +2,6 @@
 <html style="height:100%; background:transparent">
     {if $dynamictabs neq "dynamictabs"}
     <head>
-        <link rel="stylesheet" href="{$baseurl}/{$css}" type="text/css" />
         <link rel="shortcut icon" href="images/mni_icon.ico" type="image/ico" />
 
         {section name=jsfile loop=$jsfiles}
@@ -12,18 +11,10 @@
             $.webshims.polyfill();
         </script>
 
-        <!-- Custom JavaScript for the Menu Toggle -->
-   
-        <link type="text/css" href="{$baseurl}/css/loris-jquery/jquery-ui-1.10.4.custom.min.css" rel="Stylesheet" />
-
-        <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="{$baseurl}/bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="{$baseurl}/bootstrap/css/custom-css.css">
-
-        <!-- Module-specific CSS -->
-        {if $test_name_css}
-            <link rel="stylesheet" href="{$test_name_css}" type="text/css" />
-        {/if}
+        <link rel="stylesheet" href="{$baseurl}/main.css" type="text/css" />
+        {section name=cssfile loop=$cssfiles}
+            <link rel="stylesheet" href="{$cssfiles[cssfile]}" type="text/css" />
+        {/section}
 
         <title>
             {$study_title}
@@ -137,8 +128,6 @@
                 });
             </script>
         {/literal}
-        <link type="text/css" href="{$baseurl}/css/jqueryslidemenu.css" rel="Stylesheet" />
-        <link href="{$baseurl}/css/simple-sidebar.css" rel="stylesheet">
 
          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     </head>
