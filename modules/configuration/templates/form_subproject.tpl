@@ -1,6 +1,9 @@
-<script language="javascript" src="GetJS.php?Module=configuration&file=subproject.js">
 
-</script>
+<script src="js/d3.min.js" charset="utf-8"></script>
+<script language="javascript" src="GetJS.php?Module=configuration&file=gantt-chart-d3.js"></script>
+
+<script language="javascript" src="GetJS.php?Module=configuration&file=subproject.js"></script>
+<script language="javascript" src="GetJS.php?Module=configuration&file=BatteryGraph.js"> </script>
 <p>Use this page to manage the configuration of existing subprojects, or to add a new one.</p>
 
 
@@ -55,6 +58,11 @@
                 </div>
             </fieldset>
         </form>
+        <div id="battery{$subprojectID}">&nbsp;</div>
+        <script>
+        var filterTable{$subprojectID} = RBatteryGraph( { });
+        React.render(filterTable{$subprojectID}, document.getElementById("battery{$subprojectID}"));
+        </script>
     </div>
     {/foreach}
     <div id="subprojectnew" class="tab-pane {if count($subprojects) == 0} active{/if}">
