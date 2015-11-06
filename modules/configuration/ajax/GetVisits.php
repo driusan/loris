@@ -23,14 +23,13 @@ if(!isset($_GET['SubprojectID'])) {
     exit;
 }
 $db = Database::singleton();
-$rows = $db->pselect("SELECT Test_name, AgeMinDays, AgeMaxDays FROM test_battery WHERE SubprojectID=:SPID AND AgeMinDays IS NOT NULL AND AgeMaxDays IS NOT NULL", array('SPID' => $_GET['SubprojectID']));
+$rows = $db->pselect("SELECT Visit_label, Test_name FROM test_battery WHERE SubprojectID=:SPID AND Visit_label IS NOT NULL", array('SPID' => $_GET['SubprojectID']));
 $tests = array();
 foreach($rows as $row) {
-    $tests[] = array(
-        'TestName' => $row['Test_name'],
-        'AgeMinDays' => $row['AgeMinDays'],
-        'AgeMaxDays' => $row['AgeMaxDays']
-    );
+    if(empty($tests[$row['Visit_label']])) {
+        $tests[$row['Visit_label']] = array();
+    }
+    $tests[$row['Visit_label']][] = $row['Test_name'];
 }
 print json_encode($tests);
 exit();

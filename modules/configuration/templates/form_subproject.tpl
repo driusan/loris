@@ -60,7 +60,7 @@
         </form>
         <div id="battery{$subprojectID}">&nbsp;</div>
         <script>
-        var filterTable{$subprojectID} = RBatteryGraph( { });
+        var filterTable{$subprojectID} = RBatteryGraph( { SubprojectID : {$subprojectID} });
         React.render(filterTable{$subprojectID}, document.getElementById("battery{$subprojectID}"));
         </script>
     </div>
