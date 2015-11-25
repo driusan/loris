@@ -34,7 +34,11 @@ install:
       # Download a Selenium Web Driver release
     - wget "http://selenium-release.storage.googleapis.com/2.45/selenium-server-standalone-2.45.0.jar"
 
-    - php -S localhost:8000 -t htdocs 2>1 > /dev/null &
+    - cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php htdocs/
+    - php -S localhost:8000 -t htdocs \
+        -d auto_prepend_file="$(pwd)/vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/prepend.php" \
+        -d auto_append_file="$(pwd)/vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/append.php"\
+        2>1 > /dev/null &
 
     # Start Selenium and redirect Selenium WebDriver
     # output to /dev/null so that it doesn't flood the
