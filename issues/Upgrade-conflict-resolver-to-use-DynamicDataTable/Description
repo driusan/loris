@@ -1,0 +1,4 @@
+There are two menu filters in the conflict resolver which should be updated to dynamicdatatable
+
+1. NDB_Menu_Filter_Form_conflict_resolver
+2. NDB_Menu_Filter_resolved_conflicts
