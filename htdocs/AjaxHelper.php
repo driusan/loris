@@ -79,6 +79,12 @@ if (is_dir($basePath . "project/modules/$Module")
     header("HTTP/1.1 400 Bad Request");
     exit(5);
 }
+
+$ClassName = "";
+if (strpos($File, ".") === FALSE) {
+    $ClassName = $File;
+    $File = "$File.class.inc";
+}
 // Also check the module directory for PHP files
 $FullPath = "$ModuleDir/ajax/$File";
 
@@ -89,5 +95,19 @@ if (!file_exists($FullPath)) {
 }
 
 $user =& User::singleton($_SESSION['State']->getUsername());
+
 require $FullPath;
+
+
+if(!empty($ClassName)) {
+     // TODO: Check if it implements the appropriate interface too
+     if (!class_exists($ClassName)) {
+         header("HTTP/1.1 500 Internal Server Error");
+         exit(6);
+     }
+
+     // TODO: Switch on the request method and delegate to
+     // the appropriate method here.
+     print("Should do stuff here.");
+}
 ?>

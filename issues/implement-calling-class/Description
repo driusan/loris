@@ -1,0 +1,2 @@
+Need to switch on REQUEST METHOD and actually call the appropriate
+function in AjaxHandler.
