@@ -1,4 +1,4 @@
-#LORIS Neuroimaging Platform
+# LORIS Neuroimaging Platform
 
 LORIS is a web-accessible database solution for neuroimaging, providing a secure infrastructure to automate the flow of clinical data for complex multi-site neuroimaging studies.
 
