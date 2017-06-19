@@ -140,7 +140,12 @@ if (!empty($TestName)) {
             $tpl_data['timePoint'] = $timePoint->getData();
         } catch(Exception $e) {
             $tpl_data['error_message'][]
-                = htmlspecialchars("TimePoint Error (".$_REQUEST['sessionID']."): ".$e->getMessage());
+                = htmlspecialchars(
+                    "TimePoint Error ("
+                    .$_REQUEST['sessionID']
+                    ."): "
+                    .$e->getMessage()
+                );
         }
     }
 }
@@ -192,6 +197,7 @@ try {
         header("HTTP/1.1 403 Forbidden");
         $login = $_SESSION['State']->getProperty('login');
         $login->showLoginScreen();
+        die();
         break;
     }
     $tpl_data['error_message'][] = htmlspecialchars($e->getMessage());
