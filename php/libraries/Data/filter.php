@@ -15,5 +15,5 @@ interface Filter {
      * Filter returns true iff the resource should be filtered out of the results
      * displayed to user.
      */
-	function Filter(\Loris\User $user, Instance $resource) : bool;
+	function Filter(\User $user, Instance $resource) : bool;
 }

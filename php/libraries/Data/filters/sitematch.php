@@ -6,7 +6,7 @@
 namespace LORIS\Data\Filters;
 
 class SiteMatch implements \LORIS\Data\Filter {
-    public function Filter(\Loris\User $user, \Loris\Data\Instance $resource) : bool {
+    public function Filter(\User $user, \Loris\Data\Instance $resource) : bool {
         if (method_exists($resource, 'getCenterIDs')) {
             // If the Resource belongs to multiple CenterIDs, the user can access the data if the
             // user is part of any of thos centers.
@@ -17,7 +17,7 @@ class SiteMatch implements \LORIS\Data\Filter {
                 }
             }
             return false;
-        } else if (!method_exists($resource, 'getCenterID')) {
+        } else if (method_exists($resource, 'getCenterID')) {
             $resourceSite = $resource->getCenterID();
             return $user->hasCenter($resourceSite);
         }

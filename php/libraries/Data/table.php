@@ -29,16 +29,16 @@ class Table {
      *
      * @return \LORIS\Data\Instance[] of all the filtered data.
      */
-    public function getRows(\LORIS\User $user) : array {
+    public function getRows(\User $user) : array {
        return $this->dataProvider->execute($user); 
     }
 
     /**
      * Serializes this table to JSON for $user.
      */
-    public function toJSON(\LORIS\User $user) : string {
+    public function toJSON(\User $user) : string {
         $allRows = $this->getRows($user);
-        return $allRows;
+        return json_encode($allRows);
     }
 
     /**

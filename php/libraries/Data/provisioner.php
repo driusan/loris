@@ -57,16 +57,15 @@ abstract class Provisioner {
      *
      * @return Instance[]
      */
-	public function Execute(\Loris\User $user) : array {
-        return array_filter($this->getAllRows(), function($val) {
-            // Check each filter. If any one fails, we don't include the data.
-			foreach ($this->filters as $filter) {
-				if (!$filter->Filter($user, $r)) {
-                    return false;
-                }
-            }
-            // All filters passed.
-            return true;
-        });
+	public function Execute(\User $user) : array {
+
+            $rows = $this->getAllRows();
+            $filters = $this->filters;
+
+            return array_filter($rows,function($row) use ($user, $filters) {
+                return array_reduce($filters, function($carry, $filter) use ($user, $row) {
+                    return $carry && $filter->Filter($user, $row);
+                }, true);
+            });
 	}
 };
