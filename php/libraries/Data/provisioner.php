@@ -49,7 +49,7 @@ abstract class Provisioner {
      *
      * @return Instance[] array of all resources provided by this data source.
      */
-	abstract protected function GetAllRows() : Iterable;
+	abstract protected function GetAllRows() : array;
 
     /**
      * Execute gets the rows for this data source, and applies all
@@ -57,7 +57,7 @@ abstract class Provisioner {
      *
      * @return Instance[]
      */
-	public function Execute(\User $user) : Iterable {
+	public function Execute(\User $user) : array {
 
             $rows = $this->getAllRows();
             $filters = $this->filters;
