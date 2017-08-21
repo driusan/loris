@@ -38,7 +38,11 @@ class Table {
      */
     public function toJSON(\User $user) : string {
         $allRows = $this->getRows($user);
-        return json_encode($allRows);
+
+        foreach ($allRows as $row) {
+            $result .= $row->toJSON($user);   
+        }
+        return "{ $result }";
     }
 
     /**

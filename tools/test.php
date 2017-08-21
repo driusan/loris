@@ -20,13 +20,13 @@ class CandidateList extends \NDB_Page {
 
 class CandidateListRow implements \LORIS\Data\Instance {
     protected $candidate;
-    protected $participantstatus;
+    protected $participantStatus;
     protected $visitCount;
     protected $feedback;
 
     public function __construct($candidate, $participantstatus, $visitCount, $feedback) {
         $this->candidate         = $candidate;
-        $this->participantstatus = $participantstatus;
+        $this->participantStatus = $participantstatus;
         $this->visitCount        = $visitCount;
         $this->feedback          = $feedback;
     }
@@ -35,16 +35,19 @@ class CandidateListRow implements \LORIS\Data\Instance {
         // Site, DCCID, PSCID, GEnder, EntityType, ParticipantStatus,
         // Subproject, DoB, ScanDone, VisitCount, LatestVisitStatus,
         // Feedback
+        print "??\n";
+        print_r($this->candidate);
+        print "??\n";
         $arr = [
-            'Site' => $this->candidate->getSiteName(),
+            'Site' => $this->candidate->getCandidateSite(),
             'CandID' => $this->candidate->getCandID(),
-            'PSCID' => $this->candidate->getCandID(),
-            'Gender' => $this->candidate->getGender(),
-            'EntityType' => $this->candidate->getEntityType(),
+            'PSCID' => $this->candidate->getPSCID(),
+            'Gender' => $this->candidate->getCandidateGender(),
+            'EntityType' => $this->candidate->getData('EntityType'),
             'Participant Status' => $this->participantStatus,
-            'Subproject' => $this->candidate->getSubproject(),
-            'DoB' => $this->candidate->getDateOfBirth(),
-            'Scan Done' => $this->candidate->getScanDone(),
+           // 'Subproject' => $this->candidate->getSubproject(),
+            'DoB' => $this->candidate->getCandidateDoB(),
+            //'Scan Done' => $this->candidate->getScanDone(),
         ];
         return json_encode($arr);
     }
