@@ -34,15 +34,23 @@ class Table {
     }
 
     /**
+     * Returns a PHP array which mirror's the format of toJSON (rather than
+     * an array of data Instances, as getRows returns.)
+     */
+    public function toArray(\User $user) : array {
+        $allRows = $this->getRows($user);
+
+        $results = [];
+        foreach ($allRows as $row) {
+            $results[] = $row->toArray($user);   
+        }
+        return $results;
+    }
+    /**
      * Serializes this table to JSON for $user.
      */
     public function toJSON(\User $user) : string {
-        $allRows = $this->getRows($user);
-
-        foreach ($allRows as $row) {
-            $result .= $row->toJSON($user);   
-        }
-        return "{ $result }";
+        return json_encode($this->toArray($user));
     }
 
     /**
