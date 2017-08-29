@@ -28,6 +28,11 @@
 class SinglePointLogin
 {
     /**
+     * The class instance
+     */
+    private static $_instance = null;
+
+    /**
      * Defines whether a user is currently logged in
      */
     var $_isLoggedIn = false;
@@ -46,6 +51,55 @@ class SinglePointLogin
      * Defines whether a user's password has expired
      */
     var $_passwordExpired = false;
+
+    /**
+     * The constructor is private so getInstance must be used
+     */
+    private function __construct()
+    {
+    }
+
+    /**
+     * The clone function is private so getInstance must be used
+     *
+     * @return none
+     */
+    private function __clone()
+    {
+    }
+
+    /**
+     * The wakeup function is used when the instance is stored in the $_SESSION
+     *
+     * @return none, but set the instance variable
+     */
+    public function __wakeup()
+    {
+        self::$_instance = $this;
+    }
+
+    /**
+     * The object is created from within the class itself
+     *
+     * @return SinglePointLogin The unique instance of that class
+     */
+    public static function getInstance()
+    {
+        if (empty(self::$_instance)) {
+            self::$_instance = new SinglePointLogin();
+        }
+        return self::$_instance;
+    }
+
+    /**
+     * This allow to start fresh. It is required for logout.
+     *
+     * @return none, but set the instance variable
+     */
+    public static function reset()
+    {
+        self::$_instance = null;
+    }
 
     /**
      * Dumps the login form
@@ -318,12 +372,45 @@ class SinglePointLogin
         } catch(Exception $e) {
             return false;
         }
+        $this->isLoggedIn = true;
 
         $decodedArray    = (array) $decoded;
         $this->_username
             = isset($decodedArray['user'])
                 ? $decodedArray['user'] : 'Unknown';
         return isset($decodedArray['user']);
+    }
+
+    /**
+     * Return a valid JWT encoded identification token for the user
+     *
+     * @param string $user The user to return an identification token for
+     *
+     * @return string JWT encoded token
+     */
+    function getEncodedToken($user)
+    {
+        $factory = \NDB_Factory::singleton();
+        $config  = $factory->config();
+
+        $www     = $config->getSetting("www");
+        $baseURL = $www['url'];
+
+        $token = array(
+            // JWT related tokens to for the JWT library to validate
+                  "iss"  => $baseURL,
+                  "aud"  => $baseURL,
+            // Issued at
+                  "iat"  => time(),
+                  "nbf"  => time(),
+            // Expire in 1 day
+                  "exp"  => time() + 86400,
+            // Additional payload data
+                  "user" => $user,
+                 );
+
+        $key = $config->getSetting("JWTKey");
+        return \Firebase\JWT\JWT::encode($token, $key, "HS256");
     }
 
     /**
@@ -551,6 +638,15 @@ class SinglePointLogin
             return true;
         }
         return false;
+    }
+
+    public function getLoggedInUser()
+    {
+        $user = null;
+        if ($this->_isLoggedIn) {
+            $user =& \User::factory($this->_username);
+        }
+        return $user;
     }
 }
 ?>
