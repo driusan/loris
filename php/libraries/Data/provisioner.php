@@ -15,9 +15,12 @@ abstract class Provisioner {
      * Filters to apply to this data before returning it to the user. 
      *
      * Filters generally do things like site based or project based permissions to
-     * the data.
+     * the data, while mappers do things like anonymization of data.
      *
-     * @var DataFilter[]
+     * Filters and Maps are applied in the order that they're added to the
+     * provisioner.
+     *
+     * @var array of Filters and/or Mappers, applied in sequence.
      */
 	protected $filters = [];
 
@@ -41,6 +44,15 @@ abstract class Provisioner {
     }
 
     /**
+     * Apply returns a new Provisioner which is identical to this one, except
+     * with the given map applied to the data.
+     */
+    public function Apply(Mapper $map) : Provisioner {
+        $d = clone $this;
+        $d->filters[] = $map;
+        return $d;
+    }
+    /**
      * GetAllRows must be implemented in order to create a DataProvisioner.
      *
      * It gets all rows possible for this data type, regardless of permissions
@@ -62,10 +74,19 @@ abstract class Provisioner {
             $rows = $this->getAllRows();
             $filters = $this->filters;
 
-            return array_filter($rows,function($row) use ($user, $filters) {
-                return array_reduce($filters, function($carry, $filter) use ($user, $row) {
-                    return $carry && $filter->Filter($user, $row);
-                }, true);
-            });
+            foreach ($this->filters as $filter) {
+                if ($filter instanceof Filter) {
+                    $rows = array_filter($rows, function($row) use ($user, $filter) {
+                        return $filter->Filter($user, $row);
+                    });
+                } else if ($filter instanceof Mapper) {
+                    $rows = array_map(function($row) use ($user, $filter) {
+                        return $filter->Map($user, $row);
+                    }, $rows); 
+                } else {
+                    throw new \Exception("Invalid filter");
+                }
+            }
+            return $rows;
 	}
 };
