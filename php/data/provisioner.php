@@ -35,6 +35,8 @@ namespace LORIS\Data;
  */
 abstract class Provisioner
 {
+    private $parent = null;
+    private $resultCache;
     /**
      * Filters (and Mappers) to apply to the data from this Provisioner
      * before returning it to the user.
@@ -57,7 +59,8 @@ abstract class Provisioner
     public function filter(Filter $filter) : Provisioner
     {
         $d = clone $this;
-        $d->_filters[] = $filter;
+        $d->parent = &$this;
+        $d->_filters = [$filter];
         return $d;
     }
 
@@ -72,7 +75,9 @@ abstract class Provisioner
     public function map(Mapper $map) : Provisioner
     {
         $d = clone $this;
-        $d->_filters[] = $map;
+        $d->parent = &$this;
+        $d->isExecuted = false;
+        $d->_filters = [$map];
         return $d;
     }
 
@@ -84,7 +89,7 @@ abstract class Provisioner
      *
      * @return Instance[] array of all resources provided by this data source.
      */
-    abstract protected function getAllInstances() : array;
+    abstract protected function getAllInstances() : \Traversable;
 
     /**
      * Execute gets the rows for this data source, and applies all
@@ -94,19 +99,52 @@ abstract class Provisioner
      *
      * @return Instance[]
      */
-    public function execute(\User $user) : array
+    public function execute(\User $user) : \Traversable
     {
+        $rows = new \EmptyIterator();
+        if ($this->parent != null) {
+            $rows = $this->parent->execute($user);
+        } else {
             $rows = $this->getAllInstances();
+        }
 
-        foreach ($this->filters as $filter) {
+        $i = 0;
+        foreach ($this->_filters as $filter) {
+            $i++;
+            $ranFilter = false;
             if ($filter instanceof Filter) {
+                $ranFilter = true;
+
+                $callback = function($current, $key, $iterator) use ($filter, $user) {
+                    return $filter->Filter($user, $current);
+                };
+                $rows = new \CallbackFilterIterator(new \IteratorIterator($rows), $callback);
+                /*
                 $rows = array_filter(
                     $rows,
                     function ($row) use ($user, $filter) {
                             return $filter->Filter($user, $row);
                     }
                 );
-            } else if ($filter instanceof Mapper) {
+                 */
+            }
+            if ($filter instanceof Mapper) {
+                $ranFilter = true;
+                $rows = new class($rows, $filter, $user) extends \IteratorIterator {
+                    protected $filters;
+                    protected $user;
+                    public function __construct($rows, $filter, $user) {
+                        parent::__construct($rows);
+                        $this->filter= $filter;
+                        $this->usr = $user;
+                    }
+                    public function current() {
+                        $row = parent::current();
+                        return $this->filter->Map($this->usr, $row);
+                    }
+                };
+
+                       /*
                 $rows = array_map(
                     function ($row) use ($user,
                         $filter
@@ -115,10 +153,13 @@ abstract class Provisioner
                     },
                     $rows
                 );
-            } else {
+                        */
+            }
+           
+           if ($ranFilter !== true) {
                 throw new \Exception("Invalid filter");
             }
         }
-            return $rows;
+        return $rows;
     }
 };

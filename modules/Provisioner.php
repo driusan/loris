@@ -1,4 +1,155 @@
 <?php
+require_once '../tools/generic_includes.php';
+require_once '../vendor/autoload.php';
+
+$startMem = memory_get_usage();
+class InstrumentInstance extends \LORIS\Data\Instance {
+    protected $TestName;
+    protected $CommentID;
+    protected $CenterID;
+    protected $SessionID;
+
+    function __construct($test, $commentID, $centerID, $sessionID) {
+        $this->TestName = $test;
+        $this->CommentID = $commentID;
+        $this->CenterID = $centerID;
+        $this->SessionID = $sessionID;
+    }
+
+    function getCenterID() {
+        return $this->CenterID;
+    }
+
+    function getSessionID() {
+        return $this->SessionID;
+    }
+
+    function toArray() : array {
+        return [
+            'TestName' => $this->TestName,
+            'CommentID' => $this->CommentID,
+        ];
+    }
+
+    function getCommentID() : string {
+        return $this->CommentID;
+    }
+}
+
+class InstrumentMetaDataInstance extends InstrumentInstance {
+    protected $Instrument;
+    protected $InstrumentStatus;
+    function __construct(InstrumentInstance $id, NDB_BVL_InstrumentStatus $status) {
+        $this->Instrument = $id;
+        $this->InstrumentStatus = $status;
+    }
+
+    function toArray() : array {
+        return [
+            'TestName' => $this->Instrument->TestName,
+            'CommentID' => $this->Instrument->CommentID,
+        ];
+    }
+}
+class InstrumentMetaDataMapper implements \LORIS\Data\Mapper {
+    function map(\User $user, \LORIS\Data\Instance $resource) : \LORIS\Data\Instance {
+        $status  = new NDB_BVL_InstrumentStatus;
+        $success = $status->select($resource->getCommentID());
+        return new InstrumentMetaDataInstance($resource, $status);
+    }
+}
+class SessionIDMatchFilter implements \LORIS\Data\Filter {
+    protected $SessionID;
+    function __construct($sessionID) {
+        $this->SessionID = $sessionID;
+    }
+
+    function filter(\User $u, \LORIS\Data\Instance $resource) : bool {
+        if (method_exists($resource, 'getSessionID')) {
+            return $resource->getSessionID() == $this->SessionID;
+        }
+        throw new Exception("Can not match SessionID on something that doesn't have session IDs");
+    }
+}
+
+abstract class DBRowProvisioner extends \LORIS\Data\Provisioner {
+    protected $query;
+    protected $params;
+    function __construct($query, $params) {
+        $this->query = $query;
+        $this->params = $params;
+    }
+
+    protected abstract function getInstance($row) : \LORIS\Data\Instance;
+
+    function getAllInstances() : Traversable {
+        $DB = Database::singleton();
+        $stmt = $DB->prepare($this->query);
+        /*
+            "SELECT f.SessionID, s.CenterID, Test_name, CommentID
+                FROM flag f
+                JOIN session s ON (s.ID=f.SessionID)
+             WHERE CommentID NOT LIKE 'DDE%'"
+        );
+         */
+        $results = $stmt->execute($this->params);
+        if ($results === false) {
+            throw new \Exception("Invalid SQL statement");
+        }
+        
+        return new class($stmt, $this) extends \IteratorIterator {
+            protected $outer;
+            public function __construct($rows, &$self) {
+                parent::__construct($rows);
+                $this->outer = &$self;
+            }
+            
+            public function current() {
+                $row = parent::current();
+                //new InstrumentInstance($row['Test_name'], $row['CommentID'], $row['CenterID'], $row['SessionID']);
+                return $this->outer->getInstance($row);
+            }
+        };
+    }
+}
+
+
+class InstrumentProvisioner extends DBRowProvisioner {
+    function __construct() {
+        parent::__construct(
+            "SELECT f.SessionID, s.CenterID, Test_name, CommentID
+                FROM flag f
+                JOIN session s ON (s.ID=f.SessionID)
+             WHERE CommentID NOT LIKE 'DDE%'",
+            []
+        );
+    }
+
+    public function getInstance($row) : \LORIS\Data\Instance {
+        return new InstrumentInstance($row['Test_name'], $row['CommentID'], $row['CenterID'], $row['SessionID']);
+    }    
+
+}
+
+class SessionInstrumentProvisioner extends InstrumentProvisioner {
+    function __construct($id) {
+        parent::__construct();
+        $this->query = "SELECT f.SessionID, s.CenterID, Test_name, CommentID
+                FROM flag f
+                JOIN session s ON (s.ID=f.SessionID)
+             WHERE CommentID NOT LIKE 'DDE%'
+                AND s.ID=:sid";
+        $this->params = ['sid' => $id];
+    }
+}
+//$results = (new InstrumentProvisioner())->filter(new SessionIDMatchFilter(483))->map(new InstrumentMetaDataMapper());
+$results = (new SessionInstrumentProvisioner(483))->map(new InstrumentMetaDataMapper());
+
+$json = (new \LORIS\Data\Table())->WithDataFrom($results)->toJSON(User::singleton("driusan"));
+print $json;
+
+$endMem = memory_get_peak_usage();
+print "\nPeak memory usage: " . (($endMem-$startMem) / (1024*1024)) . "mb\n";
 /**
  * Instrument_List
  *
@@ -15,7 +166,6 @@
  *
  * @package behavioural
  */
-require_once __DIR__ ."/Instrument_List_ControlPanel.class.inc";
 /**
  * Instrument_List
  *
@@ -205,6 +355,7 @@ class NDB_Menu_Filter_Instrument_List extends NDB_Menu_Filter
             }
         }
 
+
         $timePoint =& TimePoint::singleton($_REQUEST['sessionID']);
         $candID    = $timePoint->getCandID();
 
@@ -305,6 +456,7 @@ class NDB_Menu_Filter_Instrument_List extends NDB_Menu_Filter
             $groupProv = $provisioner->Filter(new InstrumentMetaDataGroupFilter($group));
             $results = $groupProv->Execute(\User::singleton());
         }
+         */
         $battery = new NDB_BVL_Battery;
         $success = $battery->selectBattery($_REQUEST['sessionID']);
 
@@ -342,7 +494,6 @@ class NDB_Menu_Filter_Instrument_List extends NDB_Menu_Filter
         }
         //return json_encode($listOfInstruments);
         return json_encode($results);
-         */
     }
     /**
      * Include the column formatter required to display the feedback link colours

@@ -61,7 +61,7 @@ class Table
      *
      * @return \LORIS\Data\Instance[] of all the filtered data.
      */
-    public function getRows(\User $user) : array
+    public function getRows(\User $user) : \Traversable
     {
         return $this->dataProvider->execute($user);
     }
