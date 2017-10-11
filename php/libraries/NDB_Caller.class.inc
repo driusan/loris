@@ -114,7 +114,6 @@ class NDB_Caller
              $mname = $test_name;
         }
         try {
-
             // This will throw an exception if the module name doesn't exist, so
             // below this we can assume a valid module.
             $m = Module::factory($mname);
@@ -301,97 +300,6 @@ class NDB_Caller
 
         // it is nothing!
         throw new Exception("This page ($test_name) is under construction.", 404);
-    }
-
-    /**
-    * Renders html for a Menu
-    *
-    * @param string $menu The Menu being loaded
-    * @param string $mode The Menu mode
-    *
-    * @return string HTML for the menu to display.
-    */
-    function loadMenu($menu, $mode)
-    {
-        // make an instance of the menu's object
-        $menu =& NDB_Menu::factory($menu, $mode);
-
-        $success = $menu->setup();
-
-        if (isset($_REQUEST['format'])) {
-            switch ($_REQUEST['format']) {
-            case 'csv':
-                if (method_exists($menu, "getCSVData")) {
-                    $csv_data = $menu->getCSVData();
-                    header("HTTP/1.1 200 OK");
-                    print $csv_data;
-                    exit(2);
-                } else {
-                    error_log(
-                        "ERROR: This download of this table's data is "
-                        . "not yet implemented."
-                    );
-                    header("HTTP/1.1 501 Not Implemented");
-                    exit(5);
-                }
-                break;
-            case 'json':
-                header('Content-Type: application/json');
-                print $menu->toJSON();
-                exit(0);
-                break;
-            default:
-                error_log(
-                    "ERROR: This format is not yet supproted."
-                );
-                header("HTTP/1.1 501 Not Implemented");
-                exit(5);
-            }
-        }
-
-        if (method_exists($menu, 'getControlPanel')) {
-            $this->controlPanel = $menu->getControlPanel();
-        }
-        if (method_exists($menu, 'getFeedbackPanel')) {
-            $this->feedbackPanel = $menu->getFeedbackPanel(
-                $_REQUEST['candID'],
-                $_REQUEST['sessionID'] ?? null
-            );
-        }
-        if (method_exists($menu, 'save')) {
-            $success = $menu->save();
-        }
-        $this->page = $menu;
-        $html       = $menu->display();
-
-        return $html;
-    }
-
-    /**
-    * Renders html for a Form
-    *
-    * @param string $class      The Form to load
-    * @param string $page       The page of the Form to load
-    * @param string $identifier The identifier of the Form
-    *
-    * @return string HTML to return to browser
-    */
-    function loadForm($class, $page, $identifier)
-    {
-        // make an instance of the form's object
-        $form = NDB_Form::factory($class, $page, $identifier);
-
-        if (method_exists($form, 'getControlPanel')) {
-            $this->controlPanel = $form->getControlPanel();
-        }
-        $success = $form->save();
-
-        if (method_exists($form, 'getControlPanel')) {
-            $this->controlPanel = $form->getControlPanel();
-        }
-        $this->page = $form;
-        $html       = $form->display();
-        return $html;
     }
 
     /**

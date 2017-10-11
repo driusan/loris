@@ -98,6 +98,10 @@ class Module
         $this->name = $name;
     }
 
+    public function getName() : string {
+        return $this->name;
+    }
+
     /**
      * Returns true if this module should be publicly available to people who
      * are not logged in to LORIS.
