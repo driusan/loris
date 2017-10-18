@@ -683,10 +683,10 @@ class Candidate
 
 
     /**
-    * Generates a new random CandID
-    *
-    * @return integer An unused random 6 digit candidate id
-    */
+     * Generates a new random CandID
+     *
+     * @return integer An unused random 6 digit candidate id
+     */
     static function _generateCandID()
     {
         // get a database connection
@@ -709,12 +709,12 @@ class Candidate
     }
 
     /**
-    * Generates a new PSCID in the format defined by the config file
-    *
-    * @param string $prefix The prefix to use for the PSCID
-    *
-    * @return string Project candidate id in format defined by config.xml
-    */
+     * Generates a new PSCID in the format defined by the config file
+     *
+     * @param string $prefix The prefix to use for the PSCID
+     *
+     * @return string Project candidate id in format defined by config.xml
+     */
     static function _generatePSCID($prefix)
     {
         // get a database connection

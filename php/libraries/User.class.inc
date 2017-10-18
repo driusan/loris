@@ -427,11 +427,11 @@ class User extends UserPermissions
         }
 
         // compare password to values
+        // WTF? Why is this written this way?
         foreach ($values as $key => $value) {
-            $function = create_function(
-                '$a, $b',
-                'return $a ' . $operators[$key] . ' $b;'
-            );
+            $function = function ($a, $b) use ($operators) {
+                return eval("$a $operators[$key] $b");
+            };
             // if the comparison fails
             if (!$function($password, $value)) {
                 return false;

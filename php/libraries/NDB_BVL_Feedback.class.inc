@@ -597,12 +597,12 @@ class NDB_BVL_Feedback
     }
 
     /**
-    * Returns the list of entries for the thread
-    *
-    * @param string $feedbackID feedback_bvl_thread.FeedbackID field
-    *
-    * @return array
-    */
+     * Returns the list of entries for the thread
+     *
+     * @param string $feedbackID feedback_bvl_thread.FeedbackID field
+     *
+     * @return array
+     */
     function getThreadEntries($feedbackID)
     {
         // new DB Object

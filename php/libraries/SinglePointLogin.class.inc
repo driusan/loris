@@ -501,12 +501,12 @@ class SinglePointLogin
     }
 
      /**
-     * Inserts the login (or failed-login) detail into the user_login_history
-     *
-     * @param String $description description for the failed-login
-     * @param Array  $setArray    contains data to be inserted
-     *
-     * @return null
+      * Inserts the login (or failed-login) detail into the user_login_history
+      *
+      * @param String $description description for the failed-login
+      * @param Array  $setArray    contains data to be inserted
+      *
+      * @return null
       */
     function insertFailedDetail($description, $setArray)
     {

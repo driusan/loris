@@ -654,7 +654,7 @@ class LorisForm
      *
      * @param string $name  name of the form element in the $form.
      * @param string $value value of the form element in $_REQUEST or null if
-     *               none was found.
+     *                      none was found.
      *
      * @return string value of the form element once all registered filters
      *                (if any) have been applied.
@@ -1036,7 +1036,8 @@ class LorisForm
             '/^([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])($|:00$)/',
             $timeStamp,
             $bits
-        )) {
+        )
+        ) {
             $value['H'] = $bits[1];
             $value['i'] = $bits[2];
         }
@@ -1324,7 +1325,8 @@ class LorisForm
                 if (!$this->validateRequireIf(
                     $rule["requiredIf"]["elements"],
                     $rule["requiredIf"]["format"]
-                )) {
+                )
+                ) {
                     $this->setElementError(
                         $rule["requiredIf"]["elements"][0],
                         $rule["requiredIf"]["message"]
@@ -1341,9 +1343,9 @@ class LorisForm
      * note that it will print() if you use it badly
      *
      * @param array $elements the two element array - [0] is the
-     *                         element, [1] is the controller
+     *                        element, [1] is the controller
      * @param array $format   the optional array containing elements
-     *                         'operator' and 'value'
+     *                        'operator' and 'value'
      *
      * @return boolean
      * @access public
@@ -1385,10 +1387,9 @@ class LorisForm
         }
 
         // create the comparison function, based on the defined operator
-        $compareFunction = create_function(
-            '$a,$b',
-            "return (\$a $format[operator] \$b);"
-        );
+        $compareFunction = function ($a, $b) use ($format) {
+            return eval("$a $format[operator] $b");
+        };
 
         // check the case where the controller operator value is true
         if ($compareFunction($this->getValue($elements[1]), $format['value'])) {
@@ -2027,9 +2028,9 @@ class LorisForm
      * whole form as the "group".
      *
      * @param array $submitKeys The elements that need to have their
-     *                             values extracted.
+     *                          values extracted.
      * @param array $arr        A reference to an array to store the
-     *                             extracted values into.
+     *                          extracted values into.
      *
      * @return none, but will modify &$arr parameter passed as a side-effect
      */

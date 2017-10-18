@@ -10,7 +10,7 @@
  * @author   Loris Team <loris.mni@bic.mni.mcgill.ca>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
-*/
+ */
 
 /**
  * Caller class
@@ -63,17 +63,17 @@ class NDB_Caller
     }
 
     /**
-    * Renders the called menu, form or the instrument into html
-    *
-    * @param string $test_name The object type to load.  The test_name of the
-    *                          menu, form or instrument
-    * @param string $subtest   The subtest.  The page of the form or instrument.
-    * @param string $CommentID The commentid being loaded.
-    * @param string $nextpage  A page to forward to on completion of save.
-    *                          Used in direct data entry.
-    *
-    * @return string rendered object, as html
-    */
+     * Renders the called menu, form or the instrument into html
+     *
+     * @param string $test_name The object type to load.  The test_name of the
+     *                          menu, form or instrument
+     * @param string $subtest   The subtest.  The page of the form or instrument.
+     * @param string $CommentID The commentid being loaded.
+     * @param string $nextpage  A page to forward to on completion of save.
+     *                          Used in direct data entry.
+     *
+     * @return string rendered object, as html
+     */
     function load($test_name, $subtest, $CommentID = '', $nextpage=null)
     {
         $factory  = NDB_Factory::singleton();
@@ -304,13 +304,13 @@ class NDB_Caller
     }
 
     /**
-    * Renders html for a Menu
-    *
-    * @param string $menu The Menu being loaded
-    * @param string $mode The Menu mode
-    *
-    * @return string HTML for the menu to display.
-    */
+     * Renders html for a Menu
+     *
+     * @param string $menu The Menu being loaded
+     * @param string $mode The Menu mode
+     *
+     * @return string HTML for the menu to display.
+     */
     function loadMenu($menu, $mode)
     {
         // make an instance of the menu's object
@@ -368,14 +368,14 @@ class NDB_Caller
     }
 
     /**
-    * Renders html for a Form
-    *
-    * @param string $class      The Form to load
-    * @param string $page       The page of the Form to load
-    * @param string $identifier The identifier of the Form
-    *
-    * @return string HTML to return to browser
-    */
+     * Renders html for a Form
+     *
+     * @param string $class      The Form to load
+     * @param string $page       The page of the Form to load
+     * @param string $identifier The identifier of the Form
+     *
+     * @return string HTML to return to browser
+     */
     function loadForm($class, $page, $identifier)
     {
         // make an instance of the form's object
@@ -424,16 +424,16 @@ class NDB_Caller
     }
 
     /**
-    * Renders html for a quickform Instrument
-    *
-    * @param string $instrumentName      Name of the instrument to load
-    * @param string $page                Page (subtest) of the instrument
-    * @param string $commentID           CommentID of the instrument to load
-    * @param string $redirectToOnSuccess URL to redirect to if the page is loaded
-    *                                    successfully.
-    *
-    * @return string HTML of the page to render.
-    */
+     * Renders html for a quickform Instrument
+     *
+     * @param string $instrumentName      Name of the instrument to load
+     * @param string $page                Page (subtest) of the instrument
+     * @param string $commentID           CommentID of the instrument to load
+     * @param string $redirectToOnSuccess URL to redirect to if the page is loaded
+     *                                    successfully.
+     *
+     * @return string HTML of the page to render.
+     */
     function loadInstrument(
         $instrumentName,
         $page,

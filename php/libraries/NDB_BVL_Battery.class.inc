@@ -10,21 +10,21 @@
  *
  * PHP Version 5
  *
- *  @category Main
- *  @package  Behavioural
- *  @author   Alex Zijdenbos <zijdenbos@example.com>
- *  @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- *  @link     https://www.github.com/aces/Loris-Trunk/
+ * @category Main
+ * @package  Behavioural
+ * @author   Alex Zijdenbos <zijdenbos@example.com>
+ * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
+ * @link     https://www.github.com/aces/Loris-Trunk/
  */
 
 /**
  * Class that implements a wrapper around a Loris battery.
  *
- *  @category Main
- *  @package  Behavioural
- *  @author   Alex Zijdenbos <zijdenbos@example.com>
- *  @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- *  @link     https://www.github.com/aces/Loris-Trunk/
+ * @category Main
+ * @package  Behavioural
+ * @author   Alex Zijdenbos <zijdenbos@example.com>
+ * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
+ * @link     https://www.github.com/aces/Loris-Trunk/
  */
 class NDB_BVL_Battery
 {

@@ -210,10 +210,10 @@ class NDB_Menu_Filter extends NDB_Menu
      * set.
      *
      * @param array $values An array of the form
-     *                             [FormFieldName => Value,
-     *                             FormFieldName2 => Value2,
-     *                             ...
-     *                             ]
+     *                      [FormFieldName => Value,
+     *                      FormFieldName2 => Value2,
+     *                      ...
+     *                      ]
      *                      to retrieve the values from.
      *
      * @return An array of filters in the same form as the $values parameter
@@ -253,10 +253,10 @@ class NDB_Menu_Filter extends NDB_Menu
      * it into the current filter.
      *
      * @param array $order An array of the form
-     *                      [
-     *                          'field' => Form Field Name
-     *                          'fieldOrder' => "ASC|DESC"
-     *                      ]
+     *                     [
+     *                     'field' => Form Field Name
+     *                     'fieldOrder' => "ASC|DESC"
+     *                     ]
      *
      * @return none, modifies both $_SESSION and $this->filter as
      *         a side-effect.
@@ -407,10 +407,10 @@ class NDB_Menu_Filter extends NDB_Menu
         return true;
     }
     /**
-    * Gets the base query
-    *
-    * @return $query
-    */
+     * Gets the base query
+     *
+     * @return $query
+     */
     function _getBaseQuery()
     {
         $query = "SELECT ";
@@ -424,14 +424,14 @@ class NDB_Menu_Filter extends NDB_Menu
 
     }
     /**
-    * Adds filters
-    *
-    * @param string $prepared_key filter key
-    * @param string $field        filter field
-    * @param string $val          filter value
-    *
-    * @return $query
-    */
+     * Adds filters
+     *
+     * @param string $prepared_key filter key
+     * @param string $field        filter field
+     * @param string $val          filter value
+     *
+     * @return $query
+     */
     function _addValidFilters($prepared_key, $field, $val)
     {
         $query = '';

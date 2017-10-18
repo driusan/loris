@@ -264,7 +264,8 @@ class NDB_BVL_Instrument extends NDB_Page
         } else if (!array_key_exists(
             'useInstrumentPermissions',
             $instrumentPermissions
-        )) {
+        )
+        ) {
             //instrument permissions not used...
             return true; //default
         } else if ($instrumentPermissions['useInstrumentPermissions'] == false) {
@@ -536,9 +537,9 @@ class NDB_BVL_Instrument extends NDB_Page
      * to the database when the save function is called with a Date_taken.
      *
      * @param array $values A reference to the values saved from QuickForm that
-     *                       will be passed to update. This will be modified to
-     *                       have Candidate_Age and Window_Difference if the
-     *                       Date_taken field is included.
+     *                      will be passed to update. This will be modified to
+     *                      have Candidate_Age and Window_Difference if the
+     *                      Date_taken field is included.
      *
      * @return none, but as a side-effect modifies array that was passed.
      */
@@ -643,7 +644,7 @@ class NDB_BVL_Instrument extends NDB_Page
      * _status field set.
      *
      * @param array $values A reference to the array which will be passed
-     *                       to $DB->update().
+     *                      to $DB->update().
      *
      * @return none, but as a side-effect modifies &$values array
      */
@@ -1318,10 +1319,9 @@ class NDB_BVL_Instrument extends NDB_Page
         //to pop a required rule)
         $valFlag = array();
         foreach ($values AS $value) {
-            $compareFunction = create_function(
-                '$a, $b',
-                "return (\$a $operator \$b);"
-            );
+            $compareFunction = function ($a, $b) {
+                    return eval("$a $operator $b");
+            };
             if ($this->XINDebug) {
                 //debugging code
                 echo "'$controller' $operator '$value'<br>";
@@ -1499,9 +1499,9 @@ class NDB_BVL_Instrument extends NDB_Page
      * @param array  $rules        rules with values and comparisson operators
      *                             {@} seperated.
      *                             Example: array(
-     *                                 'q_40{@}=={@}1_yes',
-     *                                 'q_40_b{@}=={@}1_yes'
-     *                                 )
+     *                             'q_40{@}=={@}1_yes',
+     *                             'q_40_b{@}=={@}1_yes'
+     *                             )
      * @param string $rule_message rule message to display
      * @param array  $refusals     options in the refusal select (ie. Refusal,
      *                             Unknown, Not Answered).

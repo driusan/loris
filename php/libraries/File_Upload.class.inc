@@ -215,7 +215,8 @@ class File_Upload
             if (!$this->file->moveUploadedFile(
                 $this->destinationDirectory,
                 $this->destinationFilename
-            )) {
+            )
+            ) {
                 $this->setError(
                     $this->fieldName,
                     "Could not move file to "
@@ -378,24 +379,24 @@ class File_Upload
     }
 
     /**
-    * Sets the field file types.
-    *
-    * This is used by processFiles to determine which handler class to use for
-    * each field.
-    *
-    * @param string $fieldName The name of the field in the quickform to associate
-    *                          with
-    * @param string $className The name of the class in the quickform to associate
-    *                          with
-    * @param array  $methods   An array of methods to assign to the field.
-    *                          The keys must be the name of the action to
-    *                          associate with the method, either verify,
-    *                          import, or move.  If any (or all) of these
-    *                          are empty the defaults will be used.
-    *
-    * @return boolean true
-    * @see    File_Upload::processFiles()
-    */
+     * Sets the field file types.
+     *
+     * This is used by processFiles to determine which handler class to use for
+     * each field.
+     *
+     * @param string $fieldName The name of the field in the quickform to associate
+     *                          with
+     * @param string $className The name of the class in the quickform to associate
+     *                          with
+     * @param array  $methods   An array of methods to assign to the field.
+     *                          The keys must be the name of the action to
+     *                          associate with the method, either verify,
+     *                          import, or move.  If any (or all) of these
+     *                          are empty the defaults will be used.
+     *
+     * @return boolean true
+     * @see    File_Upload::processFiles()
+     */
     function setFileHandler($fieldName, $className, $methods="")
     {
         $default_methods =array(
@@ -529,13 +530,13 @@ class File_Upload
     }
 
     /**
-    * Adds the timestamp to the filename in order to make it unique
-    *
-    * @param int $name The proposed name for the file.
-    *
-    * @return string $new_name   New filename
-    * @see    File_Upload::moveFile()
-    */
+     * Adds the timestamp to the filename in order to make it unique
+     *
+     * @param int $name The proposed name for the file.
+     *
+     * @return string $new_name   New filename
+     * @see    File_Upload::moveFile()
+     */
     function nameToUniqueTimestamp($name)
     {
         $filename =$this->getSplitFilename($name);
@@ -608,26 +609,26 @@ class File_Upload
     }
 
     /**
-    * Turns on/off verifying of files.
-    *
-    * @param boolean $mode The desired mode.
-    *
-    * @return boolean true
-    * @see    File_Upload::moveFile()
-    */
+     * Turns on/off verifying of files.
+     *
+     * @param boolean $mode The desired mode.
+     *
+     * @return boolean true
+     * @see    File_Upload::moveFile()
+     */
     function setFileVerify($mode)
     {
         $this->fileVerify =$mode;
     }
 
     /**
-    * Turns on/off importing of files.
-    *
-    * @param boolean $mode The desired mode.
-    *
-    * @return void
-    * @see    File_Upload::moveFile()
-    */
+     * Turns on/off importing of files.
+     *
+     * @param boolean $mode The desired mode.
+     *
+     * @return void
+     * @see    File_Upload::moveFile()
+     */
     function setFileImport($mode)
     {
         $this->fileImport =$mode;
@@ -664,13 +665,13 @@ class File_Upload
     }
 
     /**
-    * Sets prefix to be prepended to new filenames
-    *
-    * @param string $prefix The desired prefix.
-    *
-    * @return void
-    * @see    File_Upload::moveFile()
-    */
+     * Sets prefix to be prepended to new filenames
+     *
+     * @param string $prefix The desired prefix.
+     *
+     * @return void
+     * @see    File_Upload::moveFile()
+     */
     function setFilenamePrefix($prefix)
     {
         $this->filenamePrefix =$prefix;
@@ -678,11 +679,11 @@ class File_Upload
 
 
     /**
-    * Gets the final destination directory for the uploaded file
-    *
-    * @return string directory
-    * @see    File_Upload::getNewFilename()
-    */
+     * Gets the final destination directory for the uploaded file
+     *
+     * @return string directory
+     * @see    File_Upload::getNewFilename()
+     */
     function getDestinationDirectory()
     {
         return $this->destinationDirectory;
@@ -690,24 +691,24 @@ class File_Upload
 
 
     /**
-    * Gets the final filename for the uploaded file
-    *
-    * @see    File_Upload::getNewFilename()
-    * @return string filename
-    */
+     * Gets the final filename for the uploaded file
+     *
+     * @see    File_Upload::getNewFilename()
+     * @return string filename
+     */
     function getDestinationFilename()
     {
         return $this->destinationFilename;
     }
 
     /**
-    * Turns on/off creation of upload directories.
-    *
-    * @param boolean $mode The desired mode.
-    *
-    * @see    File_Upload::moveFile()
-    * @return null
-    */
+     * Turns on/off creation of upload directories.
+     *
+     * @param boolean $mode The desired mode.
+     *
+     * @see    File_Upload::moveFile()
+     * @return null
+     */
     function setCreateDirectories($mode)
     {
         $this->createDirectories =$mode;
@@ -715,13 +716,13 @@ class File_Upload
 
 
     /**
-    * Adds an error to the error log
-    *
-    * @param string       $field The field to attach the error to.
-    * @param string|array $msg   The string or array of error messages to add.
-    *
-    * @return void
-    */
+     * Adds an error to the error log
+     *
+     * @param string       $field The field to attach the error to.
+     * @param string|array $msg   The string or array of error messages to add.
+     *
+     * @return void
+     */
     function setError($field, $msg)
     {
         if (!is_array($this->errorLog[$field])) {
@@ -736,11 +737,11 @@ class File_Upload
 
 
     /**
-    * Gets the array of errors
-    *
-    * @see    File_Upload::setError()
-    * @return array   errors
-    */
+     * Gets the array of errors
+     *
+     * @see    File_Upload::setError()
+     * @return array   errors
+     */
     function getErrors()
     {
         return $this->errorLog;
@@ -748,17 +749,17 @@ class File_Upload
 
 
     /**
-    * This function registers a file to be used instead of a quickform file.
-    *
-    * @param string $fileName the full filename including path of the file
-    * @param string $fileType the type of the file.  Used to determine which
-    *                         importers, etc to run on it.  Same as quickform
-    *                         fieldname.
-    *
-    * @see File_Upload::preProcessFile()
-    *
-    * @return null
-    */
+     * This function registers a file to be used instead of a quickform file.
+     *
+     * @param string $fileName the full filename including path of the file
+     * @param string $fileType the type of the file.  Used to determine which
+     *                         importers, etc to run on it.  Same as quickform
+     *                         fieldname.
+     *
+     * @see File_Upload::preProcessFile()
+     *
+     * @return null
+     */
     function addCLFile($fileName, $fileType)
     {
         $this->CLFiles[$fileType]['info']['tmp_name'] =$fileName;

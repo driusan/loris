@@ -9,7 +9,7 @@
  * @author   Zia Mohaddes  <zia.mohades@gmail.com>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://github.com/aces/IBIS
-*/
+ */
 
 /**
  * Log Class
@@ -21,7 +21,7 @@
  * @author   Zia Mohaddes  <zia.mohades@gmail.com>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://github.com/aces/IBIS
-*/
+ */
 class Log
 {
 

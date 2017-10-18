@@ -4,22 +4,22 @@
  *
  * PHP Version 5
  *
- *  @category Main
- *  @package  Main
- *  @author   Dave MacFarlane <david.macfarlane2@mcgill.ca>
- *  @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- *  @link     https://www.github.com/aces/Loris-Trunk/
+ * @category Main
+ * @package  Main
+ * @author   Dave MacFarlane <david.macfarlane2@mcgill.ca>
+ * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
+ * @link     https://www.github.com/aces/Loris-Trunk/
  */
 
 /**
  * Wrapper around PHP IO functions (fopen/close/get/etc)
  * so that a mock can be used for testing HTTP requests
  *
- *  @category Testing
- *  @package  Test
- *  @author   Dave MacFarlane <david.macfarlane2@mcgill.ca>
- *  @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- *  @link     https://www.github.com/aces/Loris-Trunk/
+ * @category Testing
+ * @package  Test
+ * @author   Dave MacFarlane <david.macfarlane2@mcgill.ca>
+ * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
+ * @link     https://www.github.com/aces/Loris-Trunk/
  */
 class SocketWrapper
 {
@@ -144,11 +144,11 @@ class SocketWrapper
  * Implementation of a wrapper around CouchDB's APIs, so that Loris can access
  * a CouchDB database programmatically.
  *
- *  @category Main
- *  @package  Main
- *  @author   Dave MacFarlane <david.macfarlane2@mcgill.ca>
- *  @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- *  @link     https://www.github.com/aces/Loris-Trunk/
+ * @category Main
+ * @package  Main
+ * @author   Dave MacFarlane <david.macfarlane2@mcgill.ca>
+ * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
+ * @link     https://www.github.com/aces/Loris-Trunk/
  */
 class CouchDB
 {

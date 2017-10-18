@@ -69,13 +69,13 @@ class Message
     }
 
     /**
-    * Adds error message to the file
-    *
-    * @param String  $message  The content of the message inserted into the log file
-    * @param Boolean $use_date It will insert the current date if true
-    *
-    * @return null
-    */
+     * Adds error message to the file
+     *
+     * @param String  $message  The content of the message inserted into the log file
+     * @param Boolean $use_date It will insert the current date if true
+     *
+     * @return null
+     */
     function addMessage($message, $use_date=true)
     {
         $now_array = getdate();
@@ -103,12 +103,12 @@ class Message
 
     }
     /**
-    * Changes the name of the current log file
-    *
-    * @param String $log_name The Name of the new log-file
-    *
-    * @return null
-    */
+     * Changes the name of the current log file
+     *
+     * @param String $log_name The Name of the new log-file
+     *
+     * @return null
+     */
     function changeLogName($log_name)
     {
         $path_parts = pathinfo($this->messageFile);
@@ -119,10 +119,10 @@ class Message
     }
 
     /**
-    * Returns the path to the log
-    *
-    * @return String Path to the log
-    */
+     * Returns the path to the log
+     *
+     * @return String Path to the log
+     */
     function getMessagePath()
     {
         return $this->messageFile;

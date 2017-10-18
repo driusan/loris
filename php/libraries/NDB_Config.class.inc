@@ -424,12 +424,12 @@ class NDB_Config
     }
 
     /**
-    * Gets a setting by name
-    *
-    * @param string $name The name of the setting to retrieve
-    *
-    * @return mixed The contents of the node identified by $name
-    */
+     * Gets a setting by name
+     *
+     * @param string $name The name of the setting to retrieve
+     *
+     * @return mixed The contents of the node identified by $name
+     */
     function getSetting($name)
     {
         try {
@@ -451,12 +451,12 @@ class NDB_Config
     }
 
     /**
-    * Get list of projects for this projects, given a ProjectID.
-    *
-    * @param integer $ProjectID The ProjectID we want settings for
-    *
-    * @return an array of settings for this project.
-    */
+     * Get list of projects for this projects, given a ProjectID.
+     *
+     * @param integer $ProjectID The ProjectID we want settings for
+     *
+     * @return an array of settings for this project.
+     */
     function getProjectSettings($ProjectID)
     {
         $factory = NDB_Factory::singleton();

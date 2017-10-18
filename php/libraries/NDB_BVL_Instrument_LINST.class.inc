@@ -340,10 +340,9 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
             if ($comparevalue == 'NEVER_REQUIRED' && $operator == '==') {
                 return true;
             }
-            $compareFunction = create_function(
-                '$a, $b',
-                "return \$a $operator \$b;"
-            );
+            $compareFunction = function ($a, $b) use ($operator) {
+                return eval("$a $operator $b");
+            };
 
             if (!($compareFunction($comparevalue, $userval)) ) {
                 return false;
@@ -354,19 +353,19 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
     }
 
     /**
-    * Attaches a user defined rule (conditions) to a form element (grouped or not).
-    *
-    * @param string $elname  Name of element registering the rule
-    * @param array  $rules   Array of rules to apply in an AND fashion.
-    *                        Rules are written in rose ({@}) format
-    *                        (ie. array('q_8{@}=={@}1_yes','q_8_a_status{@}=={@}').
-    *                        ORs may be written within the same array value.
-    * @param string $message Message to print upon rule violation
-    * @param string $group   Empty if a non-grouped element is registering the rule.
-    *                        Otherwise, name of the group registering the rule.
-    *
-    * @return none
-    */
+     * Attaches a user defined rule (conditions) to a form element (grouped or not).
+     *
+     * @param string $elname  Name of element registering the rule
+     * @param array  $rules   Array of rules to apply in an AND fashion.
+     *                        Rules are written in rose ({@}) format
+     *                        (ie. array('q_8{@}=={@}1_yes','q_8_a_status{@}=={@}').
+     *                        ORs may be written within the same array value.
+     * @param string $message Message to print upon rule violation
+     * @param string $group   Empty if a non-grouped element is registering the rule.
+     *                        Otherwise, name of the group registering the rule.
+     *
+     * @return none
+     */
     function XINRegisterRule($elname, $rules, $message="", $group="")
     {
         // I'm not sure if these are logically the same. I think they should be, but
