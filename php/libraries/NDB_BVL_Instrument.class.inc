@@ -1017,6 +1017,13 @@ class NDB_BVL_Instrument extends NDB_Page
 
         $results = $db->pselect($query, array('TN' => $this->testName));
 
+        if (!empty($results)) {
+            error_log(
+                "WARNING: The instrument_subtests table will be removed in a future version of LORIS." .
+                "Please implement the getSubtestList function in instrument " . $this->testName . "by" .
+                "having it return the array" . print_r($results, true)
+            );
+        }
         return $results;
     }
 

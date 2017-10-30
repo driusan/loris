@@ -135,6 +135,15 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
 
         $results = $db->pselect($query, array('TN' => $this->testName));
 
+        if (!empty($results)) {
+            error_log(
+                "WARNING: The instrument_subtests table will be removed in a future version of LORIS." .
+                "Please implement the getSubtestList function in instrument " . $this->testName . "by" .
+                "having it return the array" . print_r($results, true)
+                );
+        }
+
+
         return $results;
     }
 
