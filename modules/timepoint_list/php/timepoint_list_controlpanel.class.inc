@@ -67,6 +67,9 @@ Class TimePoint_List_ControlPanel extends \Candidate
             = $user->hasCenterPermission("data_entry", $cand_CenterID)
             || $user->isUserDCC();
 
+        $this->tpl_data['isStudyAdmin'] = $this->isStudyAdmin($user);
+        $this->tpl_data['instrument_list'] = \Utility::getAllInstruments(); 
+
         $this->tpl_data['candidate_parameters_view']
             = $user->hasPermission('candidate_parameter_view');
         $this->tpl_data['candidate_parameters_edit']
@@ -81,6 +84,10 @@ Class TimePoint_List_ControlPanel extends \Candidate
         $smarty->assign($this->tpl_data);
         $html = $smarty->fetch("timepoint_list_controlpanel.tpl");
         return $html;
+    }
+
+    function isStudyAdmin(\User $user) : bool {
+        return true;
     }
 
 }
