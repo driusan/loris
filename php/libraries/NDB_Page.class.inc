@@ -584,6 +584,20 @@ class NDB_Page
     }
 
     /**
+     * Display the page to a logged in user.
+     */
+    public function displayUser() {
+        $tpl_data = array(
+            'jsfiles' => $this->getJSDependencies(),
+            'cssfiles' => $this->getCSSDependencies(),
+            'workspace' => $this->display()
+        );
+        $smarty = new Smarty_neurodb;
+        $smarty->assign($tpl_data);
+        return $smarty->fetch('main.tpl');
+    }
+
+    /**
      * Displays the form
      *
      * @return a string of the content to be inserted into the template
@@ -624,7 +638,6 @@ class NDB_Page
         $smarty->assign($this->tpl_data);
         $html = $smarty->fetch("form_$this->template.tpl");
         return $html;
-        //return $this->form->toHTML();
     }
 
 

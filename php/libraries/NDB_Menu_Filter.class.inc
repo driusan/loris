@@ -704,6 +704,7 @@ class NDB_Menu_Filter extends NDB_Menu
             return "";
         }
         // Set the csvFile links
+        /*
         $uri    = ltrim($_SERVER['REQUEST_URI'], "/");
         $suffix = strpos($uri, '?') ? '&format=csv' : '?&format=csv';
         $this->setTemplateVar('csvURL', $uri . $suffix);
@@ -713,6 +714,7 @@ class NDB_Menu_Filter extends NDB_Menu
             . ($_REQUEST['subtest'] ?? $_REQUEST['submenu'] ?? '')
             . date('-Y_m_d')
         );
+         */
 
         // dump the html for the menu
         $smarty = new Smarty_neurodb($this->Module);
