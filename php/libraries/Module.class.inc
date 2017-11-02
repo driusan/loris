@@ -22,7 +22,7 @@
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-class Module
+class Module implements \LORIS\Middleware\RequestHandlerInterface 
 {
     protected $name;
     protected $dir;
@@ -98,6 +98,10 @@ class Module
         $this->name = $name;
     }
 
+    public function getName() : string {
+        return $this->name;
+    }
+
     /**
      * Returns true if this module should be publicly available to people who
      * are not logged in to LORIS.
@@ -163,5 +167,15 @@ class Module
                 return file_get_contents($helpFile);
         }
         return "No help available for $page ($helpFile)";
+    }
+
+    public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
+        switch ($request->getURI()->getPath()) {
+        case "":
+        case "/":
+            $content = $this->loadPage($this->getName())->display();
+            return new \LORIS\Http\ServerResponse(200, new \LORIS\Http\StringStream($content));
+        }
+        return new \LORIS\Http\ServerResponse(500, new \LORIS\Http\StringStream($request->getURI()->__toString()));
     }
 }
