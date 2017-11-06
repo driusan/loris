@@ -143,6 +143,7 @@ class NDB_Caller
             } else {
                 return $this->page->displayAnonymousPage($_GET, $_POST);
             }
+            return $this->page->displayUserPage($_GET, $_POST);
         } catch (LorisModuleMissingException $e) {
             //print_r($e);
             // There was no module, so fall back on the old way of doing things.
