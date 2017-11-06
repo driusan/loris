@@ -114,7 +114,6 @@ class NDB_Caller
              $mname = $test_name;
         }
         try {
-
             // This will throw an exception if the module name doesn't exist, so
             // below this we can assume a valid module.
             $m = Module::factory($mname);
@@ -144,7 +143,7 @@ class NDB_Caller
                     $_REQUEST['sessionID'] ?? null
                 );
             }
-            return $this->page->display();
+            return $this->page->displayUserPage($_GET, $_POST);
         } catch (LorisModuleMissingException $e) {
             //print_r($e);
             // There was no module, so fall back on the old way of doing things.

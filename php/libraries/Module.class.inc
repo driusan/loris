@@ -173,7 +173,7 @@ class Module implements \LORIS\Middleware\RequestHandlerInterface
         switch ($request->getURI()->getPath()) {
         case "":
         case "/":
-            $content = $this->loadPage($this->getName())->displayUser();
+            $content = $this->loadPage($this->getName())->displayUserPage($request->getQueryParams());
             return new \LORIS\Http\ServerResponse(200, new \LORIS\Http\StringStream($content));
         }
         return new \LORIS\Http\ServerResponse(500, new \LORIS\Http\StringStream($request->getURI()->__toString()));
