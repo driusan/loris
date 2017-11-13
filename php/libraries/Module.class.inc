@@ -22,7 +22,7 @@
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-class Module implements \LORIS\Middleware\RequestHandlerInterface 
+class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHandlerInterface 
 {
     protected $name;
     protected $dir;
@@ -82,9 +82,7 @@ class Module implements \LORIS\Middleware\RequestHandlerInterface
         // namespacing
         //require_once $mpath . "/php/Module.class.inc";
         $className = "\LORIS\\$name\Module";
-        $cls       = new $className($name);
-        $cls->dir  = $mpath;
-
+        $cls       = new $className($name, $mpath);
         return $cls;
     }
 
@@ -95,7 +93,16 @@ class Module implements \LORIS\Middleware\RequestHandlerInterface
      */
     public function __construct($name)
     {
+        parent::__construct(
+            new \ArrayIterator([
+                "/css/" => new \LORIS\Router\ModuleFileRouter($name, $moduledir,     "css"),
+                "/js/" => new \LORIS\Router\ModuleFileRouter($name, $moduledir, "js"),
+                "/static/" => new \LORIS\Router\ModuleFileRouter($name, $moduledir, "static"),
+
+            ])
+        );
         $this->name = $name;
+        $this->dir = $moduledir;
     }
 
     public function getName() : string {
@@ -169,12 +176,17 @@ class Module implements \LORIS\Middleware\RequestHandlerInterface
     }
 
     public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
+        $resp = parent::handle($request);
+        if ($resp->getStatusCode() != 404) {
+            return $resp;
+        }
         switch ($request->getURI()->getPath()) {
         case "":
         case "/":
             $content = $this->loadPage($this->getName())->displayUserPage($request->getQueryParams());
             return new \LORIS\Http\ServerResponse(200, new \LORIS\Http\StringStream($content));
         }
-        return new \LORIS\Http\ServerResponse(500, new \LORIS\Http\StringStream($request->getURI()->__toString()));
+
+        return new \LORIS\Http\ServerResponse(404, new \LORIS\Http\StringStream("File not found: " . $request->getURI()->__toString()));
     }
 }

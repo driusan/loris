@@ -4,6 +4,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use LORIS\Http\ServerResponse;
 use LORIS\Http\FileStream;
+use LORIS\Http\StringStream;
 
 
 class ModuleFileRouter implements \LORIS\Middleware\RequestHandlerInterface {
@@ -16,7 +17,7 @@ class ModuleFileRouter implements \LORIS\Middleware\RequestHandlerInterface {
         $this->subdir = $subdir;
     }
     public function handle(ServerRequestInterface $request) : ResponseInterface {
-        $fullpath = $this->moduledir . "/" . $this->module . "/" . $this->subdir . "/" . $request->getURI()->getPath();
+        $fullpath = $this->moduledir . "/" . $this->subdir . "/" . $request->getURI()->getPath();
 
         if (is_file($fullpath)) {
             return (new ServerResponse(200, new FileStream($fullpath)));

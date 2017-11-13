@@ -24,6 +24,6 @@ class ModuleRouter extends Prefix {
             // FIXME: This whole thing should be in the module class?
             return (new \LORIS\Middleware\AuthMiddleware(new ModuleAuthenticator()))->withMiddleware(new \LORIS\Middleware\ResponseGenerator())->process($request, $this->module);
         }
-        return $this->module->handle(request);
+        return $this->module->handle($request);
     }
 }
