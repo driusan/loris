@@ -61,6 +61,8 @@ class NDB_Page
      */
     var $skipTemplate = false;
 
+    protected $format = '';
+
     /**
      * Template data to be passed to Smarty.
      *
@@ -845,6 +847,12 @@ class NDB_Page
      * Display the page to a logged in user.
      */
     public function displayUserPage(array $get) {
+        // FIXME: This is a holdover from main.php, it should be
+        // removed.
+        if ($get['format'] ?? '' === 'json') {
+            $this->format = 'json';
+            return $this->display();
+        }
         // FIXME: This should consistently use settings, but most of this code is inherited from main.php
         // and is legacy code that should really be cleaned up.
         $factory  = NDB_Factory::singleton();

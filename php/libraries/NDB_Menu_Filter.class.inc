@@ -694,12 +694,10 @@ class NDB_Menu_Filter extends NDB_Menu
      */
     function display()
     {
-        if (isset($_REQUEST['format'])) {
-            switch($_REQUEST['format']) {
-            case 'json':
-                       header('Content-Type: application/json');
-                return $this->toJSON();
-            }
+        switch($this->format) {
+        case 'json':
+            header('Content-Type: application/json');
+            return $this->toJSON();
         }
         if ($this->skipTemplate) {
             return "";
