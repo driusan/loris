@@ -36,8 +36,15 @@
 # RewriteRule ^([a-zA-Z_-]+)/ajax/([a-zA-Z0-9_.-]+)$ AjaxHelper.php?Module=$1&script=$2 [QSA]
 # RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_.-]+)/$ main.php?test_name=$1&subtest=$2 [QSA]
 
+# Instruments still use main.php, for now
+RewriteRule ^instrument/([a-zA-Z0-9_-]+)/$ main.php?test_name=$1 [QSA,L]
+RewriteRule ^instrument/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_.-]+)/$ main.php?test_name=$1&subtest=$2 [QSA,L]
+
+# Everything else goes through the new PSR7 router
+RewriteRule ^(.+)$ uri.php?lorispath=$1 [QSA,L]
+
+
  # Add trailing slash to all directories
-# RewriteCond %{REQUEST_FILENAME} !-f
 # RewriteRule ^(.*[^/])$ /$1/ [L,R=307]
 
 </IfModule>
