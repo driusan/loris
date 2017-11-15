@@ -3,7 +3,6 @@ namespace LORIS\Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\URIInterface;
 use Psr\Http\Message\ResponseInterface;
-use LORIS\Http\ServerResponse;
 use LORIS\Http\StringStream;
 
 class Prefix implements \LORIS\Middleware\RequestHandlerInterface {
@@ -33,6 +32,9 @@ class Prefix implements \LORIS\Middleware\RequestHandlerInterface {
                 return $subhandler->handle($request);
             }
         }
-        return new ServerResponse(404, new StringStream("notfound"));
+        return (new \Zend\Diactoros\Response())
+            ->withStatus(404)
+            ->withBody(new StringStream("Not found")
+        );
     }
 }

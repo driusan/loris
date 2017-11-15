@@ -13,7 +13,14 @@ class ResponseGenerator implements Middleware, MiddlewareChainer {
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
     ) {
-        return $handler->handle($request);
+        $response = $handler->handle($request);
+
+        if ($response->getBody() == null) {
+            // If there was no body attached from the handler, attach an empty
+            // one
+            return $response->withBody(new EmptyStream());
+        }
+        return $response;
     }
     public function nextMiddleware() {
         return null;

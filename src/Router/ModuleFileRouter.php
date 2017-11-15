@@ -2,7 +2,6 @@
 namespace LORIS\Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use LORIS\Http\ServerResponse;
 use LORIS\Http\FileStream;
 use LORIS\Http\StringStream;
 
@@ -20,8 +19,12 @@ class ModuleFileRouter implements \LORIS\Middleware\RequestHandlerInterface {
         $fullpath = $this->moduledir . "/" . $this->subdir . "/" . $request->getURI()->getPath();
 
         if (is_file($fullpath)) {
-            return (new ServerResponse(200, new FileStream($fullpath)));
+            return (new \Zend\Diactoros\Response)
+                ->withStatus(200)
+                ->withBody(new FileStream($fullpath));
         }
-        return new ServerResponse(404, new StringStream($fullpath . ": File not found"));
+        return (new \Zend\Diactoros\Response())
+            ->withStatus(404)
+            ->withBody(new StringStream($fullpath . ": File not found"));
     }
 }

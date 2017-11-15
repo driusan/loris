@@ -184,9 +184,13 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
         case "":
         case "/":
             $content = $this->loadPage($this->getName())->displayUserPage($request->getQueryParams());
-            return new \LORIS\Http\ServerResponse(200, new \LORIS\Http\StringStream($content));
+            return (new \Zend\Diactoros\Response())
+                ->withStatus(200)
+                ->withBody(new \LORIS\Http\StringStream($content));
         }
 
-        return new \LORIS\Http\ServerResponse(404, new \LORIS\Http\StringStream("File not found: " . $request->getURI()->__toString()));
+        return (new \Zend\Diactoros\Response())
+            ->withStatus(404)
+            ->withBody(new \LORIS\Http\StringStream("File not found: " . $request->getURI()->__toString()));
     }
 }

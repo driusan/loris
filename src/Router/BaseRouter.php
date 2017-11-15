@@ -2,7 +2,6 @@
 namespace LORIS\Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use LORIS\Http\ServerResponse;
 use LORIS\Http\StringStream;
 
 // Handles the root of a LORIS install. It will mostly delegate to the
@@ -32,6 +31,8 @@ class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInter
             $mr = new ModuleRouter($module, $this->moduledir);
             return $mr->handle($request->withURI($suburi));
         }
-        return new ServerResponse(404, new StringStream("Not Found"));
+        return (new \Zend\Diactoros\Response())
+            ->withStatus(404)
+            ->withBody(new StringStream("Not Found"));
     }
 }
