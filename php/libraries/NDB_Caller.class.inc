@@ -432,7 +432,7 @@ class NDB_Caller
         }
 
         // make an instance of the instrument's object
-        $instrument =& NDB_BVL_Instrument::factory(
+        $instrument = NDB_BVL_Instrument::factory(
             $instrumentName,
             $commentID,
             $page
