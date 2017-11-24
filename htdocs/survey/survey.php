@@ -27,7 +27,7 @@ require_once __DIR__ . "/../../vendor/autoload.php";
  * @license  Loris license
  * @link     https://www.github.com/aces/Loris-Trunk/
  */
-class DirectDataEntryMainPage
+class DirectDataEntryReactMainPage
 {
     var $tpl_data = array();
 
@@ -332,7 +332,7 @@ class DirectDataEntryMainPage
 }
 
 if (!class_exists('UnitTestCase')) {
-    $Runner = new DirectDataEntryMainPage();
+    $Runner = new DirectDataEntryReactMainPage();
     $Runner->run();
 }
 ?>

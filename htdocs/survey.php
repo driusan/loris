@@ -411,7 +411,22 @@ class DirectDataEntryMainPage
 }
 
 if (!class_exists('UnitTestCase')) {
-    $Runner = new DirectDataEntryMainPage();
-    $Runner->run();
+
+    $client = new NDB_Client();
+        $client->makeCommandLine();
+        $client->initialize();
+    $DB = Database::singleton();
+    $TestName  = $DB->pselectOne(
+        "SELECT Test_name FROM participant_accounts
+        WHERE OneTimePassword=:key AND Status <> 'Complete'",
+        array('key' => $_REQUEST['key'])
+    );
+
+    if ($TestName === "air_pollution") {
+        $Runner = new DirectDataEntryMainPage();
+        $Runner->run();
+    } else {
+        include_once __DIR__ . "/survey/survey.php";
+    }
 }
 ?>
