@@ -91,7 +91,7 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
      *
      * @param string $name The name of the module
      */
-    public function __construct($name)
+    public function __construct($name, $moduledir)
     {
         parent::__construct(
             new \ArrayIterator([
@@ -103,10 +103,6 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
         );
         $this->name = $name;
         $this->dir = $moduledir;
-    }
-
-    public function getName() : string {
-        return $this->name;
     }
 
     /**
@@ -183,7 +179,11 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
         switch ($request->getURI()->getPath()) {
         case "":
         case "/":
-            $content = $this->loadPage($this->getName())->displayUserPage($request->getQueryParams());
+            // FIXME: This should be injected from somewhere, not use the constructor, but the signature
+            // of the function can't change because it's part of the PSR7 interface, and it doesn't really
+            // make sense to include it in the module constructor..
+            $user = User::singleton();
+            $content = $this->loadPage($this->getName())->displayUserPage($user, $request->getQueryParams(), $request->getParsedBody());
             return (new \Zend\Diactoros\Response())
                 ->withStatus(200)
                 ->withBody(new \LORIS\Http\StringStream($content));

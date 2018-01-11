@@ -1,7 +1,7 @@
 <?php
-namespace Test;
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// FIXME: The code in NDB_Client should mostly be replaced by middleware.
 $client = new \NDB_Client;
 $client->initialize();
 
