@@ -19,7 +19,7 @@ class Prefix implements \LORIS\Middleware\RequestHandlerInterface {
     protected function stripPrefix($prefix, URIInterface $uri) : URIInterface {
         $path = $uri->getPath();
         $newpath = substr($path, strlen($prefix));
-        return $uri->withPath($newpath);
+        return $uri->withPath((string )$newpath);
 
     }
 

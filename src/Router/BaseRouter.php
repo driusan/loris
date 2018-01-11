@@ -10,7 +10,9 @@ use LORIS\Http\StringStream;
 class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInterface {
     protected $projectdir;
     protected $moduledir;
-    public function __construct($projectdir, $moduledir) {
+    protected $user;
+    public function __construct(\User $user, string $projectdir, string $moduledir) {
+        $this->user = $user;
         $this->projectdir = $projectdir;
         $this->moduledir = $moduledir;
     }
@@ -18,12 +20,21 @@ class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInter
     public function handle(ServerRequestInterface $request) : ResponseInterface {
         $uri = $request->getUri();
         $path = $uri->getPath();
-        if ($path[0] === "/") {
+        if ($path == "/" || $path == "") {
+            if ($this->user instanceof \LORIS\AnonymousUser) {
+                $modulename = "login";
+            }  else {
+                $modulename = "dashboard";
+            }
+            $request = $request->withURI($uri->withPath("/"));
+        } else if ($path[0] === "/") {
             $path = substr($path, 1);
             $request = $request->withURI($uri->withPath($path));
         }
-        $components = explode("/", $path);
-        $modulename = $components[0];
+        if (empty($modulename)) {
+            $components = explode("/", $path);
+            $modulename = $components[0];
+        }
         if (is_dir($this->moduledir . "/" . $modulename)) {
             $uri = $request->getURI();
             $suburi = $this->stripPrefix($modulename, $uri);

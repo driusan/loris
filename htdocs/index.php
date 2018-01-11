@@ -5,14 +5,15 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $client = new \NDB_Client;
 $client->initialize();
 
-$request = \Zend\Diactoros\ServerRequestFactory::fromGlobals();
-// Now that we've created the ServerRequest, handle it.
-$loris = new \LORIS\Router\BaseRouter(__DIR__ . "/../project/", __DIR__ . "/../modules/");
-
 // Middleware that happens on every request. This doesn't include
 // any authentication middleware, because that's done dynamically
 // based on the module router, depending on if the module is public.
 $middlewarechain = (new \LORIS\Middleware\ContentLength())->withMiddleware(new \LORIS\Middleware\ETag())->withMiddleware(new \LORIS\Middleware\ResponseGenerator());
+
+$request = \Zend\Diactoros\ServerRequestFactory::fromGlobals();
+// Now that we've created the ServerRequest, handle it.
+$user = User::singleton();
+$loris = new \LORIS\Router\BaseRouter($user, __DIR__ . "/../project/", __DIR__ . "/../modules/");
 
 // Now handle the request.
 $response = $middlewarechain->process($request, $loris);

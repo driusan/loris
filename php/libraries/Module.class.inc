@@ -183,7 +183,12 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
             // of the function can't change because it's part of the PSR7 interface, and it doesn't really
             // make sense to include it in the module constructor..
             $user = User::singleton();
-            $content = $this->loadPage($this->getName())->displayUserPage($user, $request->getQueryParams(), $request->getParsedBody());
+            $page = $this->loadPage($this->getName());
+            if ($user instanceOf \LORIS\AnonymousUser) {
+                $content = $page->displayAnonymousPage($request->getQueryParams(), $request->getParsedBody());
+            } else {
+                $content = $page->displayUserPage($user, $request->getQueryParams(), $request->getParsedBody());
+            }
             return (new \Zend\Diactoros\Response())
                 ->withStatus(200)
                 ->withBody(new \LORIS\Http\StringStream($content));

@@ -60,8 +60,11 @@ class UserPermissions
         $this->userID = $DB->pselectOne($query, $params);
 
         // load the user's permissions
-        $this->setPermissions();
+        if(empty($userID)) {
+            return false;
+        }
 
+        $this->setPermissions();
         return true;
     }
 

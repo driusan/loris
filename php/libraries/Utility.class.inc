@@ -300,13 +300,19 @@ class Utility
      */
     static function getCleanString($string)
     {
-        $string = trim($string);
-        $string = str_replace('  ', ' ', $string);
-        $string = str_replace(' ', '_', $string);
-        $string = str_replace("'", '', $string);
-        $string = str_replace('"', '', $string);
-        $string = preg_replace('/[^A-Za-z0-9_\/-]*/', '', $string);
-        $string = strtolower($string);
+        if (is_array($string)) {
+            foreach (array_keys($string) as $key) {
+                $string[$key] = Utility::getCleanString($string[$key]);
+            }
+        } else {
+            $string = trim($string);
+            $string = str_replace('  ', ' ', $string);
+            $string = str_replace(' ', '_', $string);
+            $string = str_replace("'", '', $string);
+            $string = str_replace('"', '', $string);
+            $string = preg_replace('/[^A-Za-z0-9_\/-]*/', '', $string);
+            $string = strtolower($string);
+        }
         return $string;
     }
 
