@@ -72,7 +72,6 @@ class Login extends \NDB_Page
         } catch(ConfigurationException $e) {
             $this->tpl_data['study_logo'] = '';
         }
-
     }
 }
 ?>

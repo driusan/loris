@@ -184,6 +184,9 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
             // make sense to include it in the module constructor..
             $user = User::singleton();
             $page = $this->loadPage($this->getName());
+            if ($request->getMethod() === "POST") {
+                $page->save();
+            }
             if ($user instanceOf \LORIS\AnonymousUser) {
                 $content = $page->displayAnonymousPage($request->getQueryParams(), $request->getParsedBody());
             } else {
