@@ -599,10 +599,15 @@ class NDB_Page implements \LORIS\Middleware\RequestHandlerInterface
         $baseURL = $request->getAttribute("baseurl");
         $config  = NDB_Config::singleton();
 
-        // FIXME: This should be injected from somewhere, not use the constructor, but the signature
-        // of the function can't change because it's part of the PSR7 interface, and it doesn't really
-        // make sense to include it in the module constructor..
-        $user = User::singleton();
+        $user = $request->getAttribute("user");
+
+        // FIXME: For historical compatibility with NDB_Menu_Filter. Should be a different endpoint.
+        $get = $request->getQueryParams();
+        if (isset($get['format'])) {
+            $this->format = $get['format'];
+            // Do not add the decoration middleware for json format requests.
+            return $handler->handle($request);
+        }
         if ($user instanceOf \LORIS\AnonymousUser) {
             return (new \LORIS\Middleware\AnonymousPageDecorationMiddleware($baseURL, $config, $this->getJSDependencies(), $this->getCSSDependencies()))->process($request, $handler);
         }

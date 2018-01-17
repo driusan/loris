@@ -84,6 +84,7 @@ class UserPageDecorationMiddleware implements Middleware {
                       'sandbox'     => ($this->Config->getSetting("sandbox") === '1'),
                      );
 
+
         /*
         $tpl_data['candID']      = $request['candID'] ?? '';
         $tpl_data['sessionID']   = $request['sessionID'] ?? '';
@@ -105,7 +106,9 @@ class UserPageDecorationMiddleware implements Middleware {
         // Doesn't appear to be used
         $tpl_data['lastURL'] = $_SESSION['State']->getLastURL();
         // I don't think anyone uses this. It's not really supported
-        $tpl_data['css'] = $config->getSetting('css');
+         */
+        $tpl_data['css'] = $this->Config->getSetting('css');
+        /*
 
         // This just feels wrong
         if (method_exists($this, 'getControlPanel')) {
