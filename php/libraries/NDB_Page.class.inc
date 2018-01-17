@@ -607,7 +607,7 @@ class NDB_Page implements \LORIS\Middleware\RequestHandlerInterface
             return (new \LORIS\Middleware\AnonymousPageDecorationMiddleware($baseURL, $config, $this->getJSDependencies(), $this->getCSSDependencies()))->process($request, $handler);
         }
 
-        return (new \LORIS\Middleware\UserPageDecorationMiddleware($user, $baseURL, $config, $this->getJSDependencies(), $this->getCSSDependencies()))->process($request, $handler);
+        return (new \LORIS\Middleware\UserPageDecorationMiddleware($user, $baseURL, $this->name, $config, $this->getJSDependencies(), $this->getCSSDependencies()))->process($request, $handler);
     }
 
     // Handle will convert a legacy LORIS page to a PSR handler.

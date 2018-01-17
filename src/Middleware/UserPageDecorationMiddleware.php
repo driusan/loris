@@ -8,12 +8,14 @@ class UserPageDecorationMiddleware implements Middleware {
     protected $CSSFiles;
     protected $Config;
     protected $BaseURL;
+    protected $PageName;
 
-    public function __construct(\User $user, string $baseurl, \NDB_Config $config, array $JS, array $CSS) {
+    public function __construct(\User $user, string $baseurl, string $pagename, \NDB_Config $config, array $JS, array $CSS) {
         $this->JSFiles = $JS;
         $this->CSSFiles = $CSS;
         $this->Config = $config;
         $this->BaseURL = $baseurl;
+        $this->PageName = $pagename;
         $this->user = $user;
     }
 
@@ -66,10 +68,10 @@ class UserPageDecorationMiddleware implements Middleware {
         return $undecorated->withBody(new \LORIS\Http\StringStream($smarty->fetch("public_layout.tpl")));
          */
 
+        ob_start();
         // Set the page template variables
         $tpl_data = array(
-                     'test_name' => '', //$this->name,
-                     'subtest'   => '', //$this->page,
+                     'test_name' => $this->PageName,
                     );
 
         // Basic page outline variables
@@ -144,12 +146,12 @@ class UserPageDecorationMiddleware implements Middleware {
                                    );
         $tpl_data['jsonParams']  = json_encode(
             array(
-             'BaseURL'   => $tpl_data['baseurl'],
-             'TestName'  => $tpl_data['test_name'],
-             'Subtest'   => $tpl_data['subtest'],
-             'CandID'    => $tpl_data['candID'],
-             'SessionID' => $tpl_data['sessionID'],
-             'CommentID' => $tpl_data['commentID'],
+             'BaseURL'   => $this->BaseURL,
+             'TestName'  => $tpl_data['test_name'] ?? '',
+             'Subtest'   => $tpl_data['subtest'] ?? '',
+             'CandID'    => $tpl_data['candID'] ?? '',
+             'SessionID' => $tpl_data['sessionID'] ?? '',
+             'CommentID' => $tpl_data['commentID'] ?? '',
             )
         );
 
@@ -201,7 +203,7 @@ class UserPageDecorationMiddleware implements Middleware {
         $undecorated = $handler->handle($request);
         // Finally, the actual content and render it..
         $tpl_data += array(
-                      'jsfiles'   => $this->JSSFiles,
+                      'jsfiles'   => $this->JSFiles,
                       'cssfiles'  => $this->CSSFiles,
                       'workspace' => $undecorated->getBody(),
                      );
