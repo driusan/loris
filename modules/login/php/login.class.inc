@@ -73,5 +73,27 @@ class Login extends \NDB_Page
             $this->tpl_data['study_logo'] = '';
         }
     }
+
+    public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
+        switch ($request->getMethod()) {
+        case 'POST':
+            $spl = $_SESSION['State']->getProperty('login');
+            $params = $request->getParsedBody();
+            if ($spl->passwordAuthenticate($params['username'], $params['password'], true) === true) {
+
+                $spl->setState();
+                // Stolen from elsewhere.
+                $user = \User::singleton($_SESSION['State']->getUsername());
+                return (new \Zend\Diactoros\Response())
+                    ->withStatus(302)
+                    ->withHeader("Location", $request->getAttribute("baseurl"))
+                    ->withBody(new \LORIS\Http\EmptyStream());
+            }
+        // Fallthrough
+        default:
+        return (new \Zend\Diactoros\Response())
+            ->withBody(new \LORIS\Http\StringStream($this->display()));
+        }
+    }
 }
 ?>

@@ -127,6 +127,14 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
         return false;
     }
 
+    public function hasAccess(User $user) {
+        if ($this->isPublicModule() !== true) {
+            if ($user instanceof \LORIS\AnonymousUser) {
+                return false;
+            }
+        }
+        return true;
+    }
     /**
      * Loads a page within this module and calls all necessary setup.
      *
@@ -179,22 +187,10 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
         switch ($request->getURI()->getPath()) {
         case "":
         case "/":
-            // FIXME: This should be injected from somewhere, not use the constructor, but the signature
-            // of the function can't change because it's part of the PSR7 interface, and it doesn't really
-            // make sense to include it in the module constructor..
-            $user = User::singleton();
             $page = $this->loadPage($this->getName());
-            if ($request->getMethod() === "POST") {
-                $page->save();
-            }
-            if ($user instanceOf \LORIS\AnonymousUser) {
-                $content = $page->displayAnonymousPage($request->getQueryParams(), $request->getParsedBody());
-            } else {
-                $content = $page->displayUserPage($user, $request->getQueryParams(), $request->getParsedBody());
-            }
-            return (new \Zend\Diactoros\Response())
-                ->withStatus(200)
-                ->withBody(new \LORIS\Http\StringStream($content));
+            $page->setup();
+
+            return $page->process($request, $page);
         }
 
         return (new \Zend\Diactoros\Response())

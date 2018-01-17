@@ -15,6 +15,7 @@ class AuthMiddleware implements Middleware, MiddlewareChainer {
     public function __construct(Authenticator $auth) {
         $this->authenticator = $auth;
     }
+
     public function process(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
@@ -22,7 +23,10 @@ class AuthMiddleware implements Middleware, MiddlewareChainer {
         if ($this->authenticator->authenticate($request) === true) {
             return $this->next->process($request, $handler);
         }
-        return (new ServerResponse(403, new StringStream("Permission Denied")));
+        // FIXME: Use smarty template.
+        return (new \Zend\Diactoros\Response())
+           ->withStatus(403)
+          ->withBody(new \LORIS\Http\StringStream("Permission denied"));
 
     }
 }

@@ -23,7 +23,7 @@
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-class NDB_Page
+class NDB_Page implements \LORIS\Middleware\RequestHandlerInterface
 {
     /**
      * The name of the test_name being accessed
@@ -590,6 +590,30 @@ class NDB_Page
         $attr=array('class' => 'form-control input-sm')
     ) {
         return $this->form->createElement('password', $field, $label, $attr);
+    }
+
+    // An NDB_Page endpoint acts as both the default middleware for that page, and a handler for that page.
+    // When acting as a middleware, by default an NDB_Page will add the page chrome, but this can be overrriden
+    // (for instance, in order to remove all page decoration for an API endpoint.)
+    public function process(\Psr\Http\Message\ServerRequestInterface $request, \LORIS\Middleware\RequestHandlerInterface $handler) {
+        $baseURL = $request->getAttribute("baseurl");
+        $config  = NDB_Config::singleton();
+
+        // FIXME: This should be injected from somewhere, not use the constructor, but the signature
+        // of the function can't change because it's part of the PSR7 interface, and it doesn't really
+        // make sense to include it in the module constructor..
+        $user = User::singleton();
+        if ($user instanceOf \LORIS\AnonymousUser) {
+            return (new \LORIS\Middleware\AnonymousPageDecorationMiddleware($baseURL, $config, $this->getJSDependencies(), $this->getCSSDependencies()))->process($request, $handler);
+        }
+
+        return (new \LORIS\Middleware\UserPageDecorationMiddleware($user, $baseURL, $config, $this->getJSDependencies(), $this->getCSSDependencies()))->process($request, $handler);
+    }
+
+    // Handle will convert a legacy LORIS page to a PSR handler.
+    public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
+        return (new \Zend\Diactoros\Response())
+            ->withBody(new \LORIS\Http\StringStream($this->display()));
     }
 
      /**
