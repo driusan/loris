@@ -18,6 +18,10 @@ $loris = new \LORIS\Router\BaseRouter($user, __DIR__ . "/../project/", __DIR__ .
 // Now handle the request.
 $response = $middlewarechain->process($request, $loris);
 
+// When using the built in php server, fall back on the filesystem.
+if ($response->getStatusCode() == 404) {
+    return false;
+}
 // Add the HTTP header line.
 header("HTTP/" . $response->getProtocolVersion() . " " . $response->getStatusCode() . " " . $response->getReasonPhrase());
 

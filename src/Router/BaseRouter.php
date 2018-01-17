@@ -46,7 +46,7 @@ class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInter
             $path = $uri->getPath();
             $baseurl = substr($path, strrpos($path, $suburi->getPath()));
             $baseurl = $uri->withPath($baseurl)->withQuery("");
-            $request= $request->withAttribute("baseurl", $baseurl);
+            $request= $request->withAttribute("baseurl", $baseurl->__toString());
             $mr = new ModuleRouter($module, $this->moduledir);
             return $mr->handle($request->withURI($suburi));
         }
