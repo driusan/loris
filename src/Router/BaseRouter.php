@@ -21,6 +21,11 @@ class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInter
     public function handle(ServerRequestInterface $request) : ResponseInterface {
         $uri = $request->getUri();
         $path = $uri->getPath();
+        // Replace multiple slashes in the URL with a single slash
+        $path = preg_replace("/\/+/", "/", $path);
+        // Remove a training slash remaining, so that foo/ and foo are the same
+        // route
+        $path = preg_replace("/\/$/", "", $path);
         $request = $request->withAttribute("user", $this->user);
         if ($path == "/" || $path == "") {
             if ($this->user instanceof \LORIS\AnonymousUser) {
@@ -33,8 +38,9 @@ class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInter
             $path = substr($path, 1);
             $request = $request->withURI($uri->withPath($path));
         }
+
         if (empty($modulename)) {
-            $components = explode("/", $path);
+            $components = preg_split("/\/+?/", $path);
             $modulename = $components[0];
         }
         if (is_dir($this->moduledir . "/" . $modulename)) {
@@ -52,17 +58,35 @@ class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInter
         }
 
         // Legacy from .htaccess. A CandID goes to the timepoint_list
+        // FIXME: This should all be one candidates module, not a bunch
+        // of hacks in the base router.
         if (preg_match("/^([0-9]{6})$/", $components[0])) {
             // FIXME: This assumes the baseURL is under /
             $path = $uri->getPath();
             $baseurl = $uri->withPath("/")->withQuery("");
-            $request= $request
-                ->withAttribute("baseurl", $baseurl->__toString())
-                ->withAttribute("CandID", $components[0]);
-            $module = \Module::factory("timepoint_list");
-
-            $mr = new ModuleRouter($module, $this->moduledir);
-            return $mr->handle($request);
+            switch (count($components)) {
+            case 1:
+                $request= $request
+                    ->withAttribute("baseurl", $baseurl->__toString())
+                    ->withAttribute("CandID", $components[0]);
+                $module = \Module::factory("timepoint_list");
+                $mr = new ModuleRouter($module, $this->moduledir);
+                return $mr->handle($request);
+            case 2:
+            case 3: // FIXME: Properly handle trailing slashes rather than pretending 2 == 3
+                $request= $request
+                    ->withAttribute("baseurl", $baseurl->__toString())
+                    ->withAttribute("CandID", $components[0]);
+                // FIXME: Validate 
+                $request= $request
+                    ->withAttribute("TimePoint", \TimePoint::singleton($components[1]));
+                $module = \Module::factory("instrument_list");
+                $mr = new ModuleRouter($module, $this->moduledir);
+                return $mr->handle($request);
+            default:
+                // Fall through to 404. We don't have any routes that go farther
+                // than 2 levels..
+            }
         }
 
         // FIXME: Use 404 from smarty template.

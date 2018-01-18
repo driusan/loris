@@ -26,4 +26,13 @@ namespace LORIS\instrument_list;
  */
 class Module extends \Module
 {
+         public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
+            $resp = parent::handle($request);
+            if ($resp->getStatusCode() != 404) {
+                  return $resp;
+           }
+           $page = $this->loadPage("instrument_list");
+           return $page->process($request, $page);
+  
+      }
 }

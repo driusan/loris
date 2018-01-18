@@ -32,8 +32,8 @@
 # RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_.-]+)/$ main.php?test_name=$1&subtest=$2 [QSA]
 
 # Instruments still use main.php, for now
-RewriteRule ^instruments/([a-zA-Z0-9_-]+)/$ main.php?test_name=$1 [QSA,L]
-RewriteRule ^instruments/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_.-]+)/$ main.php?test_name=$1&subtest=$2 [QSA,L]
+#RewriteRule ^instruments/([a-zA-Z0-9_-]+)/$ main.php?test_name=$1 [QSA,L]
+#RewriteRule ^instruments/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_.-]+)/$ main.php?test_name=$1&subtest=$2 [QSA,L]
 
 # Everything else goes through the new PSR7 router
 RewriteCond "%{REQUEST_URI}" "!=/main.php"
