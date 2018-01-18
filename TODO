@@ -1,0 +1,13 @@
+- Add route for /candidate/visit/
+- Add route for instruments
+- Fix instrument_list
+- Figure out what to do with setup()
+- FIX 404/500/403/401/etc error pages to use the templates
+- Test on installs not directly under /
+- Test everything
+- Ensure router works with built in PHP web server 
+- Test Form submissions
+- Fix double slash in URLs
+- /logout
+- Fix baseurl for /candID route
+- Add table header middleware or put back in UserPageDecoration middleware
