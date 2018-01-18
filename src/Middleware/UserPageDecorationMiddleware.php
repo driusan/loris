@@ -45,14 +45,14 @@ class UserPageDecorationMiddleware implements Middleware {
                      );
 
 
-        /*
-        $tpl_data['candID']      = $request['candID'] ?? '';
-        $tpl_data['sessionID']   = $request['sessionID'] ?? '';
-        $tpl_data['commentID']   = $request['commentID'] ?? '';
-        $tpl_data['dynamictabs'] = $request['dynamictabs'] ?? '';
+        $get = $request->getQueryParams();
+        $tpl_data['candID']      = $get['candID'] ?? '';
+        $tpl_data['sessionID']   = $get['sessionID'] ?? '';
+        $tpl_data['commentID']   = $get['commentID'] ?? '';
+        $tpl_data['dynamictabs'] = $get['dynamictabs'] ?? '';
 
-        if (!empty($request['candID'])) {
-            $candidate = Candidate::singleton($request['candID']);
+        if (!empty($get['candID'])) {
+            $candidate = \Candidate::singleton($get['candID']);
 
             $tpl_data['candidate'] = $candidate->getData();
         }
@@ -66,9 +66,7 @@ class UserPageDecorationMiddleware implements Middleware {
         // Doesn't appear to be used
         $tpl_data['lastURL'] = $_SESSION['State']->getLastURL();
         // I don't think anyone uses this. It's not really supported
-         */
         $tpl_data['css'] = $this->Config->getSetting('css');
-        /*
 
         // This just feels wrong
         if (method_exists($this, 'getControlPanel')) {
@@ -89,11 +87,10 @@ class UserPageDecorationMiddleware implements Middleware {
 
         // This shouldn't exist. (And if it does, it shouldn't reference
         // mantis..)
-        $tpl_data['issue_tracker_url'] = $config->getSetting('issue_tracker_url');
+        $tpl_data['issue_tracker_url'] = $this->Config->getSetting('issue_tracker_url');
 
         // We're back in the territory of stuff that belongs here..
 
-         */
         // Variables that get passed along to the LorisHelper javascript object.
         $tpl_data['studyParams'] = array(
                                     'useEDC'      => $this->Config->getSetting('useEDC'),

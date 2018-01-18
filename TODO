@@ -1,5 +1,5 @@
 - Add route for instruments
-    - move to a module before this PR?
+    - move to a module before this PR? (can't, namespace would go too deep for current architecture..)
 - Figure out what to do with setup()
     - only call for some page types? (menu filter, form..)
 - FIX 404/500/403/401/etc error pages to use the templates
@@ -9,4 +9,4 @@
 - Test Form submissions
 - add /logout route
 - Fix baseurl for /candID route
-- Add table header middleware or put back in UserPageDecoration middleware
+- Fix breadcrumbs

@@ -73,7 +73,7 @@ class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInter
                 $mr = new ModuleRouter($module, $this->moduledir);
                 return $mr->handle($request);
             case 2:
-            case 3: // FIXME: Properly handle trailing slashes rather than pretending 2 == 3
+                // CandID/SessionID, inherited from htaccess
                 $request= $request
                     ->withAttribute("baseurl", $baseurl->__toString())
                     ->withAttribute("CandID", $components[0]);
