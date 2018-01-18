@@ -188,7 +188,6 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
         case "":
         case "/":
             $page = $this->loadPage($this->getName());
-            $page->setup();
 
             return $page->process($request, $page);
         }

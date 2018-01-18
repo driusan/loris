@@ -51,6 +51,20 @@ class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInter
             return $mr->handle($request->withURI($suburi));
         }
 
+        // Legacy from .htaccess. A CandID goes to the timepoint_list
+        if (preg_match("/^([0-9]{6})$/", $components[0])) {
+            // FIXME: This assumes the baseURL is under /
+            $path = $uri->getPath();
+            $baseurl = $uri->withPath("/")->withQuery("");
+            $request= $request
+                ->withAttribute("baseurl", $baseurl->__toString())
+                ->withAttribute("CandID", $components[0]);
+            $module = \Module::factory("timepoint_list");
+
+            $mr = new ModuleRouter($module, $this->moduledir);
+            return $mr->handle($request);
+        }
+
         // FIXME: Use 404 from smarty template.
         return (new \Zend\Diactoros\Response())
             ->withStatus(404)
