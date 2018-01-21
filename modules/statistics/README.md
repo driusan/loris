@@ -36,7 +36,8 @@ the `StatisticsTabs` table, rather than modifying the module itself
 The default tabs provide summary of data from a variety of different
 LORIS modules. In particular, the data entry statistics gather data
 from instruments, and the imaging statistics use data from both the
-files and tarchive tables.
+files and tarchive tables. The default tabs are described in further
+detail below.
 
 ### Demographic Statistics
 
