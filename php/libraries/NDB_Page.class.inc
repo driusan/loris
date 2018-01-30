@@ -1,4 +1,8 @@
 <?php
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
 /**
  * This file contains the NDB_Page base class. This file should
  * contain ALL of the references to HTML_QuickForm (or any library
@@ -23,7 +27,7 @@
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-class NDB_Page implements \LORIS\Middleware\RequestHandlerInterface
+class NDB_Page implements RequestHandlerInterface
 {
     /**
      * The name of the test_name being accessed
@@ -595,7 +599,7 @@ class NDB_Page implements \LORIS\Middleware\RequestHandlerInterface
     // An NDB_Page endpoint acts as both the default middleware for that page, and a handler for that page.
     // When acting as a middleware, by default an NDB_Page will add the page chrome, but this can be overrriden
     // (for instance, in order to remove all page decoration for an API endpoint.)
-    public function process(\Psr\Http\Message\ServerRequestInterface $request, \LORIS\Middleware\RequestHandlerInterface $handler) {
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface {
         $baseURL = $request->getAttribute("baseurl");
         $config  = NDB_Config::singleton();
 

@@ -3,16 +3,15 @@ namespace LORIS\Middleware;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use \Psr\Http\Message\URIInterface;
-use \LORIS\Http\ServerResponse;
-use \LORIS\Http\StringStream;
-use \LORIS\Http\FileStream;
+use \Psr\Http\Server\MiddlewareInterface;
+use \Psr\Http\Server\RequestHandlerInterface;
 use \LORIS\Http\EmptyStream;
 
-class ResponseGenerator implements Middleware, MiddlewareChainer {
+class ResponseGenerator implements MiddlewareInterface, MiddlewareChainer {
     public function process(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
-    ) {
+    ) : ResponseInterface {
         $response = $handler->handle($request);
 
         if ($response->getBody() == null) {

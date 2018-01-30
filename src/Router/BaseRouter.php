@@ -2,12 +2,13 @@
 namespace LORIS\Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use \Psr\Http\Server\RequestHandlerInterface;
 use LORIS\Http\StringStream;
 
 // Handles the root of a LORIS install. It will mostly delegate to the
 // module router.
 // FIXME: Add other things in .htaccess here.
-class BaseRouter extends Prefix implements \LORIS\Middleware\RequestHandlerInterface {
+class BaseRouter extends Prefix implements RequestHandlerInterface {
     protected $projectdir;
     protected $moduledir;
     protected $user;

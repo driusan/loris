@@ -51,6 +51,7 @@ class Login extends \NDB_Page
         }
         $config =& \NDB_Config::singleton();
 
+
         $study_links = $config->getExternalLinks('Studylinks');
         foreach ($study_links as $label => $url) {
             $WindowName = md5($url);
@@ -60,7 +61,6 @@ class Login extends \NDB_Page
                                                'windowName' => $WindowName,
                                               );
         }
-
         $this->tpl_data['study_description'] = html_entity_decode(
             $config->getSetting("StudyDescription")
         );

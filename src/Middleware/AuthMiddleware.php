@@ -3,12 +3,14 @@ namespace LORIS\Middleware;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use \Psr\Http\Message\URIInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use \LORIS\Http\ServerResponse;
 use \LORIS\Http\StringStream;
 use \LORIS\Http\FileStream;
 use \LORIS\Http\EmptyStream;
 
-class AuthMiddleware implements Middleware, MiddlewareChainer {
+class AuthMiddleware implements MiddlewareInterface, MiddlewareChainer {
     use MiddlewareChainerMixin;
 
     protected $authenticator;
@@ -19,7 +21,7 @@ class AuthMiddleware implements Middleware, MiddlewareChainer {
     public function process(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
-    ) {
+    ) : ResponseInterface {
         if ($this->authenticator->authenticate($request) === true) {
             return $this->next->process($request, $handler);
         }

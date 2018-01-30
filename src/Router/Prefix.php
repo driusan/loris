@@ -3,9 +3,10 @@ namespace LORIS\Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\URIInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use LORIS\Http\StringStream;
 
-class Prefix implements \LORIS\Middleware\RequestHandlerInterface {
+class Prefix implements RequestHandlerInterface {
     protected $paths;
     public function __construct(\Traversable $paths) {
         $this->paths = $paths;

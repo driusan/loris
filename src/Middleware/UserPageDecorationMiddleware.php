@@ -2,8 +2,9 @@
 namespace LORIS\Middleware;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
+use \Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
-class UserPageDecorationMiddleware implements Middleware {
+class UserPageDecorationMiddleware implements MiddlewareInterface {
     protected $JSFiles;
     protected $CSSFiles;
     protected $Config;
@@ -27,7 +28,7 @@ class UserPageDecorationMiddleware implements Middleware {
      *
      * @return string the page content
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) { 
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface { 
         ob_start();
         // Set the page template variables
         $tpl_data = array(

@@ -2,11 +2,12 @@
 namespace LORIS\Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use LORIS\Http\FileStream;
 use LORIS\Http\StringStream;
 
 
-class ModuleFileRouter implements \LORIS\Middleware\RequestHandlerInterface {
+class ModuleFileRouter implements RequestHandlerInterface {
     protected $module;
     protected $subdir;
 

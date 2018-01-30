@@ -9,7 +9,10 @@
         "pear-pear.php.net/HTML_QuickForm" : "~3.2",
         "google/recaptcha": "~1.1",
         "psr/http-message": "~1.0",
+        "psr/http-server-handler" : "*",
+        "psr/http-server-middleware" : "*",
         "zendframework/zend-diactoros": "^1.6"
+
     },
     "require-dev" : {
         "squizlabs/php_codesniffer" : "2.5.*",

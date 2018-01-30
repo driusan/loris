@@ -1,4 +1,5 @@
 <?php
+use Psr\Http\Server\RequestHandlerInterface;
 /**
  * This file contains a class which encapsulates the concept of a "module"
  * in LORIS.
@@ -22,7 +23,7 @@
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHandlerInterface 
+class Module extends \LORIS\Router\Prefix implements RequestHandlerInterface 
 {
     protected $name;
     protected $dir;
@@ -153,12 +154,11 @@ class Module extends \LORIS\Router\Prefix implements \LORIS\Middleware\RequestHa
         $identifier = $_REQUEST['identifier'] ?? '';
         $commentID  = $_REQUEST['commentID'] ?? '';
         $cls        = new $className($this, $page, $identifier, $commentID, $page);
-        // Smarty needs the Module name as a parameter to autoload the right
-        // templates. Every type of page uses this.
 
         // Hacks so that existing display() functions load the right template
         // for different page types.
         $cls->menu = $page;
+        $cls->setup();
 
         return $cls;
     }
