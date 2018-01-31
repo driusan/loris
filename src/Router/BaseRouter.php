@@ -51,11 +51,12 @@ class BaseRouter extends Prefix implements RequestHandlerInterface {
 
             // Calculate the base path by stripping off the module from the original.
             $path = $uri->getPath();
-            $baseurl = substr($path, strrpos($path, $suburi->getPath()));
+            $baseurl = substr($path, 0, strpos($path, $modulename));
             $baseurl = $uri->withPath($baseurl)->withQuery("");
-            $request= $request->withAttribute("baseurl", $baseurl->__toString());
+            $request = $request->withAttribute("baseurl", $baseurl->__toString());
             $mr = new ModuleRouter($module, $this->moduledir);
-            return $mr->handle($request->withURI($suburi));
+            $request = $request->withURI($suburi);
+            return $mr->handle($request);
         }
 
         // Legacy from .htaccess. A CandID goes to the timepoint_list
