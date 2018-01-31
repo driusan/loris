@@ -2,8 +2,10 @@
 namespace LORIS\Middleware;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
+use \Psr\Http\Server\MiddlewareInterface;
+use \Psr\Http\Server\RequestHandlerInterface;
 
-class AnonymousPageDecorationMiddleware implements Middleware {
+class AnonymousPageDecorationMiddleware implements MiddlewareInterface {
     protected $JSFiles;
     protected $CSSFiles;
     protected $Config;
@@ -24,7 +26,7 @@ class AnonymousPageDecorationMiddleware implements Middleware {
      *
      * @return string the page content
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) { 
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface {
         // Basic page outline variables
         $tpl_data = array(
             'study_title' => $this->Config->getSetting('title'),
