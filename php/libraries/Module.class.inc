@@ -158,7 +158,6 @@ class Module extends \LORIS\Router\Prefix implements RequestHandlerInterface
         // Hacks so that existing display() functions load the right template
         // for different page types.
         $cls->menu = $page;
-        $cls->setup();
 
         return $cls;
     }
