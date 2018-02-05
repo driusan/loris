@@ -35,8 +35,9 @@ RewriteRule ^([a-zA-Z_-]+)/ajax/([a-zA-Z0-9_.-]+)$ AjaxHelper.php?Module=$1&scri
 RewriteRule ^instruments/([a-zA-Z0-9_-]+)/$ main.php?test_name=$1 [QSA,L]
 RewriteRule ^instruments/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_.-]+)/$ main.php?test_name=$1&subtest=$2 [QSA,L]
 
+RewriteRule ^/*$ index.php?lorispath=/ [QSA,L]
 # Everything else goes through the new PSR7 router
-RewriteCond "%{REQUEST_URI}" "!=/main.php"
+#RewriteCond "%{REQUEST_URI}" "!=/main.php"
 RewriteCond "%{REQUEST_FILENAME}" "!-f"
 RewriteRule ^(.+)$ index.php?lorispath=$1 [QSA,L]
 

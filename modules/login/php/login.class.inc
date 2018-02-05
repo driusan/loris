@@ -75,6 +75,7 @@ class Login extends \NDB_Page
     }
 
     public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
+        $this->setup();
         switch ($request->getMethod()) {
         case 'POST':
             $spl = $_SESSION['State']->getProperty('login');
