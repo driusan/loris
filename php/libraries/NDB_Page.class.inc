@@ -621,6 +621,7 @@ class NDB_Page implements RequestHandlerInterface
 
     // Handle will convert a legacy LORIS page to a PSR handler.
     public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
+        $this->setup();
         return (new \Zend\Diactoros\Response())
             ->withBody(new \LORIS\Http\StringStream($this->display()));
     }
