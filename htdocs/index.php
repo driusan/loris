@@ -8,7 +8,7 @@ $client->initialize();
 // Middleware that happens on every request. This doesn't include
 // any authentication middleware, because that's done dynamically
 // based on the module router, depending on if the module is public.
-$middlewarechain = (new \LORIS\Middleware\ContentLength())->withMiddleware(new \LORIS\Middleware\ETag())->withMiddleware(new \LORIS\Middleware\ResponseGenerator());
+$middlewarechain = (new \LORIS\Middleware\ContentLength())->withMiddleware(new \LORIS\Middleware\ResponseGenerator());
 
 $request = \Zend\Diactoros\ServerRequestFactory::fromGlobals();
 // Now that we've created the ServerRequest, handle it.
