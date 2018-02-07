@@ -1,12 +1,10 @@
-- Add route for instruments
-    - move to a module before this PR? (can't, namespace would go too deep for current architecture..)
-- Figure out what to do with setup()
-    - only call for some page types? (menu filter, form..)
+- Fix new profile page
+
 - FIX 404/500/403/401/etc error pages to use the templates
 - Test on installs not directly under /
 - Test everything
 - Ensure router works with built in PHP web server 
 - Test Form submissions
+    - broken
 - add /logout route
-- Fix baseurl for /candID route
 - Fix breadcrumbs

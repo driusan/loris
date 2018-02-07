@@ -69,14 +69,17 @@ class UserPageDecorationMiddleware implements MiddlewareInterface {
         // I don't think anyone uses this. It's not really supported
         $tpl_data['css'] = $this->Config->getSetting('css');
 
-        // This just feels wrong
-        if (method_exists($this, 'getControlPanel')) {
-            $tpl_data['control_panel'] = $this->getControlPanel();
+
+        // This should be moved out of the middleware and into the modules that need it,
+        // but is currently required for backwards compatibility.
+        $page = $request->getAttribute("pageclass");
+        if (method_exists($page, 'getControlPanel')) {
+            $tpl_data['control_panel'] = $page->getControlPanel();
         }
-        if (method_exists($this, 'getFeedbackPanel')
+        if (method_exists($page, 'getFeedbackPanel')
             && $user->hasPermission('bvl_feedback')
         ) {
-            $tpl_data['feedback_panel'] = $this->getFeedbackPanel(
+            $tpl_data['feedback_panel'] = $page->getFeedbackPanel(
                 $get['candID'],
                 $get['sessionID'] ?? null
             );

@@ -117,7 +117,7 @@ class State
         ) {
             return 'main.php?test_name=candidate_list';
         } elseif (!empty($_REQUEST['candID'])
-            && in_array($_REQUEST['test_name'], $timepointSubMenus)
+            && in_array($_REQUEST['test_name'] ?? [], $timepointSubMenus)
         ) {
             return 'main.php?test_name=timepoint_list&candID='.$_REQUEST['candID'];
         } elseif ($caller->type == 'instrument'

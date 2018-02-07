@@ -597,7 +597,7 @@ class Candidate
         // make a local reference to the Database object
         $db = $factory->database();
 
-        if ($visitLabelSettings['generation'] == 'user'
+        if ($visitLabelSettings['generation'] ?? '' == 'user'
             && !empty($visitLabelSettings['suggest'])
         ) {
             $existingVisitLabels = $this->getListOfVisitLabels();

@@ -27,9 +27,12 @@ namespace LORIS\timepoint_list;
 class Module extends \Module
 {
     public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
+        try {
          $resp = parent::handle($request);
          if ($resp->getStatusCode() != 404) {
                return $resp;
+        }
+        } catch (\NotFound $e) {
         }
         $page = $this->loadPage("timepoint_list");
         return $page->process($request, $page);

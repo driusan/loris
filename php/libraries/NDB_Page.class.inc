@@ -605,6 +605,10 @@ class NDB_Page implements RequestHandlerInterface
 
         $user = $request->getAttribute("user");
 
+        // Add the page class to the request to that middleware that needs it has access to it. (This currently
+        // required by the page decoration middleware, because of the control panels.)
+        $request = $request->withAttribute("pageclass", $this);
+
         // FIXME: For historical compatibility with NDB_Menu_Filter. Should be a different endpoint.
         $get = $request->getQueryParams();
         if (isset($get['format'])) {

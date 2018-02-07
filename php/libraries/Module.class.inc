@@ -74,6 +74,9 @@ class Module extends \LORIS\Router\Prefix implements RequestHandlerInterface
                     $fpath = $mpath . "/php/"
                     . strtolower(substr($class, strlen("LORIS\\$name\\")))
                     . ".class.inc";
+                    if (!file_exists($fpath)) {
+                        throw new \NotFound($name);
+                    }
                     include $fpath;
                 }
             }
@@ -187,7 +190,11 @@ class Module extends \LORIS\Router\Prefix implements RequestHandlerInterface
         case "":
         case "/":
             $page = $this->loadPage($this->getName());
-
+            return $page->process($request, $page);
+        default:
+            // Fall back on the old way of doing subpages
+            $components = explode("@", trim($request->getURI()->getPath(), "/"));
+            $page = $this->loadPage($components[0]);
             return $page->process($request, $page);
         }
 
