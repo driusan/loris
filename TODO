@@ -1,4 +1,4 @@
-- Fix new profile page
+- Fix new profile page warnings
 
 - FIX 404/500/403/401/etc error pages to use the templates
 - Test on installs not directly under /

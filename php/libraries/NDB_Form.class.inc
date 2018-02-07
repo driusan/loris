@@ -173,5 +173,16 @@ class NDB_Form extends NDB_Page
     {
         return true;
     }
+
+    public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
+        $this->setup();
+        if ($request->getMethod() === "POST") {
+            $this->save();
+        }
+
+        return (new \Zend\Diactoros\Response())
+            ->withBody(new \LORIS\Http\StringStream($this->display()));
+    }
+
 }
 ?>
