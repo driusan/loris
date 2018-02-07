@@ -27,7 +27,5 @@ foreach ($headers as $name => $values) {
     header($name . ': ' . implode(', ', $values));
 }
 
-// Include the body. FIXME: this should take advantage of the fact
-// that it's a stream to chunk up large responses and lower memory
-// usage.
+// Include the body.
 print $response->getBody();
