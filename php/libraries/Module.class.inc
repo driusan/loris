@@ -131,6 +131,12 @@ class Module extends \LORIS\Router\Prefix implements RequestHandlerInterface
         return false;
     }
 
+    /**
+     * Return true if the given user should have access to this module.
+     *
+     * By default, this will assume that anonymous users do not have access
+     * to non-public modules, but otherwise everyone has access to anything.
+     */
     public function hasAccess(User $user) {
         if ($this->isPublicModule() !== true) {
             if ($user instanceof \LORIS\AnonymousUser) {
@@ -181,6 +187,15 @@ class Module extends \LORIS\Router\Prefix implements RequestHandlerInterface
         return "No help available for $page ($helpFile)";
     }
 
+    /**
+     * The default handler for a module routes to a page of the first component of
+     * the URL's name, or the same name as the module if serving the root of the
+     * module.
+     *
+     * Modules extend PrefixRouter, so that the parent handler knows that the
+     * css, static, and js routes should be routed through the file system to
+     * retrieve the files before trying to load any specific pages.
+     */
     public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
         $resp = parent::handle($request);
         if ($resp->getStatusCode() != 404) {

@@ -58,6 +58,13 @@ class Instrument_List extends \NDB_Menu_Filter
         );
     }
 
+    /**
+     * The handler for the instrument_list extracts both the timepoint and candidate from the URL
+     * and attaches them to the class as class member variables before handling (displaying) the
+     * page.
+     *
+     * This makes it possible to not depend on PHP superglobals within the page itself.
+     */
     public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
         $gets = $request->getQueryParams();
 

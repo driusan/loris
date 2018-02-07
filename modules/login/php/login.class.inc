@@ -74,6 +74,10 @@ class Login extends \NDB_Page
         }
     }
 
+    /**
+     * The login page overrides the basic LORIS page handler to authenticate the password when
+     * called with a POST request.
+     */
     public function handle(\Psr\Http\Message\ServerRequestInterface $request) : \Psr\Http\Message\ResponseInterface {
         $this->setup();
         switch ($request->getMethod()) {
