@@ -22,7 +22,7 @@ class ModuleFileRouter implements RequestHandlerInterface {
         if (is_file($fullpath)) {
             return (new \Zend\Diactoros\Response)
                 ->withStatus(200)
-                ->withBody(new FileStream($fullpath));
+                ->withBody(new \Zend\Diactoros\Stream($fullpath));
         }
         return (new \Zend\Diactoros\Response())
             ->withStatus(404)
