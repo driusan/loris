@@ -2,10 +2,9 @@
 
 ## Purpose
 
-The instrument manager is intended to view and manage instrument
-metadata for a LORIS instance as well as provide a centralized place
-to install instruments created from the instrument builder without
-backend access.
+The instrument manager is intended to view and manage instrument metadata
+for a LORIS instance as well as provide a centralized place to install
+instruments created from the instrument builder without backend access.
 
 It provides overview of the "health" of the various MySQL instrument
 tables and whether or not they are in sync with the instrument as it
@@ -24,28 +23,30 @@ LORIS instance.
 
 Only the instrument metadata is managed by the instrument manager.
 
-It does not concern itself with data collection or analysis,
-which are the responsibility of the instruments themselves, nor does
-it concern itself with the creation of instruments which is the
-responsibility of the `instrument_builder` module or PHP programmer.
+It does not concern itself with data collection or analysis, which are
+the responsibility of the instruments themselves, nor does it concern
+itself with the creation of instruments which is the responsibility of
+the `instrument_builder` module or PHP programmer.
+
+Note that even if an instrument is successfully installed, test battery
+must be configure manually.
 
 ## Permissions
 
-The `instrument_manager` module requires the LORIS `superuser`
-permission to be accessed.
+The `instrument_manager` module requires the LORIS `superuser` permission
+to be accessed.
 
 ## Configurations
 
 For basic access to the module, no configuration is required.
 
-In order to enable the ability to upload instruments, PHP must be
-able to write to the `project/instruments` and `project/tables_sql`
-directories (to write the instrument itself, and instrument table
-patch respectively.)
+In order to enable the ability to upload instruments, PHP must be able to
+write to the `project/instruments` and `project/tables_sql` directories
+(to write the instrument itself, and instrument table patch respectively.)
 
-In order to automatically source the SQL patch and fully configure
-LINST instruments, the LORIS `quatUser` and `quatPassword` configuration
-must be set to a user which has the MySQL `CREATE TABLE` permission.
-(The name `quatUser` and `quatPassword is an anachronism and should
-be renamed.)
-
+In order to automatically source the SQL patch and fully configure LINST
+instruments, the LORIS `quatUser` and `quatPassword` configuration
+(in `project/config.xml`) must be set to a user which has the MySQL
+`CREATE TABLE` permission. Note the quatUser should not have the `DELETE`
+privilege.  (The name `quatUser` and `quatPassword is an anachronism
+and should be renamed.)
