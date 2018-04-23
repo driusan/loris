@@ -25,6 +25,7 @@ $client->initialize();
 // any authentication middleware, because that's done dynamically
 // based on the module router, depending on if the module is public.
 $middlewarechain = (new \LORIS\Middleware\ContentLength())
+    ->withMiddleware(new \LORIS\Middleware\HeadersGenerator())
     ->withMiddleware(new \LORIS\Middleware\ResponseGenerator());
 
 $serverrequest = \Zend\Diactoros\ServerRequestFactory::fromGlobals();
@@ -40,19 +41,6 @@ $entrypoint = new \LORIS\Router\BaseRouter(
 
 // Now handle the request.
 $response = $middlewarechain->process($serverrequest, $entrypoint);
-
-// Add the HTTP header line.
-header(
-    "HTTP/" . $response->getProtocolVersion()
-    . " " . $response->getStatusCode()
-    . " " . $response->getReasonPhrase()
-);
-
-// Add the headers from the response.
-$headers = $response->getHeaders();
-foreach ($headers as $name => $values) {
-    header($name . ': ' . implode(', ', $values));
-}
 
 // Include the body.
 print $response->getBody();
