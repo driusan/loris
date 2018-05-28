@@ -70,5 +70,8 @@
             <!--directory>../modules/dashboard/ajax/</directory-->
         </whitelist>
     </filter>
+    <listeners>
+        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
+    </listeners>
 
 </phpunit>
