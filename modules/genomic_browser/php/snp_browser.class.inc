@@ -68,7 +68,7 @@ class SNP_Browser extends \NDB_Menu_Filter
                           'psc.Name AS PSC',
                           'LPAD(candidate.CandID, 6, "0") AS DCCID',
                           'candidate.PSCID',
-                          'candidate.Gender',
+                          'candidate.Sex',
                           'cohort.SubprojectID as Subproject',
                           'DATE_FORMAT(candidate.DoB,\'%Y-%m-%d\') AS DoB',
                           'candidate.ExternalID as externalID',
@@ -159,7 +159,7 @@ class SNP_Browser extends \NDB_Menu_Filter
                                'candidate.CenterID',
                                'candidate.CandID',
                                'candidate.PSCID',
-                               'candidate.Gender',
+                               'candidate.Sex',
                                'cohort.SubprojectID',
                                'candidate.DoB',
                                'candidate.ExternalID',
@@ -195,7 +195,7 @@ class SNP_Browser extends \NDB_Menu_Filter
                 'centerID'            => 'candidate.CenterID',
                 'DCCID'               => 'candidate.CandID',
                 'PSCID'               => 'candidate.PSCID',
-                'gender'              => 'candidate.Gender',
+                'sex'                 => 'candidate.Sex',
                 'SubprojectID'        => 'cohort.SubprojectID',
                 'dob'                 => 'candidate.DoB',
                 'External_ID'         => 'candidate.ExternalID',
@@ -264,8 +264,8 @@ class SNP_Browser extends \NDB_Menu_Filter
         $this->addBasicText('PSCID', 'PSCID:');
         $this->addBasicText('External_ID', 'External ID:');
         $this->addSelect(
-            'gender',
-            'Gender:',
+            'sex',
+            'Sex:',
             array(
              ''       => 'All',
              'Male'   => 'Male',
@@ -407,7 +407,7 @@ class SNP_Browser extends \NDB_Menu_Filter
                  $query .= " AND $field";
             } elseif (strtolower(substr($field, -8)) == 'centerid'
                 || strtolower(substr($field, -10)) == 'categoryid'
-                || strtolower(substr($field, -6)) == 'gender'
+                || strtolower(substr($field, -6)) == 'sex'
                 || strtolower(substr($field, -10)) == 'chromosome'
                 || (isset($this->EqualityFilters)
                 && in_array($field, $this->EqualityFilters))

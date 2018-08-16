@@ -70,7 +70,7 @@ class CpG_Browser extends \NDB_Menu_Filter
                                 'psc.Name AS PSC',
                                 'LPAD(candidate.CandID, 6, "0") AS DCCID',
                                 'candidate.PSCID',
-                                'candidate.Gender',
+                                'candidate.Sex',
                                 'cohort.SubprojectID as Subproject',
                                 'DATE_FORMAT(candidate.DoB,\'%Y-%m-%d\') AS DoB',
                                 'gscr.sample_label as Sample',
@@ -175,7 +175,7 @@ class CpG_Browser extends \NDB_Menu_Filter
                                'candidate.CenterID',
                                'candidate.CandID',
                                'candidate.PSCID',
-                               'candidate.Gender',
+                               'candidate.Sex',
                                'cohort.SubprojectID',
                                'candidate.DoB',
                                'show_brief_results',
@@ -207,7 +207,7 @@ class CpG_Browser extends \NDB_Menu_Filter
                                'centerID'           => 'candidate.CenterID',
                                'DCCID'              => 'candidate.CandID',
                                'PSCID'              => 'candidate.PSCID',
-                               'gender'             => 'candidate.Gender',
+                               'sex'                => 'candidate.Sex',
                                'SubprojectID'       => 'cohort.SubprojectID',
                                'dob'                => 'candidate.DoB',
                                'Show_Brief_Results' => 'show_brief_results',
@@ -237,7 +237,7 @@ class CpG_Browser extends \NDB_Menu_Filter
                               );
 
         $this->EqualityFilters = array(
-                                  'candidate.Gender',
+                                  'candidate.Sex',
                                   'cpg.cpg_name',
                                   'gca.genome_build',
                                   'gca.design_type',
@@ -286,8 +286,8 @@ class CpG_Browser extends \NDB_Menu_Filter
         $this->addBasicText('DCCID', 'DCCID:');
         $this->addBasicText('PSCID', 'PSCID:');
         $this->addSelect(
-            'gender',
-            'Gender:',
+            'sex',
+            'Sex:',
             array(
              ''       => 'All',
              'Male'   => 'Male',
