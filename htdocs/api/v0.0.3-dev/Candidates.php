@@ -227,18 +227,18 @@ class Candidates extends APIBase
      * @param string $centerID The center id of the candidate
      * @param string $DoB      Date of birth of the candidate
      * @param string $edc      EDC of the candidate
-     * @param string $gender   Gender of the candidate to be created
+     * @param string $sex      Biological sex of the candidate to be created
      * @param string $PSCID    PSCID of the candidate to be created
      *
      * @return none
      */
-    public function createNew($centerID, $DoB, $edc, $gender, $PSCID)
+    public function createNew($centerID, $DoB, $edc, $sex, $PSCID)
     {
         return \Candidate::createNew(
             $centerID,
             $DoB,
             $edc,
-            $gender,
+            $sex,
             $PSCID
         );
     }

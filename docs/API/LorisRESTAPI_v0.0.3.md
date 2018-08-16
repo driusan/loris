@@ -271,7 +271,7 @@ of this reference a CandidateObject. A CandidateObject is a JSON object of the f
         "Site"    : Site,
         "EDC"     : "YYYY-MM-DD",
         "DoB"     : "YYYY-MM-DD",
-        "Gender"  : "Male|Female"
+        "Sex"  : "Male"|"Female"
 }
 ```
 
