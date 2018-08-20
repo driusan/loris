@@ -2,7 +2,7 @@ let ProbandInfo = React.createClass(
   {
     getInitialState: function() {
       return {
-        genderOptions: {
+        sexOptions: {
           Male: 'Male',
           Female: 'Female',
         },
@@ -25,7 +25,7 @@ let ProbandInfo = React.createClass(
           dataType: 'json',
           success: function(data) {
             const formData = {
-              ProbandGender: data.ProbandGender,
+              ProbandSex: data.ProbandSex,
               ProbandDoB: data.ProbandDoB,
               ProbandDoB2: data.ProbandDoB,
             };
@@ -96,7 +96,7 @@ let ProbandInfo = React.createClass(
 
       let dobRequired = false;
       let dob2Required = false;
-      if (this.state.formData.ProbandGender !== null) {
+      if (this.state.formData.ProbandSex !== null) {
         dobRequired = true;
       }
       if (this.state.formData.ProbandDoB !== null) {
@@ -198,12 +198,12 @@ let ProbandInfo = React.createClass(
               text={this.state.Data.candID}
             />
             <SelectElement
-              label="Proband Gender"
-              name="ProbandGender"
-              options={this.state.genderOptions}
-              value={this.state.formData.ProbandGender}
+              label="Proband Sex"
+              name="ProbandSex"
+              options={this.state.sexOptions}
+              value={this.state.formData.ProbandSex}
               onUserInput={this.setFormData}
-              ref="ProbandGender"
+              ref="ProbandSex"
               disabled={disabled}
               required={true}
             />

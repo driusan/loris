@@ -90,7 +90,7 @@ class Dicom_Archive extends \NDB_Menu_Filter
         $this->addBasicText('patientID', 'Patient ID');
         $this->addBasicText('patientName', 'Patient Name');
         $this->addSelect('site', 'Site', \Utility::getSiteList());
-        $this->addBasicText('gender', 'Gender');
+        $this->addBasicText('sex', 'Biological Sex');
         $this->addBasicDate('dateOfBirth', 'Date of Birth');
         $this->addBasicDate('acquisition', 'Acquisition Date');
         $this->addBasicText('archiveLocation', 'Archive Location');
@@ -119,7 +119,7 @@ class Dicom_Archive extends \NDB_Menu_Filter
              'Headers'       => [
                                  'Patient ID',
                                  'Patient Name',
-                                 'Gender',
+                                 'Biological Sex',
                                  'Date Of Birth',
                                  'Acquisition',
                                  'Archive Location',

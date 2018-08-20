@@ -72,7 +72,7 @@ class New_Profile extends \NDB_Form
                 $values['psc'],
                 $dob,
                 $edc,
-                $values['gender'],
+                $values['sex'],
                 $values['PSCID'] ?? null
             );
         } else {
@@ -82,7 +82,7 @@ class New_Profile extends \NDB_Form
                 $centerID,
                 $dob,
                 $edc,
-                $values['gender'],
+                $values['sex'],
                 $values['PSCID'] ?? null
             );
         }
@@ -198,16 +198,16 @@ class New_Profile extends \NDB_Form
             $this->addSelect('ProjectID', 'Project', $projList);
         }
 
-        // add gender
-        $genderOptions = array(
+        // add sex
+        $sexOptions = array(
                           ''       => '',
                           'Male'   => 'Male',
                           'Female' => 'Female',
                          );
-        $this->addSelect('gender', 'Gender', $genderOptions);
+        $this->addSelect('sex', 'Sex', $sexOptions);
 
-        // gender rules
-        $this->addRule('gender', 'Gender is required', 'required');
+        // sex rules
+        $this->addRule('sex', 'Sex is required', 'required');
 
         // add sites for users with more than one site affiliation
         $user =& \User::singleton();
@@ -271,8 +271,8 @@ class New_Profile extends \NDB_Form
             }
         }
 
-        if (empty($values['gender'])) {
-            $errors['gender'] = 'Gender is required.';
+        if (empty($values['sex'])) {
+            $errors['sex'] = 'Sex is required.';
         }
 
         $PSCIDsettings = $config->getSetting('PSCID');

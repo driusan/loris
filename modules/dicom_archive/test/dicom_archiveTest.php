@@ -117,7 +117,7 @@ class DicomArchiveTestIntegrationTest extends LorisIntegrationTest
             "ibis"
         );
         $this-> _filter('site', "2", self::$site, "ibis");
-        $this-> _filter('gender', "M", self::$Gender, "D568405");
+        $this-> _filter('sex', "M", self::$Gender, "D568405");
         $this-> _filter(
             'dateOfBirth',
             '2011-10-20',
@@ -185,7 +185,7 @@ class DicomArchiveTestIntegrationTest extends LorisIntegrationTest
         $this->_clear('patientID', self::$patientID, 'testtesttest');
         $this->_clear('patientName', self::$PatientName, 'testtesttest');
         $this->_clear('site', self::$site, 'testtesttest');
-        $this->_clear('gender', self::$Gender, 'testtesttest');
+        $this->_clear('sex', self::$Gender, 'testtesttest');
         $this->_clear('dateOfBirth', self::$dateOfBirth, 'testtesttest');
         $this->_clear('acquisition', self::$Acquisition, 'testtesttest');
         $this->_clear('archiveLocation', self::$Archive, 'testtesttest');

@@ -190,7 +190,7 @@ class Candidate
      *                            belong
      * @param string $dateOfBirth date of birth written as YYYY-MM-DD
      * @param string $edc         estimated date of confinement written as YYYY-MM-DD
-     * @param string $gender      gender, either 'Male' or 'Female'
+     * @param string $sex         either 'Male' or 'Female'
      * @param string $PSCID       PSCID specified by the user, if available
      *
      * @return int   $candID      candidate id of the new candidate
@@ -198,7 +198,7 @@ class Candidate
      * @static
      */
     static public function createNew(
-        $centerID, $dateOfBirth, $edc, $gender, $PSCID = null
+        $centerID, $dateOfBirth, $edc, $sex, $PSCID = null
     ) {
         $factory = NDB_Factory::singleton();
         $db      = $factory->database();
@@ -258,7 +258,7 @@ class Candidate
                      'PSCID'           => $PSCID,
                      'DoB'             => $dateOfBirth,
                      'EDC'             => $edc,
-                     'Gender'          => $gender,
+                     'Sex'             => $sex,
                      'Date_active'     => date('Y-m-d'),
                      'Date_registered' => date('Y-m-d'),
                      'Entity_type'     => 'Human',
@@ -481,13 +481,13 @@ class Candidate
     }
 
     /**
-     * Return the candidate's gender
+     * Return the candidate's sex
      *
-     * @return string Male|Female String describing the gender
+     * @return string Male|Female String describing the sex
      */
     function getCandidateGender()
     {
-        return $this->candidateInfo["Gender"];
+        return $this->candidateInfo["Sex"];
     }
 
     /**
