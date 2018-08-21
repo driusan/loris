@@ -205,7 +205,7 @@ class NDB_BVL_Instrument extends NDB_Page
                 && ($guarantee_exists === true
                 && !file_exists($base."project/instruments/$class.class.inc"))
             ) {
-                throw new Exception("Instrument does not exist");
+                throw new Exception("Instrument " . $class . " does not exist");
             }
             if (!class_exists($class)) {
                 include_once $base."project/instruments/$class.class.inc";
@@ -331,6 +331,9 @@ class NDB_BVL_Instrument extends NDB_Page
      */
     function setup($commentID = null, $page = null)
     {
+        if ($commentID === null) {
+            return;
+        }
         $this->commentID = $commentID;
         $this->page      = $page;
     }
