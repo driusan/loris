@@ -65,7 +65,7 @@ abstract class APIEndpoint extends \NDB_Page
             return (new \LORIS\Http\Response())
                 ->withBody(
                     new \LORIS\Http\StringStream(
-                        json_encode("error", "Unsupported HTTP Method")
+                        json_encode(["error" => "Unsupported HTTP Method"])
                     )
                 )->withHeader("Allow", join(",", $methods))
                 ->withStatus(405);
@@ -79,7 +79,7 @@ abstract class APIEndpoint extends \NDB_Page
                 ->withBody(
                     new \LORIS\Http\StringStream(
                         json_encode(
-                            array("error" => "Unsupported LORIS API version.")
+                            array("error" => "Unsupported LORIS API version: ")
                         )
                     )
                 )
