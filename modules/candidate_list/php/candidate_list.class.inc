@@ -214,15 +214,9 @@ class Candidate_List extends \NDB_Menu_Filter
           $config =& \NDB_Config::singleton();
         // PSC
         if ($user->hasPermission('access_all_profiles')) {
-            // get the list of study sites - to be replaced by the Site object
             $list_of_sites = \Utility::getSiteList();
-            if (is_array($list_of_sites)) {
-                $list_of_sites = array('' => 'All') + $list_of_sites;
-            }
         } else {
-            // allow only to view own site data
             $list_of_sites = $user->getStudySites();
-            $list_of_sites = array('' => 'All User Sites') + $list_of_sites;
         }
 
         // SubprojectID
@@ -260,9 +254,6 @@ class Candidate_List extends \NDB_Menu_Filter
 
         // add form elements
         $this->addSelect('centerID', 'Site', $list_of_sites);
-        $this->addBasicText('PSCID', 'PSCID');
-        $this->addBasicText('DCCID', 'DCCID');
-        $this->addBasicText('candID', 'DCCID');
         $this->addSelect(
             'Visit_label',
             'Visit Label',
@@ -330,6 +321,10 @@ class Candidate_List extends \NDB_Menu_Filter
             array_merge(array('' => 'All'), $feedback_status_options)
         );
 
+        $this->fieldOptions = [
+            'sites' => $list_of_sites,
+            '' => ['yes', 'no'],
+        ];
         return true;
     }
 
@@ -347,11 +342,7 @@ class Candidate_List extends \NDB_Menu_Filter
         return array_merge(
             $deps,
             array(
-             $baseURL . "/js/advancedMenu.js",
-             $baseURL . "/candidate_list/js/columnFormatter.js",
-             $baseURL . "/candidate_list/js/candidate_list_helper.js",
-             $baseURL . "/js/components/Form.js",
-             $baseURL . "/candidate_list/js/onLoad.js",
+             $baseURL . "/candidate_list/js/candidateListIndex.js",
             )
         );
     }
