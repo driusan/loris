@@ -323,7 +323,9 @@ class Candidate_List extends \NDB_Menu_Filter
 
         $this->fieldOptions = [
             'sites' => $list_of_sites,
-            '' => ['yes', 'no'],
+            'projects' => $list_of_projects ?? ['aa' => 'bc'],
+            'subprojects' => $list_of_subprojects ?? ['aa' => 'bc'],
+            'participantstatus' => $list_of_particpant_status ?? ['aa' => 'bc'],
         ];
         return true;
     }
