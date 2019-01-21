@@ -103,7 +103,7 @@ class View_Genomic_File extends \NDB_Form
             // load $file array
             $file = array(
                      'FileID'           => $fileRow['GenomicFileID'],
-                     'Filename'         => $paramFileName,
+                     'Filename'         => $paramFilename,
                      'FullFilename'     => $FileObj->getParameter('FileName'),
                      'FilePackage'      => $FileObj->getParameter('FilePackage'),
                      'FileType'         => $FileObj->getParameter('FileType'),
@@ -120,16 +120,21 @@ class View_Genomic_File extends \NDB_Form
                      'AnalysisModality' => $FileObj->getParameter(
                          'AnalysisModality'
                      ),
-                     'AnalysisDate'     => $this->_getDate(
-                         $FileObj,
-                         'Date_taken',
-                         $analysisDate
-                     ),
-                     'SampleDate'       => $this->_getDate(
-                         $FileObj,
-                         'Date_sample',
-                         $sampleDate
-                     ),
+                     //FIXME The lines below were flagged by phan because the
+                     // date variables referenced do not exist. it's possible
+                     // that they were accidentally removed in an old commit.
+                     //'AnalysisDate'     => $this->_getDate(
+                     //    $FileObj,
+                     //    'Date_taken',
+                     //    $analysisDate
+                     //),
+                     //'SampleDate'       => $this->_getDate(
+                     //    $FileObj,
+                     //    'Date_sample',
+                     //    $sampleDate
+                     //),
+                     'AnalysisDate'     => '',
+                     'SampleDate'       => '',
                      'FileInsertDate'   => $paramFileInsertDate,
                      'Selected'         => $FileObj->getParameter('Selected'),
                      'QCStatus'         => $FileObj->getParameter('QCStatus'),

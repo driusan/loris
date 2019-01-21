@@ -1089,6 +1089,7 @@ class Database
         $description = $this->pselect("SHOW INDEX FROM $table", array());
 
         // find the primary key columns
+        $primaryKeys = array();
         if (is_array($description)) {
             foreach ($description AS $column) {
                 if ($column['Key_name']=='PRIMARY') {

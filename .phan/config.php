@@ -22,7 +22,6 @@ return [
 		"PhanRedefineClass",
 		"PhanRedefinedExtendedClass",
 		"PhanUndeclaredMethod",
-		"PhanUndeclaredVariable",
 		"PhanUndeclaredVariableDim",
         "PhanUndeclaredTypeReturnType",
         "PhanTypeMismatchDimFetch",
