@@ -262,6 +262,15 @@ class Instrument_Manager extends \NDB_Menu_Filter
         return (new \Loris\Http\Response())
             ->withStatus(201, 'Created')
             ->withBody(new EmptyStream());
+        err:
+        return (new \Loris\Http\Response())
+            ->withStatus($status)
+            ->withBody(new \LORIS\Http\StringStream(
+                json_encode(
+                    array('error' => $err),
+                )
+            )
+        ));
     }
 
     /**
