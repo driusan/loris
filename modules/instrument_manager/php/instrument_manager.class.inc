@@ -119,38 +119,23 @@ class Instrument_Manager extends \NDB_Menu_Filter
      */
     protected function handlePOST(ServerRequestInterface $request): ResponseInterface
     {
+        $status = 200;
+        $err = '';
         // Ensure the user is allowed to upload.
         if (! \User::singleton()->hasPermission('instrument_manager_write')) {
-            return (new \Loris\Http\Response())
-                ->withStatus(403, 'Forbidden')
-                ->withBody(
-                    new \LORIS\Http\StringStream(
-                        json_encode(
-                            array('error' => 'Forbidden')
-                        )
-                    )
-                );
+            $status = 403;
+            $err = 'Forbidden';
+            goto err;
         }
-        // Ensure the server is properly configured.
-        if (! $this->canWriteFiles()) {
-            return (new \Loris\Http\Response())
-                ->withStatus(500, 'Internal Server Error')
-                ->withBody(
-                    new \LORIS\Http\StringStream(
-                        json_encode(
-                            array('error' => self::UPLOAD_INSTALL_FAILED)
-                        )
-                    )
-                );
-        }
+
         $uploaded_file = $request->getUploadedFiles()['install_file'];
         $filename      = $uploaded_file->getClientFilename();
         $instrument    = pathinfo($filename)['filename'];
         // Do pre-processing before uploading files.
-        $err = '';
         if (!$this->canWriteFiles()) {
             $err    = self::CANNOT_WRITE_FILES;
             $status = 500;
+            goto err;
         }
 
         $fullpath = $this->path . "project/instruments/" . $filename;
@@ -165,78 +150,65 @@ class Instrument_Manager extends \NDB_Menu_Filter
             */
             $err    = self::ALREADY_INSTALLED;
             $status = 409;
+            goto err;
         }
 
-        // Attempt file upload if no errors encountered so far.
-        $success = false;
-        if (empty($err)) {
-            /* Although only .linst files should be uploaded to this module, and
-             * they are just special text files, they are marked as
-             * application/octet-stream upon upload.
-             */
-            $uploader = new \FileUploader(
-                new \SplFileInfo($this->path . 'project/instruments/'),
-                0644,
-                false,
-                array('application/octet-stream')
-            );
-            $success  = $uploader->upload($request->getUploadedFiles());
-        }
+        /* Although only .linst files should be uploaded to this module, and
+         * they are just special text files, they are marked as
+         * application/octet-stream upon upload.
+         */
+        $uploader = new \FileUploader(
+            new \SplFileInfo($this->path . 'project/instruments/'),
+            0644,
+            false,
+            array('application/octet-stream')
+        );
+        $success  = $uploader->upload($request->getUploadedFiles());
 
         // Return appropriate error message if something has gone wrong.
         if (! $success) {
-            if (empty($err)) {
-                $status = $uploader->getResponseCode();
-                switch ($status) {
-                case 400:
-                    $err = self::BAD_REQUEST;
-                    break;
-                case 403:
-                    $err = self::CANNOT_WRITE_FILES;
-                    break;
-                case 409:
-                    if (file_exists($fullpath)) {
-                        /* This should only happen for users on a system where
-                         * automatic installation is disabled (ie. has no
-                         * quatUser), as the above 409 error (the
-                         * instrumentExists() check) will return before this
-                         * one.
-                         */
-                        $err = self::FILE_ALREADY_EXISTS;
-                    }
-                    break;
-                default:
-                    // 500 error message + any not specifically covered above.
-                    $err = empty($err) ? 'Sorry, something went wrong.' : $err;
+            $status = $uploader->getResponseCode();
+            switch ($status) {
+            case 400:
+                $err = self::BAD_REQUEST;
+                goto err;
+            case 403:
+                $err = self::CANNOT_WRITE_FILES;
+                goto err;
+            case 409:
+                if (file_exists($fullpath)) {
+                    /* This should only happen for users on a system where
+                     * automatic installation is disabled (ie. has no
+                     * quatUser), as the above 409 error (the
+                     * instrumentExists() check) will return before this
+                     * one.
+                     */
+                    $err = self::FILE_ALREADY_EXISTS;
+                    goto err;
                 }
+                assert(false);
+            default:
+                // 500 error message + any not specifically covered above.
+                $err = empty($err) ? 'Sorry, something went wrong.' : $err;
+                goto err;
             }
-            return (new \Loris\Http\Response())
-                ->withStatus(409, 'Conflict')
-                ->withBody(
-                    new \LORIS\Http\StringStream(
-                        json_encode(
-                            array('error' => $err)
-                        )
-                    )
-                );
-        }
-        // From here on we assume that file upload has completed successfully.
+            // From here on we assume that file upload has completed successfully.
 
-        // Scripts in tools/ often make relative imports, so we must change
-        // our effective directory in order to use them.
-        chdir($this->path . "/tools");
-        // Use tools/ script to generate an SQL patch file based on the
-        //
-        // structure of the uploaded .linst file.
-        exec(
-            'php generate_tables_sql_and_testNames.php < '
-            . escapeshellarg($fullpath)
-        );
+            // Scripts in tools/ often make relative imports, so we must change
+            // our effective directory in order to use them.
+            chdir($this->path . "/tools");
+            // Use tools/ script to generate an SQL patch file based on the
+            //
+            // structure of the uploaded .linst file.
+            exec(
+                'php generate_tables_sql_and_testNames.php < '
+                . escapeshellarg($fullpath)
+            );
 
-        if (!$this->isQuatUserConfigured()) {
-            // If no quatUser is configured, automatic installation is not
-            // possible, so this is the last step.
-            return (new \Loris\Http\Response())
+            if (!$this->isQuatUserConfigured()) {
+                // If no quatUser is configured, automatic installation is not
+                // possible, so this is the last step.
+                return (new \Loris\Http\Response())
                 ->withStatus(200, 'OK')
                 ->withBody(
                     new \LORIS\Http\StringStream(
@@ -245,38 +217,38 @@ class Instrument_Manager extends \NDB_Menu_Filter
                         )
                     )
                 );
-        }
+            }
 
-        // Install the instrument by directly sourcing the SQL file
-        // generated by `generate_tables_sql_and_testNames.php` using bash.
-        // If installation is successful, `exec` will complete
-        // silently. Otherwise, it will return the exit code and error
-        // messsage from MySQL. This will be stored in $result and
-        // logged via LorisException.
-        $table_name = \NDB_BVL_Instrument::factory($instrument, '', '')->table;
-        $db_config  = $this->factory->config()->getSetting('database');
-        exec(
-            "mysql".
-            " -h" . escapeshellarg($db_config['host']).
-            " -u" . escapeshellarg($db_config['quatUser']).
-            " -p" . escapeshellarg($db_config['quatPassword']).
-            " " . escapeshellarg($db_config['database']).
-            " < " . $this->path . "project/tables_sql/".
-            escapeshellarg($table_name . '.sql'),
-            $output, // $output and $status are created automatically
-            $status  // by `exec` and so need not be declared above.
-        );
-        // An exit code of 0 is a success and 1 means failure
-        if ($status) {
-            error_log(
-                "The installation of $instrument->table.sql failed. "
-                . "Either: the instrument table exists (but is not in the "
-                . "test_names table), or "
-                . "LORIS could not connect to the database using the "
-                . "credentials supplied in the config file."
-                . print_r($object)
+            // Install the instrument by directly sourcing the SQL file
+            // generated by `generate_tables_sql_and_testNames.php` using bash.
+            // If installation is successful, `exec` will complete
+            // silently. Otherwise, it will return the exit code and error
+            // messsage from MySQL. This will be stored in $result and
+            // logged via LorisException.
+            $table_name = \NDB_BVL_Instrument::factory($instrument, '', '')->table;
+            $db_config  = $this->factory->config()->getSetting('database');
+            exec(
+                "mysql".
+                " -h" . escapeshellarg($db_config['host']).
+                " -u" . escapeshellarg($db_config['quatUser']).
+                " -p" . escapeshellarg($db_config['quatPassword']).
+                " " . escapeshellarg($db_config['database']).
+                " < " . $this->path . "project/tables_sql/".
+                escapeshellarg($table_name . '.sql'),
+                $output, // $output and $status are created automatically
+                $status  // by `exec` and so need not be declared above.
             );
-            return (new \Loris\Http\Response())
+            // An exit code of 0 is a success and 1 means failure
+            if ($status) {
+                error_log(
+                    "The installation of $instrument->table.sql failed. "
+                    . "Either: the instrument table exists (but is not in the "
+                    . "test_names table), or "
+                    . "LORIS could not connect to the database using the "
+                    . "credentials supplied in the config file."
+                    . print_r($object)
+                );
+                return (new \Loris\Http\Response())
                 ->withStatus(500, 'Internal Server Error')
                 ->withBody(
                     new \LORIS\Http\StringStream(
