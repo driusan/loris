@@ -40,14 +40,15 @@ class Datadict extends \DataFrameworkMenu
     }
 
     /**
-     * Tells the base class that this page's provisioner can support the
-     * HasAnyPermissionOrUserSiteMatch filter.
+     * The data dictionary has no sites affiliated with it and as
+     * such can not add site filters without an exception being
+     * thrown
      *
-     * @return ?array of site permissions or null
+     * @return bool
      */
-    public function allSitePermissionNames() : ?array
+    public function useSiteFilter() : bool
     {
-        return null;
+        return false;
     }
 
     /**
@@ -58,9 +59,8 @@ class Datadict extends \DataFrameworkMenu
      */
     public function getFieldOptions() : array
     {
-        return array(
-            'sourceFrom' => \Utility::getAllInstruments(),
-        );
+        $instruments = \Utility::getAllInstruments();
+        return array('sourceFrom' => $instruments);
     }
 
     /**
