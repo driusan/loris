@@ -36,6 +36,9 @@ class DataDictRowProvisioner extends \LORIS\Data\Provisioners\DBRowProvisioner
      */
     function __construct()
     {
+        $config   = \NDB_Config::singleton();
+        $maybeEDC = '';
+
         parent::__construct(
             "SELECT DISTINCT
                 pt.sourceFrom as source_from,
