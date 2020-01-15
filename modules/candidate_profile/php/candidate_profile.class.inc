@@ -14,7 +14,7 @@ namespace LORIS\candidate_profile;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use \Psr\Http\Server\RequestHandlerInterface;
-use \Loris\StudyEntities\Candidate\CandID;
+use \LORIS\StudyEntities\Candidate\CandID;
 
 /**
  * The candidate_profile menu
@@ -89,7 +89,7 @@ class Candidate_Profile extends \NDB_Page
         RequestHandlerInterface $handler
     ) : ResponseInterface {
         // FIXME: Update the code to add the singleton here, not the identifier.
-       $this->candID = new CandID($request->getAttribute('CandID'));
+       $this->candID = (new CandID($request->getAttribute('CandID')))->__toString();
         return parent::process($request, $handler);
     }
 
@@ -354,12 +354,12 @@ class Candidate_Profile extends \NDB_Page
      * Used by the NDB_caller class when loading a page.
      * Call the display function of the appropriate modules feedback panel.
      *
-     * @param CandID $candID    candID
+     * @param string $candID    candID
      * @param string $sessionID sessionID
      *
      * @return string
      */
-    function getFeedbackPanel(CandID $candID, $sessionID = null)
+    function getFeedbackPanel($candID, $sessionID = null)
     {
         $feedbackPanel = new \BVL_Feedback_Panel($candID);
         $html          = $feedbackPanel->display();

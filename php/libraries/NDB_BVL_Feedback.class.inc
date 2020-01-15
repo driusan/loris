@@ -1054,7 +1054,7 @@ class NDB_BVL_Feedback
      * This function is currently used to check whether or not to render
      * the bvl_feedback_icon in main.tpl. It checks if the user has the
      * bvl feedback permission first, if the user has the permissions it
-     * then checks if the user is on the timepoint_list, instrument_list
+     * then checks if the user is on the candidate_profile, instrument_list
      * or on any instrument page.
      *
      * Returns false if the user doesn't have the appropriate permissions
@@ -1070,7 +1070,7 @@ class NDB_BVL_Feedback
     static function bvlFeedbackPossible(string $test_name): bool
     {
         if (\User::singleton()->hasPermission('bvl_feedback')) {
-            if (($test_name === "timepoint_list")
+            if (($test_name === "candidate_profile")
                 || ($test_name === "instrument_list")
             ) {
                 return true;

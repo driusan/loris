@@ -114,13 +114,13 @@ class State
 
         $caller =& NDB_Caller::singleton();
         if (isset($_REQUEST['test_name'])
-            && $_REQUEST['test_name'] == 'timepoint_list'
+            && $_REQUEST['test_name'] == 'candidate_profile'
         ) {
             return 'main.php?test_name=candidate_list';
         } elseif (!empty($_REQUEST['candID'])
             && in_array($_REQUEST['test_name'], $timepointSubMenus)
         ) {
-            return 'main.php?test_name=timepoint_list&candID='.$_REQUEST['candID'];
+            return 'main.php?test_name=candidate_profile&candID='.$_REQUEST['candID'];
         } elseif ($caller->type == 'instrument'
             || (isset($_REQUEST['test_name'])
             && $_REQUEST['test_name'] == 'next_stage')

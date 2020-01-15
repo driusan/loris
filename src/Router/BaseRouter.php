@@ -104,7 +104,7 @@ class BaseRouter extends PrefixRouter implements RequestHandlerInterface
             $request = $request->withURI($suburi);
             return $mr->handle($request);
         }
-        // Legacy from .htaccess. A CandID goes to the timepoint_list
+        // Legacy from .htaccess. A CandID goes to the candidate_profile
         // FIXME: This should all be one candidates module, not a bunch
         // of hacks in the base router.
         if (preg_match("/^([0-9]{6})$/", $components[0])) {
@@ -119,12 +119,12 @@ class BaseRouter extends PrefixRouter implements RequestHandlerInterface
                     $request = $request
                     ->withAttribute("baseurl", rtrim($baseurl->__toString(), '/'))
                     ->withAttribute("CandID", $components[0]);
-                    $module  = \Module::factory("timepoint_list");
-                    $mr      = new ModuleRouter($module, $this->moduledir);
-                    return $mr->handle($request);
-                case 2:
-                    // CandID/SessionID, inherited from htaccess
-                    $request = $request
+                $module  = \Module::factory("candidate_profile");
+                $mr      = new ModuleRouter($module, $this->moduledir);
+                return $mr->handle($request);
+            case 2:
+                // CandID/SessionID, inherited from htaccess
+                $request = $request
                     ->withAttribute("baseurl", $baseurl->__toString())
                     ->withAttribute("CandID", $components[0]);
                     // FIXME: Validate CandID is valid before continuing.
