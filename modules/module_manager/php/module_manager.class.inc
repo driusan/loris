@@ -57,6 +57,7 @@ class Module_Manager extends \DataFrameworkMenu
         return [];
 
     }
+
     /**
      * {@inheritDoc}
      *
@@ -64,7 +65,7 @@ class Module_Manager extends \DataFrameworkMenu
      */
     public function getBaseDataProvisioner(): \LORIS\Data\Provisioner
     {
-        return new ModuleManagerProvisioner();
+        return new ModuleManagerProvisioner($this->lorisinstance);
     }
 
     /**

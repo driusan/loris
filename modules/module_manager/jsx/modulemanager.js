@@ -122,6 +122,9 @@ class ModuleManagerIndex extends Component {
               value={cell}
               onUserInput={this.toggleActive}
             /></td>;
+    } else if (column == 'Configuration Errors') {
+        console.log(cell, row);
+        return <td>{cell.join(',')}</td>;
     }
     cell = this.mapColumn(column, cell);
     return <td>{cell}</td>;
@@ -155,6 +158,10 @@ class ModuleManagerIndex extends Component {
             'Y': 'Yes',
             'N': 'No',
         },
+      }},
+      {label: 'Configuration Errors', show: true, filter: {
+        name: 'Configuration Errors',
+        type: 'text',
       }},
     ];
     return (

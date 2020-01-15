@@ -82,6 +82,15 @@ class LorisInstance
      *
      * @return bool
      */
+    public function getModulesWithStatus(): array
+    {
+        $mnames = $this->getDatabaseConnection()->pselect(
+            "SELECT Name, Status FROM modules",
+            []
+        );
+        return $mnames;
+    }
+
     public function hasModule(string $name) : bool
     {
         $dirs  = $this->getModulesDirs();
@@ -103,5 +112,15 @@ class LorisInstance
             }
         }
         return false;
+    }
+
+    private $permCache;
+    public function hasPermission(string $code) : bool
+    {
+        if($this->permCache === null) {
+            $this->permCache = $this->getDatabaseConnection()
+                ->pselectCol("SELECT code FROM permissions", array());
+        }
+        return in_array($code, $this->permCache, true);
     }
 }

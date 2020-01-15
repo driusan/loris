@@ -61,4 +61,16 @@ class Module extends \Module
     {
         return "Acknowledgements";
     }
+
+    public function validateConfiguration(\LORIS\LorisInstance $loris) : array {
+        $ret = [];
+        if(!$loris->hasPermission('acknowledgements_view')) {
+            $ret[] = 'Missing acknowledgements_view permission';
+        }
+        if(!$loris->hasPermission('acknowledgements_edit')) {
+            $ret[] = 'Missing acknowledgements_edit permission';
+        }
+        return $ret;
+
+    }
 }

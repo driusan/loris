@@ -709,6 +709,9 @@ class NDB_Page implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request) : ResponseInterface
     {
         $this->setup();
+
+        $this->lorisinstance = $request->getAttribute("loris");
+
         return (new \LORIS\Http\Response())
             ->withBody(new \LORIS\Http\StringStream($this->display() ?? ""));
     }

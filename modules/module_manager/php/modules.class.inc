@@ -19,12 +19,7 @@ use \Psr\Http\Message\ResponseInterface;
  * The modules class handles requests to module_manager/modules/$modulename
  * to retrieve or update information about a specific module.
  *
- * @category   Core
- * @package    Main
- * @subpackage Core
- * @author     Dave MacFarlane <david.macfarlane2@mcgill.ca>
- * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- * @link       https://www.github.com/aces/Loris/
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
 class Modules extends \NDB_Page
 {
@@ -61,6 +56,14 @@ class Modules extends \NDB_Page
             return new \LORIS\Http\Response\JSON\InternalServerError(
                 "No valid user"
             );
+        }
+        if (!($this->_hasAccess($user))) {
+            return new \LORIS\Http\Response\JSON\Forbidden();
+        }
+
+        $user = $request->getAttribute("user");
+        if($user === null && !($user instanceof \User))  {
+            return new \LORIS\Http\Response\JSON\InternalServerError("No valid user");
         }
         if (!($this->_hasAccess($user))) {
             return new \LORIS\Http\Response\JSON\Forbidden();

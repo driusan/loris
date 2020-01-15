@@ -1,17 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * This class implements a data Instance which represents a single
- * module in the module_manager menu table.
- *
- * PHP Version 7
- *
- * @category   Core
- * @package    Main
- * @subpackage Core
- * @author     Dave MacFarlane <david.macfarlane2@mcgill.ca>
- * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- * @link       https://www.github.com/aces/Loris/
- */
 
 namespace LORIS\module_manager;
 
@@ -23,28 +10,30 @@ namespace LORIS\module_manager;
  * for the module in order to serialize it as JSON for the data
  * table.
  *
- * @category   Core
- * @package    Main
- * @subpackage Core
- * @author     Dave MacFarlane <david.macfarlane2@mcgill.ca>
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- * @link       https://www.github.com/aces/Loris/
  */
 class ModuleRow implements \LORIS\Data\DataInstance
 {
     protected $Module;
     protected $DBRow;
     protected $Active;
+    protected $Name;
 
     /**
      * Create a new ModuleRow Instance.
      *
      * @param array $row The ModuleRow Instance
      */
-    public function __construct(array $row)
+    public function __construct(\LORIS\LorisInstance $loris, array $row)
     {
-        $this->Module = \Module::factory($row['name']);
-        $this->Active = $row['active'];
+        $this->Name = $row['name'];
+        try {
+            $this->Module = \Module::factory($row['name']);
+            $this->Active = $row['active'];
+            $this->errors = $this->Module->validateConfiguration($loris);
+        } catch (\LorisModuleMissingException $e) {
+            $this->errors = ["INVALID MODULE -- " . $e->getMessage()];
+        }
     }
 
     /**
@@ -54,11 +43,16 @@ class ModuleRow implements \LORIS\Data\DataInstance
      */
     public function toJSON(): string
     {
+        $name = '';
+        if ($this->Module !== null) {
+            $name = $this->Module->getLongName();
+        }
         return json_encode(
             [
-                'Name'     => $this->Module->getName(),
-                'LongName' => $this->Module->getLongName(),
+                'Name'     => $this->Name,
+                'LongName' => $name,
                 'Active'   => $this->Active,
+                'Errors'   => $this->errors,
             ]
         );
     }

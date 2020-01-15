@@ -58,4 +58,15 @@ class Module extends \Module
     {
         return "Module Manager";
     }
+
+    public function validateConfiguration(\LORIS\LorisInstance $loris) : array {
+        $ret = [];
+        if(!$loris->hasPermission('module_manager_view')) {
+            $ret[] = 'Missing module_manager_view permission';
+        }
+        if(!$loris->hasPermission('module_manager_edit')) {
+            $ret[] = 'Missing module_manager_edit permission';
+        }
+        return $ret;
+    }
 }
