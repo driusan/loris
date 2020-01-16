@@ -604,7 +604,7 @@ class CandidateProfileIndex extends Component {
         [
           timepoint.Visit_label,
           timepoint.SubprojectTitle,
-          timepoint.SiteAlias,
+          timepoint.PSC,
           timepoint.Current_stage,
           timepoint.currentStatus,
           timepoint.currentDate,
