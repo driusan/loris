@@ -380,12 +380,12 @@ class CandidateProfileIndex extends Component {
         />
       );
     });
-    const backgroundColor = (active === 'Yes') ? '#b6d7a8' : '#ea9999';
+    const backgroundColour = (active === 'Yes') ? '#b6d7a8' : '#ea9999';
     return (
       <Card
         id='candidate_info'
         title='Candidate Info'
-        backgroundColor={backgroundColor}
+        backgroundColour={backgroundColour}
       >
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           <div style={{flexGrow: '1', order: '1'}}>
