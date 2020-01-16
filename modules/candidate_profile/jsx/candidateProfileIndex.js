@@ -140,14 +140,14 @@ class CandidateProfileIndex extends Component {
       case 'Visit Label':
         if (row['No.'] == 1) {
           const url = loris.BaseURL + '/instrument_list/?candID=' + this.state.data.candID + '&sessionID=' + row['Session ID'];
-          result = <td rowspan='0'><a href={url}>{cell}</a></td>;
+          result = <td rowSpan='0'><a href={url}>{cell}</a></td>;
         } else {
           result = null;
         }
         break;
       case 'Date of Visit':
         if (row['No.'] == 1) {
-          result = <td rowspan='0'>{cell}</td>;
+          result = <td rowSpan='0'>{cell}</td>;
         } else {
           result = null;
         }
@@ -160,13 +160,13 @@ class CandidateProfileIndex extends Component {
       case 'Status':
         if (row['No.'] == 1) {
           if (cell === 'Not Started') {
-            result = <td colspan='2' rowspan='0' style={{background: '#ea9999'}}>{cell}</td>;
+            result = <td colspan='2' rowSpan='0' style={{background: '#ea9999'}}>{cell}</td>;
           } else if (cell === 'Screening') {
-            result = <td rowspan='0' style={{background: '#f9cb9c'}}>{cell} - {row['Screening']}</td>;
+            result = <td rowSpan='0' style={{background: '#f9cb9c'}}>{cell} - {row['Screening']}</td>;
           } else if (cell === 'Visit') {
-            result = <td rowspan='0' style={{background: '#ffe599'}}>{cell} - {row['Visit']}</td>;
+            result = <td rowSpan='0' style={{background: '#ffe599'}}>{cell} - {row['Visit']}</td>;
           } else if (cell === 'Approval') {
-            result = <td rowspan='0' style={{background: '#b6d7a8'}}>{cell} - {row['Approval']}</td>;
+            result = <td rowSpan='0' style={{background: '#b6d7a8'}}>{cell} - {row['Approval']}</td>;
           }
         } else {
           result = null;
@@ -340,9 +340,10 @@ class CandidateProfileIndex extends Component {
         label: 'Site',
       },
     ];
-    const cardInfoLeft = dataLeft.map((info) => {
+    const cardInfoLeft = dataLeft.map((info, index) => {
       return (
         <StaticElement
+          key={index}
           text={
             <span>
               <h3
@@ -359,9 +360,10 @@ class CandidateProfileIndex extends Component {
         />
       );
     });
-    const cardInfoRight = dataRight.map((info) => {
+    const cardInfoRight = dataRight.map((info, index) => {
       return (
         <StaticElement
+          key={index}
           text={
             <span>
               <h3
@@ -423,19 +425,17 @@ class CandidateProfileIndex extends Component {
         label='Number of scans inserted'
       />
     );
-    const imageLinks = this.state.data.timepointData.map((timepoint) => {
+    const imageLinks = this.state.data.timepointData.map((timepoint, index) => {
       if (timepoint.Scan_done === 'Y') {
         const url = loris.BaseURL + '/imaging_browser/viewSession/?sessionID=' + timepoint.SessionID;
-        return <a href={url}>{timepoint.Visit_label}</a>;
+        return <a key={index} href={url}>{timepoint.Visit_label}</a>;
       }
     });
     const linkValue = (
       <span>
-        <p>
-          {imageLinks.reduce((prev, link) => {
-            return [prev, ' ', link];
-          })}
-        </p>
+        {imageLinks.reduce((prev, link) => {
+          return [prev, ' ', link];
+        })}
       </span>
     );
     const data = [
@@ -448,17 +448,18 @@ class CandidateProfileIndex extends Component {
         label: 'Most recent insert',
       },
     ];
-    const cardInfo = data.map((info) => {
+    const cardInfo = data.map((info, index) => {
       return (
         <StaticElement
+          key={index}
           text={info.value}
           label={info.label}
         />
       );
     });
-    const picThumbnail = this.state.data.imagingData.checkPics.map((pic) => {
+    const picThumbnail = this.state.data.imagingData.checkPics.map((pic, index) => {
       return (
-        <div className='imaging_browser_pic'>
+        <div key={index} className='imaging_browser_pic'>
           <img
             className='img-checkpic img-responsive'
             src={pic}
@@ -511,6 +512,7 @@ class CandidateProfileIndex extends Component {
       }
       return (
         <StaticElement
+          key={key}
           text={consentStatus}
           label={consent.Label}
         />
