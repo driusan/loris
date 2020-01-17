@@ -237,9 +237,21 @@ class CandidateProfileIndex extends Component {
         const url = loris.BaseURL + '/instrument_list/?candID=' + this.state.data.candID + '&sessionID=' + row['Session ID'];
         result = <td><a href={url}>{cell}</a></td>;
         break;
+      case 'Date of Visit':
+        if (cell === null) {
+          result = <td>-</td>;
+        }
+        break;
       case 'Stage':
         if (cell === 'Not Started') {
           result = <td colspan='3'>{cell}</td>;
+        }
+        break;
+      case 'Status':
+        if (row['Stage'] === 'Not Started') {
+          result = <td style={{background: '#ea9999'}}>{row['Stage']}</td>;
+        } else {
+          result = <td>{row['Stage']} - {cell}</td>;
         }
         break;
       case 'Stage Status':
@@ -607,6 +619,7 @@ class CandidateProfileIndex extends Component {
           timepoint.Visit_label,
           timepoint.SubprojectTitle,
           timepoint.SiteAlias,
+          timepoint.Date_visit,
           timepoint.Current_stage,
           timepoint.currentStatus,
           timepoint.currentDate,
@@ -643,8 +656,9 @@ class CandidateProfileIndex extends Component {
             {label: 'Visit Label', show: true},
             {label: 'Subproject', show: true},
             {label: 'Site', show: true},
+            {label: 'Date of Visit', show: true},
             {label: 'Stage', show: false},
-            {label: 'Stage Status', show: false},
+            {label: 'Status', show: true},
             {label: 'Date of Stage', show: false},
             {label: 'Sent To DCC', show: false},
             {label: 'Imaging Scan Done', show: false},
