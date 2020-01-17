@@ -575,7 +575,7 @@ class CandidateProfileIndex extends Component {
           ]
         );
       });
-      return (
+      return behavioural.length > 0 ? (
         <div key={visitLabel + '_table'}>
           <h3 style={{margin: '14px', textAlign: 'center'}}>{visitLabel}</h3>
           <DataTable
@@ -600,7 +600,7 @@ class CandidateProfileIndex extends Component {
             }}
           />
         </div>
-      );
+      ) : null;
     });
     return (
       <Card
