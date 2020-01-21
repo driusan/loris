@@ -228,8 +228,10 @@ class Candidate_Profile extends \NDB_Page
             $consent[$consentID]['Label']  = $consentDetail['Label'];
             if (empty($consentData[$consentID])) {
                 $consent[$consentID]['Status'] = null;
+                $consent[$consentID]['Date']   = null;
             } else {
                 $consent[$consentID]['Status'] = $consentData[$consentID]['Status'];
+                $consent[$consentID]['DateGiven']   = $consentData[$consentID]['DateGiven'];
             }
         }
 

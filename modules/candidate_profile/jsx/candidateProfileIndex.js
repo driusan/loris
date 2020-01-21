@@ -522,9 +522,11 @@ class CandidateProfileIndex extends Component {
     const consentData = Object.keys(this.state.data.consentData).map((key) => {
       const consent = this.state.data.consentData[key];
       let consentStatus = '-';
+      let consentDate = '';
       switch (consent.Status) {
         case 'yes':
           consentStatus = 'Yes';
+          consentDate = '(' + consent.DateGiven + ')';
           break;
         case 'no':
           consentStatus = 'No';
@@ -533,7 +535,7 @@ class CandidateProfileIndex extends Component {
       return (
         <StaticElement
           key={key}
-          text={consentStatus}
+          text={consentStatus + consentDate}
           label={consent.Label}
         />
       );
