@@ -310,13 +310,18 @@ class Candidate_Profile extends \NDB_Page
           }
         }        
 
-        // Get behavioural
+        // Add candidate's latest visit subproject to candidate data
+        $subproject = $candidate->getLastVisitSubproject();
+        $candidateData = array_merge(
+            $candidate->getData(), 
+            array('Subproject' => $subproject[0]['title'])
+        );
  
         $this->jsonData = array(
             'instrumentList'     => $instrumentList,
             'candID'             => $candidate->getData('CandID'),
             'pscid'              => $candidate->getPSCID(),
-            'candidateData'      => $candidate->getData(),
+            'candidateData'      => $candidateData,
             'timepointData'      => $timePoints,
             'subprojectID'       => $subprojectID,
             'isDataEntryPerson'  => $isDataEntryPerson,
