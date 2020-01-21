@@ -526,7 +526,7 @@ class CandidateProfileIndex extends Component {
       switch (consent.Status) {
         case 'yes':
           consentStatus = 'Yes';
-          consentDate = '(' + consent.DateGiven + ')';
+          consentDate = ' (' + consent.DateGiven + ')';
           break;
         case 'no':
           consentStatus = 'No';
