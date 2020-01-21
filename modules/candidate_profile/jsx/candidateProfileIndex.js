@@ -334,11 +334,19 @@ class CandidateProfileIndex extends Component {
         label: 'Date of Birth',
       },
       {
+        value: this.state.data.candidateData.Age,
+        label: 'Age',
+      },
+      {
         value: this.state.data.candidateData.Sex,
         label: 'Sex',
       },
     ];
     const dataRight = [
+      {
+        value: this.state.data.candidateData.Subproject,
+        label: 'Subproject',
+      },
       {
         value: this.state.data.candidateData.ProjectTitle,
         label: 'Project',
