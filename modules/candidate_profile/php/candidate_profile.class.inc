@@ -310,11 +310,13 @@ class Candidate_Profile extends \NDB_Page
           }
         }        
 
-        // Add candidate's latest visit subproject to candidate data
+        // Add candidate's latest visit subproject and age to candidate data
         $subproject = $candidate->getLastVisitSubproject();
         $candidateData = array_merge(
             $candidate->getData(), 
-            array('Subproject' => $subproject[0]['title'])
+            array('Subproject' => $subproject[0]['title'],
+                  'Age'        => $candidate->getAge()
+            )
         );
  
         $this->jsonData = array(
