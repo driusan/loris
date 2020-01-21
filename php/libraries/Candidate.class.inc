@@ -615,15 +615,17 @@ class Candidate
     }
 
 	  /**
-     * Returns the SubprojectID => title of the candidate's last visit based on Date_visit
+     * Returns the SubprojectID and subproject title of the candidate's last visit
+     * based on Date_visit
      *
-     * @return array|null Associative array of the form SubprojectID => title
+     * @return array|null Array with values SubprojectID and title
      *                    for the candidate's last visit or NULL if none exist
      */
     public function getLastVisitSubproject(): ?array
     {
         $factory = NDB_Factory::singleton();
         $db      = $factory->database();
+
         $candID = $this->getCandID();
         $query  = "SELECT SubprojectID, title FROM session
           LEFT JOIN subproject USING (SubprojectID)
