@@ -352,12 +352,12 @@ class CandidateProfileIndex extends Component {
         label: 'Project',
       },
       {
-        value: active,
-        label: 'Active',
-      },
-      {
         value: this.state.data.candidateData.PSC,
         label: 'Site',
+      },
+      {
+        value: active,
+        label: 'Active',
       },
     ];
     const cardInfoLeft = dataLeft.map((info, index) => {
