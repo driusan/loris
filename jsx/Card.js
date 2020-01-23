@@ -33,7 +33,6 @@ class Card extends Component {
         <Panel
           id={this.props.id}
           title={this.props.title}
-          backgroundColour={this.props.backgroundColour}
           initCollapsed={this.props.initCollapsed}
         >
           <div
@@ -52,13 +51,11 @@ Card.propTypes = {
   id: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   onClick: PropTypes.func,
-  backgroundColour: PropTypes.string,
   initCollapsed: PropTypes.bool,
 };
 
 Card.defaultProps = {
   onClick: null,
-  backgroundColour: 'transparent',
   initCollapsed: false,
 };
 

@@ -60,8 +60,13 @@ class Panel extends Component {
     return (
       <div className="panel panel-primary">
         {panelHeading}
-        <div id={this.props.id} className={this.panelClass} role="tabpanel">
-          <div className="panel-body" style={{...this.props.style, height: this.props.height}}>
+        <div
+          id={this.props.id}
+          className={this.panelClass}
+          role="tabpanel"
+          style={{overflowX: 'auto'}}
+        >
+          <div className="panel-body" style={{height: this.props.height}}>
             {this.props.children}
           </div>
         </div>
@@ -79,6 +84,7 @@ Panel.defaultProps = {
   initCollapsed: false,
   id: 'default-panel',
   height: '100%',
+  title: '',
 };
 
 export default Panel;

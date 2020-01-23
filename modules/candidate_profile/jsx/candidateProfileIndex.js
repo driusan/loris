@@ -330,6 +330,12 @@ class CandidateProfileIndex extends Component {
         label: 'DCCID',
       },
       {
+        value: active,
+        label: 'Active',
+      },
+    ];
+    const dataMiddle = [
+      {
         value: this.state.data.candidateData.DoB,
         label: 'Date of Birth',
       },
@@ -355,12 +361,28 @@ class CandidateProfileIndex extends Component {
         value: this.state.data.candidateData.PSC,
         label: 'Site',
       },
-      {
-        value: active,
-        label: 'Active',
-      },
     ];
     const cardInfoLeft = dataLeft.map((info, index) => {
+      return (
+        <StaticElement
+          key={index}
+          text={
+            <span>
+              <h3
+                style={{
+                  lineHeight: '1.42857143',
+                  marginTop: '-7px',
+                }}
+              >
+                {info.value}
+              </h3>
+            </span>
+          }
+          label={info.label}
+        />
+      );
+    });
+    const cardInfoMiddle = dataMiddle.map((info, index) => {
       return (
         <StaticElement
           key={index}
@@ -400,30 +422,37 @@ class CandidateProfileIndex extends Component {
         />
       );
     });
-    const backgroundColour = (active === 'Yes') ? '#b6d7a8' : '#ea9999';
     return (
-      <Card
-        id='candidate_info'
-        title='Candidate Info'
-        backgroundColour={backgroundColour}
-      >
-        <div style={{display: 'flex', flexFlow: 'wrap'}}>
-          <div style={{flexGrow: '1', order: '1'}}>
-            <FormElement
-              name='candinfo_form1'
-            >
-              {cardInfoLeft}
-            </FormElement>
+      <div style={{width: '100%'}}>
+        <Card
+          id='candidate_info'
+          title='Candidate Info'
+        >
+          <div style={{display: 'flex', flexFlow: 'wrap'}}>
+            <div style={{flexGrow: '1', order: '1'}}>
+              <FormElement
+                name='candinfo_form1'
+              >
+                {cardInfoLeft}
+              </FormElement>
+            </div>
+            <div style={{flexGrow: '1', order: '2'}}>
+              <FormElement
+                name='candinfo_form2'
+              >
+                {cardInfoMiddle}
+              </FormElement>
+            </div>
+            <div style={{flexGrow: '1', order: '3'}}>
+              <FormElement
+                name='candinfo_form3'
+              >
+                {cardInfoRight}
+              </FormElement>
+            </div>
           </div>
-          <div style={{flexGrow: '1', order: '2'}}>
-            <FormElement
-              name='candinfo_form2'
-            >
-              {cardInfoRight}
-            </FormElement>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     );
   }
 
@@ -718,12 +747,22 @@ class CandidateProfileIndex extends Component {
           style={{
             display: 'flex',
             flexWrap: 'wrap',
-            flexGrow: '2',
+            flexGrow: '1',
             order: '1',
+          }}
+        >
+          {candInfoCard}
+        </div>
+        <div
+          id='cardblock_middle'
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            flexGrow: '2',
+            order: '2',
             justifyContent: 'space-between',
             alignItems: 'stretch',
           }}
-
         >
           <div
             id='cardblock_left'
@@ -735,7 +774,6 @@ class CandidateProfileIndex extends Component {
               flexGrow: '1',
             }}
           >
-            {candInfoCard}
             {this.renderCandParameters()}
             {this.renderTimepoints()}
             {this.renderSpecimenCard()}
@@ -753,14 +791,6 @@ class CandidateProfileIndex extends Component {
             {this.renderBVLCard()}
             {this.renderImagingCard()}
           </div>
-        </div>
-        <div
-          id='cardblock_middle'
-          style={{
-            flexGrow: '1',
-            order: '2',
-          }}
-        >
         </div>
       </div>
     );
