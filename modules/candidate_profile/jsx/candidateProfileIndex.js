@@ -360,7 +360,7 @@ class CandidateProfileIndex extends Component {
     ];
     const cardInfo = data.map((info, index) => {
       return (
-        <div class="form-horizontal" style={{flex: '1 1 33%'}}>
+        <div className="form-horizontal" style={{flex: '1 1 33%'}}>
           <StaticElement
             key={index}
             text={
