@@ -320,7 +320,7 @@ class CandidateProfileIndex extends Component {
 
   renderCandInfoCard() {
     const active = (this.state.data.participant_status === 'Inactive') ? 'No' : 'Yes';
-    const dataLeft = [
+    const data = [
       {
         value: this.state.data.pscid,
         label: 'PSCID',
@@ -333,8 +333,6 @@ class CandidateProfileIndex extends Component {
         value: active,
         label: 'Active',
       },
-    ];
-    const dataMiddle = [
       {
         value: this.state.data.candidateData.DoB,
         label: 'Date of Birth',
@@ -347,8 +345,6 @@ class CandidateProfileIndex extends Component {
         value: this.state.data.candidateData.Sex,
         label: 'Sex',
       },
-    ];
-    const dataRight = [
       {
         value: this.state.data.candidateData.Subproject,
         label: 'Subproject',
@@ -362,64 +358,26 @@ class CandidateProfileIndex extends Component {
         label: 'Site',
       },
     ];
-    const cardInfoLeft = dataLeft.map((info, index) => {
+    const cardInfo = data.map((info, index) => {
       return (
-        <StaticElement
-          key={index}
-          text={
-            <span>
-              <h3
-                style={{
-                  lineHeight: '1.42857143',
-                  marginTop: '-7px',
-                }}
-              >
-                {info.value}
-              </h3>
-            </span>
-          }
-          label={info.label}
-        />
-      );
-    });
-    const cardInfoMiddle = dataMiddle.map((info, index) => {
-      return (
-        <StaticElement
-          key={index}
-          text={
-            <span>
-              <h3
-                style={{
-                  lineHeight: '1.42857143',
-                  marginTop: '-7px',
-                }}
-              >
-                {info.value}
-              </h3>
-            </span>
-          }
-          label={info.label}
-        />
-      );
-    });
-    const cardInfoRight = dataRight.map((info, index) => {
-      return (
-        <StaticElement
-          key={index}
-          text={
-            <span>
-              <h3
-                style={{
-                  lineHeight: '1.42857143',
-                  marginTop: '-7px',
-                }}
-              >
-                {info.value}
-              </h3>
-            </span>
-          }
-          label={info.label}
-        />
+        <div style={{flex: '1 1 33%'}}>
+          <StaticElement
+            key={index}
+            text={
+              <span>
+                <h3
+                  style={{
+                    lineHeight: '1.42857143',
+                    marginTop: '-7px',
+                  }}
+                >
+                  {info.value}
+                </h3>
+              </span>
+            }
+            label={info.label}
+          />
+        </div>
       );
     });
     return (
@@ -429,27 +387,7 @@ class CandidateProfileIndex extends Component {
           title='Candidate Info'
         >
           <div style={{display: 'flex', flexFlow: 'wrap'}}>
-            <div style={{flexGrow: '1', order: '1'}}>
-              <FormElement
-                name='candinfo_form1'
-              >
-                {cardInfoLeft}
-              </FormElement>
-            </div>
-            <div style={{flexGrow: '1', order: '2'}}>
-              <FormElement
-                name='candinfo_form2'
-              >
-                {cardInfoMiddle}
-              </FormElement>
-            </div>
-            <div style={{flexGrow: '1', order: '3'}}>
-              <FormElement
-                name='candinfo_form3'
-              >
-                {cardInfoRight}
-              </FormElement>
-            </div>
+            {cardInfo}
           </div>
         </Card>
       </div>
