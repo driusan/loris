@@ -360,7 +360,7 @@ class CandidateProfileIndex extends Component {
     ];
     const cardInfo = data.map((info, index) => {
       return (
-        <div style={{flex: '1 1 33%'}}>
+        <div class="form-horizontal" style={{flex: '1 1 33%'}}>
           <StaticElement
             key={index}
             text={
@@ -716,7 +716,7 @@ class CandidateProfileIndex extends Component {
             }}
           >
             {this.renderCandParameters()}
-            {this.renderTimepoints()}
+            {this.renderImagingCard()}
             {this.renderSpecimenCard()}
           </div>
           <div
@@ -729,8 +729,8 @@ class CandidateProfileIndex extends Component {
               minWidth: '69%',
             }}
           >
+            {this.renderTimepoints()}
             {this.renderBVLCard()}
-            {this.renderImagingCard()}
           </div>
         </div>
       </div>
