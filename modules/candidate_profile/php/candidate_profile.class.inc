@@ -317,7 +317,7 @@ class Candidate_Profile extends \NDB_Page
         $candidateData = array_merge(
             $candidate->getData(), 
             array('Subproject' => $subproject[0]['title'],
-                  'Age'        => $candidate->getAge()
+                  'Age'        => $candidate->getAgeYears()
             )
         );
  

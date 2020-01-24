@@ -680,17 +680,46 @@ class Candidate
     }
 
     /**
-     * Returns the candidate's calculated age today
+     * Returns DateInterval between candidate's date of birth and now
      *
-     * @return int The candidate's age today
+     * @return DateInterval Between DoB and now
      */
-    public function getAge(): int
+    public function getAge(): DateInterval
     {
-        $ageArray = \Utility::calculateAge(
-            $this->candidateInfo["DoB"],
-            (new DateTime())->format('Y-m-d')
-        );
-        return $ageArray['year'];
+        $dob = new DateTime($this->candidateInfo["DoB"]);
+
+        return $dob->diff(new DateTime('now'));
+    }
+
+    /**
+     * Returns the candidate's calculated age today in int years
+     *
+     * @return int The candidate's age today as years
+     */
+    public function getAgeYears(): int
+    {
+        return (int)$this->getAge()->format('%y');
+    }
+
+    /**
+     * Returns the candidate's calculated age today in total number of months
+     *
+     * @return int The candidate's age today in months
+     */
+    public function getAgeInMonths(): int
+    {
+        return (int)$this->getAge()->format('%m') +
+            12 * $this->getAgeYears();
+    }
+
+    /**
+     * Returns the candidate's calculated age today in total number of days
+     *
+     * @return int The candidate's age today in days
+     */
+    public function getAgeInDays(): int
+    {
+        return (int)$this->getAge()->days;
     }
 
     /**
