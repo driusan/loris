@@ -305,10 +305,12 @@ class Candidate_Profile extends \NDB_Page
         $bvlData        = array();
         $visitLabelList = $candidate->getListOfVisitLabels();
         foreach ($visitLabelList as $visitLabel) {
-          $bvlData[$visitLabel] = array();
-          $bvl_result_keys      = array_keys(array_column($bvl_result, 'Visit_label'), $visitLabel);
-          foreach($bvl_result_keys as $bvl_result_key) {
-            $bvlData[$visitLabel][] = $bvl_result[$bvl_result_key];
+          if (in_array($visitLabel, array_column($bvl_result, 'Visit_label'))) {
+            $bvlData[$visitLabel] = array();
+            $bvl_result_keys      = array_keys(array_column($bvl_result, 'Visit_label'), $visitLabel);
+            foreach($bvl_result_keys as $bvl_result_key) {
+              $bvlData[$visitLabel][] = $bvl_result[$bvl_result_key];
+            }
           }
         }        
 
