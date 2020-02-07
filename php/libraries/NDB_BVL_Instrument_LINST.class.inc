@@ -524,6 +524,10 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $this->addTextElement($pieces[1], $pieces[2]);
                         }
                     }
+                    if ($firstSelectOfPage) {
+                        $this->_requiredElements[] = $pieces[1];
+                        $firstSelectOfPage         = false;
+                    }
                     $this->LinstQuestions[$pieces[1]] = array('type' => 'text');
                     break;
                 case 'textarea':
@@ -537,6 +541,10 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         } else {
                             $this->addTextAreaElement($pieces[1], $pieces[2]);
                         }
+                    }
+                    if ($firstSelectOfPage) {
+                        $this->_requiredElements[] = $pieces[1];
+                        $firstSelectOfPage         = false;
                     }
                     $this->LinstQuestions[$pieces[1]] = array('type' => 'textarea');
                     break;
@@ -590,11 +598,19 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             );
                         }
                     }
+                    if ($firstSelectOfPage) {
+                        $this->_requiredElements[] = $pieces[1];
+                        $firstSelectOfPage         = false;
+                    }
                     $this->LinstQuestions[$pieces[1]] = array('type' => 'date');
                     break;
                 case 'numeric':
                     if ($addElements) {
                         $this->addNumericElement($pieces[1], $pieces[2]);
+                    }
+                    if ($firstSelectOfPage) {
+                        $this->_requiredElements[] = $pieces[1];
+                        $firstSelectOfPage         = false;
                     }
                     // FIXME: This variable is never populated.
                     $options = array();

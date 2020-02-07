@@ -1506,18 +1506,19 @@ abstract class NDB_BVL_Instrument extends NDB_Page
     }
 
     /**
-     * Determines what the data entry completion progress percentage is
+     * Determines what percentage of the data entry has been completed, based on the
+     * number of fields in $_requiredElements having data
      *
-     * @return int the progress out of 100
+     * @return int the data entry completion percentage
      */
-    function determineDataEntryCompletionProgress(): string
+    function determineDataEntryCompletionProgress(): int
     {
         // don't bother checking anything if the required elements array is empty
         if (empty($this->_requiredElements)) {
             return 100;
         }
-        $allData = $this->loadInstanceData($this);
-        $unanswered = 0;
+        $allData       = $this->loadInstanceData($this);
+        $unanswered    = 0;
         $totalElements = count($this->_requiredElements);
         foreach ($this->_requiredElements as $field) {
             // this shouldn't be just empty() b/c 0 is a valid
@@ -1530,9 +1531,9 @@ abstract class NDB_BVL_Instrument extends NDB_Page
             return 100;
         } else if ($unanswered == $totalElements) {
             return 0;
-        } else {
-            return (($totalElements-$unanswered)/$totalElements)*100;
         }
+
+        return (int)round((($totalElements-$unanswered)/$totalElements)*100);
     }
 
     /**
