@@ -201,11 +201,6 @@ class Candidate_Profile extends \NDB_Page
                 }
                 $x++;
             }
-            // List of future visits
-            if (isset($firstDateOfVisit)) {
-                $timePoint    = \TimePoint::singleton($listOfTimePoints[0]);
-                $subprojectID = $timePoint->getSubprojectID();
-            }
         }
         $cand_CenterID     = $candidate->getData('RegistrationCenterID');
         $isDataEntryPerson = $user->hasCenterPermission("data_entry", $cand_CenterID);
@@ -287,9 +282,6 @@ class Candidate_Profile extends \NDB_Page
             $testName = $row['Test_name'];
             $commentID = $row['CommentID'];
 
-            // Replace test names with full name
-            $bvl_result[$key]['Test_name'] = $instrumentList[$testName];
-
             // Get instrument completion progress
             $instrument = \NDB_BVL_Instrument::factory(
                 $testName,
@@ -305,13 +297,13 @@ class Candidate_Profile extends \NDB_Page
         $bvlData        = array();
         $visitLabelList = $candidate->getListOfVisitLabels();
         foreach ($visitLabelList as $visitLabel) {
-          if (in_array($visitLabel, array_column($bvl_result, 'Visit_label'))) {
-            $bvlData[$visitLabel] = array();
-            $bvl_result_keys      = array_keys(array_column($bvl_result, 'Visit_label'), $visitLabel);
-            foreach($bvl_result_keys as $bvl_result_key) {
-              $bvlData[$visitLabel][] = $bvl_result[$bvl_result_key];
+            if (in_array($visitLabel, array_column($bvl_result, 'Visit_label'))) {
+                $bvlData[$visitLabel] = array();
+                $bvl_result_keys      = array_keys(array_column($bvl_result, 'Visit_label'), $visitLabel);
+                foreach($bvl_result_keys as $bvl_result_key) {
+                    $bvlData[$visitLabel][] = $bvl_result[$bvl_result_key];
+                }
             }
-          }
         }        
 
         // Add candidate's latest visit subproject and age to candidate data
@@ -329,7 +321,6 @@ class Candidate_Profile extends \NDB_Page
             'pscid'              => $candidate->getPSCID(),
             'candidateData'      => $candidateData,
             'timepointData'      => $timePoints,
-            'subprojectID'       => $subprojectID,
             'isDataEntryPerson'  => $isDataEntryPerson,
             'participant_status' => $participant_status,
             'consentData'        => $consent,

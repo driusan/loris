@@ -31,6 +31,7 @@ class CandidateProfileIndex extends Component {
     this.createTimepoint = this.createTimepoint.bind(this);
     this.viewImagingDataset = this.viewImagingDataset.bind(this);
     this.viewCandParams = this.viewCandParams.bind(this);
+    this.renderModalitiesInfo = this.renderModalitiesInfo.bind(this);
     this.renderCandInfoCard = this.renderCandInfoCard.bind(this);
     this.renderImagingCard = this.renderImagingCard.bind(this);
     this.renderCandParameters = this.renderCandParameters.bind(this);
@@ -139,8 +140,7 @@ class CandidateProfileIndex extends Component {
     switch (column) {
       case 'Visit Label':
         if (row['No.'] == 1) {
-          const url = loris.BaseURL + '/instrument_list/?candID=' + this.state.data.candID + '&sessionID=' + row['Session ID'];
-          result = <td rowSpan='0'><a href={url}>{cell}</a></td>;
+          result = <td rowSpan='0'>{cell}</td>;
         } else {
           result = null;
         }
@@ -155,6 +155,11 @@ class CandidateProfileIndex extends Component {
       case 'Instrument':
         if (row['Status'] === 'Not Started') {
           result = null;
+        } else {
+          const url = loris.BaseURL + '/instruments/' + cell + '/?commentID='
+            + row['Comment ID'] + '&sessionID=' + row['Session ID'] + '&candID='
+            + this.state.data.candID;
+          result = <td><a href={url}>{this.state.data.instrumentList[cell]}</a></td>;
         }
         break;
       case 'Status':
@@ -318,6 +323,62 @@ class CandidateProfileIndex extends Component {
     location.href='/candidate_parameters/?candID=' + this.state.data.candID + '&identifier=' + this.state.data.candID;
   }
 
+  renderModalitiesInfo() {
+    const checkMark = (
+      <i className='far fa-check-circle fa-2x' style={{color: '#82c91e'}}></i>
+    );
+    const cross = (
+      <i className='far fa-times-circle fa-2x' style={{color: '#ea9999'}}></i>
+    );
+    const data = [
+      {
+        value: 'Imaging',
+        label: (this.state.data.imagingData.numberOfMincs > 0) ? checkMark : cross,
+      },
+      {
+        value: 'Behavioural',
+        label: (this.state.data.bvlData.length != 0) ? checkMark : cross,
+      },
+      {
+        value: 'Biospecimen',
+        label: (this.state.data.specimenData.count > 0) ? checkMark : cross,
+      },
+    ];
+    const cardInfo = data.map((info, index) => {
+      return (
+        <div className="form-horizontal" style={{flex: '1 1 33%'}}>
+          <StaticElement
+            key={index}
+            text={
+              <span>
+                <h3
+                  style={{
+                    lineHeight: '1.42857143',
+                    marginTop: '-5px',
+                  }}
+                >
+                  {info.value}
+                </h3>
+              </span>
+            }
+            label={info.label}
+          />
+        </div>
+      );
+    });
+    return (
+      <div style={{width: '100%'}}>
+        <Card
+          id='modalities_info'
+        >
+          <div style={{display: 'flex', flexFlow: 'wrap', marginBottom: '-25px'}}>
+            {cardInfo}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   renderCandInfoCard() {
     const data = [
       {
@@ -327,10 +388,6 @@ class CandidateProfileIndex extends Component {
       {
         value: this.state.data.candID,
         label: 'DCCID',
-      },
-      {
-        value: this.state.data.participant_status,
-        label: 'Participant Status',
       },
       {
         value: this.state.data.candidateData.DoB,
@@ -359,13 +416,14 @@ class CandidateProfileIndex extends Component {
     ];
     const cardInfo = data.map((info, index) => {
       return (
-        <div className="form-horizontal" style={{flex: '1 1 33%'}}>
+        <div className="form-horizontal" style={{flex: '1 1 25%'}}>
           <StaticElement
             key={index}
             text={
               <span>
                 <h3
                   style={{
+                    lineHeight: '1.42857143',
                     marginTop: '-7px',
                   }}
                 >
@@ -384,7 +442,7 @@ class CandidateProfileIndex extends Component {
           id='candidate_info'
           title='Candidate Info'
         >
-          <div style={{display: 'flex', flexFlow: 'wrap'}}>
+          <div style={{display: 'flex', flexFlow: 'wrap', marginBottom: '-15px', marginTop: '10px'}}>
             {cardInfo}
           </div>
         </Card>
@@ -481,6 +539,36 @@ class CandidateProfileIndex extends Component {
   }
 
   renderCandParameters() {
+    const data = [
+      {
+        value: this.state.data.participant_status,
+        label: 'Participant Status',
+      },
+      {
+        value: this.state.data.candidateData.Diagnosis || '-',
+        label: 'Diagnosis',
+      },
+    ];
+    const cardInfo = data.map((info, index) => {
+      return (
+        <StaticElement
+          key={index}
+          text={
+            <span>
+              <h3
+                style={{
+                  lineHeight: '1.42857143',
+                  marginTop: '-7px',
+                }}
+              >
+                {info.value}
+              </h3>
+            </span>
+          }
+          label={info.label}
+        />
+      );
+    });
     const consentData = Object.keys(this.state.data.consentData).map((key) => {
       const consent = this.state.data.consentData[key];
       let consentStatus = '-';
@@ -509,6 +597,7 @@ class CandidateProfileIndex extends Component {
         onClick={this.viewCandParams}
       >
         <div className="form-horizontal">
+          {cardInfo}
           {consentData}
         </div>
         <p style={{textAlign: 'center'}}>Click for more details</p>
@@ -528,13 +617,15 @@ class CandidateProfileIndex extends Component {
   }
 
   renderBVLCard() {
-    const tables = Object.keys(this.state.data.bvlData).map((visitLabel) => {
+    const tables = (this.state.data.bvlData.length != 0) ?
+      Object.keys(this.state.data.bvlData).map((visitLabel) => {
       const behavioural = this.state.data.bvlData[visitLabel];
-      const data = behavioural.map((instrument) => {
+      const data = behavioural ? behavioural.map((instrument) => {
         return (
           [
             instrument.Visit_label,
             instrument.SessionID,
+            instrument.CommentID,
             instrument.Date_visit,
             instrument.Current_stage,
             instrument.Test_name,
@@ -545,14 +636,15 @@ class CandidateProfileIndex extends Component {
             instrument.NumOfConflict,
           ]
         );
-      });
-      return behavioural.length > 0 ? (
+      }) : null;
+      return (
         <div key={visitLabel + '_table'}>
           <h3 style={{margin: '14px', textAlign: 'center'}}>{visitLabel}</h3>
           <DataTable
             fields={[
               {label: 'Visit Label', show: true},
               {label: 'Session ID', show: false},
+              {label: 'Comment ID', show: false},
               {label: 'Date of Visit', show: true},
               {label: 'Status', show: true},
               {label: 'Instrument', show: true},
@@ -571,8 +663,12 @@ class CandidateProfileIndex extends Component {
             }}
           />
         </div>
-      ) : null;
-    });
+      );
+    }) : (
+      <div className='alert alert-info no-result-found-panel'>
+        <strong>No result found.</strong>
+      </div>
+    );
     return (
       <Card
         id='behavioural'
@@ -584,7 +680,7 @@ class CandidateProfileIndex extends Component {
   }
 
   renderTimepoints() {
-    const data = this.state.data.timepointData.map((timepoint) => {
+    const data = this.state.data.timepointData ? this.state.data.timepointData.map((timepoint) => {
       return (
         [
           timepoint.Visit_label,
@@ -606,9 +702,9 @@ class CandidateProfileIndex extends Component {
           timepoint.SessionID,
         ]
       );
-    });
+    }) : null;
     const createTimepointButton = this.state.data.isDataEntryPerson ? (
-      <div style={{margin: '10px 10px'}}>
+      <div style={{margin: '10px 15px'}}>
         <CTA
           label='Create Time Point'
           buttonClass='btn btn-default'
