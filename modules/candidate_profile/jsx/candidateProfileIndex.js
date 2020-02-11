@@ -325,10 +325,10 @@ class CandidateProfileIndex extends Component {
 
   renderModalitiesInfo() {
     const checkMark = (
-      <i className='far fa-check-circle fa-2x' style={{color: '#82c91e'}}></i>
+      <i className='far fa-check-circle fa-2x' style={{color: '#82c91e', marginRight: '20px'}}></i>
     );
     const cross = (
-      <i className='far fa-times-circle fa-2x' style={{color: '#ea9999'}}></i>
+      <i className='far fa-times-circle fa-2x' style={{color: '#ea9999', marginRight: '20px'}}></i>
     );
     const data = [
       {
@@ -339,42 +339,27 @@ class CandidateProfileIndex extends Component {
         value: 'Behavioural',
         label: (this.state.data.bvlData.length != 0) ? checkMark : cross,
       },
-      {
-        value: 'Biospecimen',
-        label: (this.state.data.specimenData.count > 0) ? checkMark : cross,
-      },
     ];
     const cardInfo = data.map((info, index) => {
       return (
-        <div className="form-horizontal" style={{flex: '1 1 33%'}}>
-          <StaticElement
-            key={index}
-            text={
-              <span>
-                <h3
-                  style={{
-                    lineHeight: '1.42857143',
-                    marginTop: '-5px',
-                  }}
-                >
-                  {info.value}
-                </h3>
-              </span>
-            }
-            label={info.label}
-          />
+        <div style={{border: '1px solid #C3D5DB', borderRadius: '40px', padding: '10px 10px 2px 10px', display: 'flex', marginRight: '5px'}}>
+          {info.label}
+          <h3
+            style={{
+              lineHeight: '1.42857143',
+              marginTop: '-5px',
+            }}
+          >
+            {info.value}
+          </h3>
         </div>
       );
     });
     return (
       <div style={{width: '100%'}}>
-        <Card
-          id='modalities_info'
-        >
-          <div style={{display: 'flex', flexFlow: 'wrap', marginBottom: '-25px'}}>
-            {cardInfo}
-          </div>
-        </Card>
+        <div style={{display: 'flex', flexFlow: 'wrap', marginBottom: '10px', marginTop: '-20px', justifyContent: 'flex-end'}}>
+          {cardInfo}
+        </div>
       </div>
     );
   }
@@ -779,6 +764,7 @@ class CandidateProfileIndex extends Component {
             order: '1',
           }}
         >
+          {this.renderModalitiesInfo()}
           {candInfoCard}
         </div>
         <div
