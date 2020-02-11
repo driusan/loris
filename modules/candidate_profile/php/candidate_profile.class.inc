@@ -211,13 +211,13 @@ class Candidate_Profile extends \NDB_Page
         $isDataEntryPerson = $user->hasCenterPermission("data_entry", $cand_CenterID);
 
         // Get participant status
-        $query = "SELECT pso.Description AS participant_status
-                      FROM participant_status ps
+        $query = "SELECT COALESCE(pso.Description, 'Active') AS participant_status
+                      FROM candidate c
+                      LEFT JOIN participant_status ps USING (CandID)
                       LEFT JOIN participant_status_options pso
                       ON (ps.participant_status=pso.ID) WHERE CandID=:candid";
-        $row   = $DB->pselectRow($query, ['candid' => $this->candID]);
-        $participant_status = !empty($row['participant_status']) ? $row['participant_status']
-        : '-';
+
+        $participant_status = $DB->pselectOne($query, array('candid' => $this->candID));
 
         // Get consent data
         $listOfConsents = \Utility::getConsentList();
@@ -315,7 +315,7 @@ class Candidate_Profile extends \NDB_Page
         }        
 
         // Add candidate's latest visit subproject and age to candidate data
-        $subproject = $candidate->getLastVisitSubproject();
+        $subproject    = $candidate->getLastVisitSubproject();
         $candidateData = array_merge(
             $candidate->getData(), 
             array('Subproject' => $subproject[0]['title'],

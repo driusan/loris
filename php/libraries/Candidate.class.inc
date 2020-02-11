@@ -629,8 +629,7 @@ class Candidate
         $candID = $this->getCandID();
         $query  = "SELECT SubprojectID, title FROM session
           LEFT JOIN subproject USING (SubprojectID)
-          WHERE CandID=:cid AND Date_visit IS NOT NULL
-          ORDER BY Date_visit DESC LIMIT 1";
+          WHERE CandID=:cid ORDER BY Date_visit DESC LIMIT 1";
         $where  = array('cid' => $candID);
         $result = $db->pselect($query, $where);
         return $result ?? null;

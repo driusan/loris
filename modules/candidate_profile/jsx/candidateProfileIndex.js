@@ -319,7 +319,6 @@ class CandidateProfileIndex extends Component {
   }
 
   renderCandInfoCard() {
-    const active = (this.state.data.participant_status === 'Inactive') ? 'No' : 'Yes';
     const data = [
       {
         value: this.state.data.pscid,
@@ -330,8 +329,8 @@ class CandidateProfileIndex extends Component {
         label: 'DCCID',
       },
       {
-        value: active,
-        label: 'Active',
+        value: this.state.data.participant_status,
+        label: 'Participant Status',
       },
       {
         value: this.state.data.candidateData.DoB,
@@ -367,7 +366,6 @@ class CandidateProfileIndex extends Component {
               <span>
                 <h3
                   style={{
-                    lineHeight: '1.42857143',
                     marginTop: '-7px',
                   }}
                 >
@@ -483,12 +481,6 @@ class CandidateProfileIndex extends Component {
   }
 
   renderCandParameters() {
-    const participantStatus = (
-      <StaticElement
-        text={this.state.data.participant_status}
-        label='Participant Status'
-      />
-    );
     const consentData = Object.keys(this.state.data.consentData).map((key) => {
       const consent = this.state.data.consentData[key];
       let consentStatus = '-';
@@ -517,7 +509,6 @@ class CandidateProfileIndex extends Component {
         onClick={this.viewCandParams}
       >
         <div className="form-horizontal">
-          {participantStatus}
           {consentData}
         </div>
         <p style={{textAlign: 'center'}}>Click for more details</p>
