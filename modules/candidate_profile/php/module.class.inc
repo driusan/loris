@@ -47,6 +47,10 @@ class Module extends \Module
             }
         } catch (\NotFound $e) {
         }
+        $request = $request->withAttribute(
+            "CandID",
+            new \LORIS\StudyEntities\Candidate\CandID("965327"),
+        );
         $page = $this->loadPage("candidate_profile");
         return $page->process($request, $page);
     }

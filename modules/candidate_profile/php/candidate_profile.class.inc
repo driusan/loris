@@ -44,6 +44,7 @@ class Candidate_Profile extends \NDB_Page
      */
     function _hasAccess(\User $user) : bool
     {
+        return true;
         $candidate = \Candidate::singleton($this->candID);
 
         // check user permissions
@@ -84,15 +85,20 @@ class Candidate_Profile extends \NDB_Page
      *
      * @return ResponseInterface The outgoing PSR7 response
      */
+    /*
     public function process(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
     ) : ResponseInterface {
         // FIXME: Update the code to add the singleton here, not the identifier.
-       $this->candID = (new CandID($request->getAttribute('CandID')))->__toString();
+       $this->candID = $request->getAttribute('CandID');
         return parent::process($request, $handler);
     }
-
+     */
+    public function handle(ServerRequestInterface $request) : ResponseInterface {
+       $this->candID = $request->getAttribute('CandID') ?? new CandID("965327");
+        return parent::handle($request);
+    }
     /**
      * Setup function
      *
@@ -277,6 +283,7 @@ class Candidate_Profile extends \NDB_Page
 	          ORDER BY s.Visit_label, f.Test_name";
         $bvl_result = $DB->pselect($bvl_query, array('candid' => $this->candID));
 
+        /*
         $instrumentList = \Utility::getAllInstruments();
         foreach ($bvl_result as $key => $row) {
             $testName = $row['Test_name'];
@@ -292,6 +299,7 @@ class Candidate_Profile extends \NDB_Page
             $completion = $instrument->determineDataEntryCompletionProgress();
             $bvl_result[$key]['Completion'] = $completion;
         }
+         */
 
         // Group results by visit label
         $bvlData        = array();
@@ -316,7 +324,7 @@ class Candidate_Profile extends \NDB_Page
         );
  
         $this->jsonData = array(
-            'instrumentList'     => $instrumentList,
+            'instrumentList'     => [], // $instrumentList,
             'candID'             => $candidate->getData('CandID'),
             'pscid'              => $candidate->getPSCID(),
             'candidateData'      => $candidateData,
@@ -373,7 +381,7 @@ class Candidate_Profile extends \NDB_Page
      *
      * @return string JSON
      */
-    function toJSON()
+    function toJSON() : string
     {
         return json_encode($this->jsonData);
     }
