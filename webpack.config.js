@@ -62,6 +62,7 @@ const config = [{
     './modules/publication/js/publicationIndex.js': './modules/publication/jsx/publicationIndex.js',
     './modules/publication/js/viewProjectIndex.js': './modules/publication/jsx/viewProjectIndex.js',
     './modules/candidate_profile/js/candidateProfileIndex.js': './modules/candidate_profile/jsx/candidateProfileIndex.js',
+    './modules/candidate_profile/js/candidateInfo.js': './modules/candidate_profile/jsx/candidateInfo.js',
   },
   output: {
     path: __dirname + '/',

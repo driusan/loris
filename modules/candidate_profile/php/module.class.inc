@@ -47,16 +47,49 @@ class Module extends \Module
             }
         } catch (\NotFound $e) {
         }
+        $candID = new \LORIS\StudyEntities\Candidate\CandID("965327");
         $request = $request->withAttribute(
-            "CandID",
-            new \LORIS\StudyEntities\Candidate\CandID("965327"),
+            "CandID", $candID
         );
+
         $page = $this->loadPage("candidate_profile");
         return $page->process($request, $page);
     }
 
+
     public function getLongName() : string
     {
         return "Candidate Profile";
+    }
+        /**
+     * {@inheritDoc}
+     *
+     * @param string $type The type of widgets to get
+     * @param \User  $user The user widgets are being retrieved for.
+     *
+     * @return \LORIS\GUI\Widget[]
+     */
+    public function getWidgets(string $type, \User $user, array $options) : array
+    {
+        switch($type) {
+        case 'candidate':
+            $factory = \NDB_Factory::singleton();
+            $baseurl = $factory->settings()->getBaseURL();
+
+            $candidate = $options['candidate'];
+            return [
+                new CandidateWidget("Test", $baseurl . "/candidate_profile/js/CandidateInfo.js", null, 2),
+                /*
+                new CandidateWidget("Test2", "abc", 2, null),
+                new CandidateWidget("Test3", "abc"),
+                new CandidateWidget("Test4", "abc", 3, 2),
+                new CandidateWidget("Test5", "abc"),
+                new CandidateWidget("Test6", "abc"),
+                new CandidateWidget("Test7", "abc"),
+                 */
+            ];
+        }
+        return [];
+
     }
 }
