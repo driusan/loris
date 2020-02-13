@@ -119,7 +119,7 @@ class BaseRouter extends PrefixRouter implements RequestHandlerInterface
                     $request = $request
                     ->withAttribute("baseurl", rtrim($baseurl->__toString(), '/'))
                     ->withAttribute("CandID", $components[0]);
-                $module  = \Module::factory("candidate_profile");
+                $module  = \Module::factory("timepoint_list");
                 $mr      = new ModuleRouter($module, $this->moduledir);
                 return $mr->handle($request);
             case 2:

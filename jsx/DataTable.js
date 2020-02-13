@@ -436,6 +436,8 @@ class DataTable extends Component {
                     celldata,
                     row
                 );
+            } else {
+                cell = <td>{celldata}</td>;
             }
             if (cell !== null) {
                 // Note: Can't currently pass a key, need to update columnFormatter

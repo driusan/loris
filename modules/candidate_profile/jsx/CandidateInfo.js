@@ -36,7 +36,6 @@ class CandidateInfo extends Component {
     calcAge(dob) {
         let dobdate = new Date(dob);
         let now = new Date();
-        console.log(dobdate, now);
         return (now.getFullYear() - dobdate.getFullYear()) + ' years old';
     }
     render() {
@@ -48,8 +47,6 @@ class CandidateInfo extends Component {
     if (!this.state.isLoaded) {
       return <Loader/>;
     }
-        console.log(this.state);
-
         const data = [
             {
                 value: this.state.Candidate.Meta.PSCID,
