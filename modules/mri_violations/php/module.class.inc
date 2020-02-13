@@ -70,7 +70,7 @@ class Module extends \Module
      *
      * @return \LORIS\GUI\Widget[]
      */
-    public function getWidgets(string $type, \User $user) : array
+    public function getWidgets(string $type, \User $user, array $options) : array
     {
         switch($type) {
         case "usertasks":

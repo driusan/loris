@@ -44,7 +44,7 @@ class Module extends \Module
      *
      * @return \LORIS\GUI\Widget[]
      */
-    public function getWidgets(string $type, \User $user)
+    public function getWidgets(string $type, \User $user, array $options)
     {
         switch($type) {
         case 'dashboard':
@@ -142,7 +142,7 @@ class Module extends \Module
             if ($module->hasAccess($user)) {
                 $widgets = array_merge(
                     $widgets,
-                    $module->getWidgets('usertasks', $user)
+                    $module->getWidgets('usertasks', $user, [])
                 );
             }
         }

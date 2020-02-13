@@ -66,7 +66,7 @@ class Module extends \Module
      *
      * @return \LORIS\GUI\Widget[]
      */
-    public function getWidgets(string $type, \User $user)
+    public function getWidgets(string $type, \User $user, array $options)
     {
         switch($type) {
         case 'dashboard':
