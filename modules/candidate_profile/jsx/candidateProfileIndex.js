@@ -31,6 +31,9 @@ class CandidateProfileIndex extends Component {
           if (e.detail.height) {
               style.gridRowEnd = 'span ' + e.detail.height;
           }
+          if (e.detail.order) {
+              style.order = e.detail.order;
+          }
           style.alignSelf = 'stretch';
 
           this.state.cards.push(<Card title={title} style={style}>

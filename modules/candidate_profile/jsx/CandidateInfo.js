@@ -123,6 +123,7 @@ window.addEventListener('dashboardloaded', () => {
                 title: 'Candidate Info',
                 content: <CandidateInfo BaseURL={loris.BaseURL} CandID="965327"/>,
                 width: 3,
+                order: -10,
             },
         })
     );
