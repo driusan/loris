@@ -47,7 +47,7 @@ class Module extends \Module
         // Breakdown path information from the request.
         preg_match(
             "#(/*)([a-zA-Z0-9_-]+)(/*)(.*)#",
-            $request->getURI()->getPath(),
+            $path,
             $pathComponents
         );
 
