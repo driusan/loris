@@ -16,7 +16,12 @@ class VisitInstrumentList extends Component {
      calcAge(dob, visit) {
         let dobdate = new Date(dob);
         let vdate = new Date(visit);
-        return (vdate.getFullYear() - dobdate.getFullYear()) + ' years old';
+        let years = vdate.getFullYear()-dobdate.getFullYear();
+        let months = years*12 + vdate.getMonth() - dobdate.getMonth();
+        if (months <= 36) {
+            return months + ' months old';
+        }
+        return years + ' years old';
     }
 
 
@@ -35,7 +40,6 @@ class VisitInstrumentList extends Component {
         });
     }
     render() {
-        const squaresize = '98%';
         let style = {
             background: 'rgb(228, 235, 242)',
             marginBottom: '0.5%',
@@ -43,21 +47,16 @@ class VisitInstrumentList extends Component {
             textAlign: 'center',
             boxSizing: 'border-box',
             transition: 'flex 0.3s, width 0.3s ease-out, height 0.3s ease-out',
-            width: squaresize,
+            width: '98%',
         };
 
         let vstatus = 'Not Started';
         if (this.props.Visit.Stages.Approval) {
             vstatus = 'Approval - ' + this.props.Visit.Stages.Approval.Status;
-            // style.background = '#b6d7a8';
         } else if (this.props.Visit.Stages.Visit) {
             vstatus = 'Visit - ' + this.props.Visit.Stages.Visit.Status;
-            // style.background = '#ffe599';
         } else if (this.props.Visit.Stages.Screening) {
             vstatus = 'Screening - ' + this.props.Visit.Stages.Screening.Status;
-            // style.background = '#f9cb9c';
-        } else {
-            // style.background = '#ea9999';
         }
 
         let center = {
@@ -78,11 +77,15 @@ class VisitInstrumentList extends Component {
         } else {
             instruments = this.state.instruments.map((instrument) => {
                 let conflicterror = null;
-                console.log(instrument);
                 if (instrument.NumOfConflict != 0) {
-                    conflicterror = <i style={{color: 'red'}}class="fas fa-exclamation-triangle"></i>;
+                    conflicterror = <a href={this.props.BaseURL + '/conflict_resolver/?candidateID=' + this.props.Candidate.Meta.CandID + '&instrument=' + instrument.Test_name + '&visitLabel=' + this.props.Visit.Meta.Visit}
+><i style={{color: 'red'}}class="fas fa-exclamation-triangle"></i></a>;
                 }
-                return <tr key={instrument.Test_name}><td style={{textAlign: 'left'}}>{instrument.Test_name}</td><td><progress value={instrument.Completion} max='100'>{instrument.Completion + '%'}</progress></td><td>{conflicterror}</td></tr>;
+                return (<tr key={instrument.Test_name}>
+                    <td style={{textAlign: 'left'}}><a href={this.props.BaseURL + '/instruments/' + instrument.Test_name + '?commentID=' + instrument.CommentID}>{instrument.Test_name}</a></td>
+                    <td><progress value={instrument.Completion} max='100'>{instrument.Completion + '%'}</progress></td>
+                    <td>{conflicterror}</td>
+                    </tr>);
             });
 
             instruments = <div>
@@ -97,11 +100,9 @@ class VisitInstrumentList extends Component {
             instruments = null;
         }
 
-        console.log(this.props.Visit);
-        console.log(this.props.Candidate);
         return (<div style={style} onClick={this.toggleExpanded}>
             <div style={center}>
-                <h4 style={{width: '20%'}}>{this.props.Visit.Meta.Visit}</h4>
+                <h4 style={{width: '15%'}}><a href={this.props.BaseURL + '/' + this.props.Candidate.Meta.CandID + '/' + this.props.Visit.Meta.Visit}>{this.props.Visit.Meta.Visit}</a></h4>
                 <div>
                 <dl style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', width: '100%', alignContent: 'center', justifyContent: 'center', margin: 0}}>
                     <div style={termstyle}><dt>Subproject</dt><dd>{this.props.Visit.Meta.Battery}</dd></div>

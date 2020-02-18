@@ -121,6 +121,7 @@ class Module extends \Module
             $baseurl = $factory->settings()->getBaseURL();
 
             $candidate = $options['candidate'];
+            return [];
             return [
                 new \LORIS\candidate_profile\CandidateWidget("Test", $baseurl . "/instruments/js/instrumentlistwidget.js", null, 2),
             ];

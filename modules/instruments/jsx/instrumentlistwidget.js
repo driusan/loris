@@ -88,6 +88,10 @@ class CandidateInstrumentList extends Component {
     }
 }
 
+export default CandidateInstrumentList;
+
+/*
+
 
 window.addEventListener('dashboardloaded', () => {
     window.dispatchEvent(
@@ -100,3 +104,4 @@ window.addEventListener('dashboardloaded', () => {
         })
     );
 });
+*/

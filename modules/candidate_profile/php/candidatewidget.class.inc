@@ -43,6 +43,8 @@ class CandidateWidget implements \LORIS\GUI\Widget
     public function __construct(
         string $title,
         string $jsurl,
+        string $componentname,
+        array $props,
         ?int $width = null,
         ?int $height = null
     ) {
@@ -50,6 +52,8 @@ class CandidateWidget implements \LORIS\GUI\Widget
         $this->url = $jsurl;
         $this->width = $width;
         $this->height = $height;
+        $this->componentname = $componentname;
+        $this->props = $props;
     }
 
 
@@ -78,5 +82,13 @@ class CandidateWidget implements \LORIS\GUI\Widget
 
     public function getJSURL() : string {
         return $this->url;
+    }
+
+    public function getComponentName() : string {
+        return $this->componentname;
+    }
+
+    public function getComponentProps() : array {
+        return $this->props;
     }
 }

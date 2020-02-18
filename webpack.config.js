@@ -2,6 +2,67 @@ const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const fs = require('fs');
 
+const optimization = {
+    minimizer: [
+      new TerserPlugin({
+        cache: true,
+        parallel: true,
+        terserOptions: {
+          compress: false,
+          ecma: 6,
+          mangle: false,
+        },
+        sourceMap: true,
+      }),
+    ],
+};
+const resolve = {
+    alias: {
+      util: path.resolve(__dirname, './htdocs/js/util'),
+      jsx: path.resolve(__dirname, './jsx'),
+      Breadcrumbs: path.resolve(__dirname, './jsx/Breadcrumbs'),
+      DataTable: path.resolve(__dirname, './jsx/DataTable'),
+      DynamicDataTable: path.resolve(__dirname, './jsx/DynamicDataTable'),
+      Filter: path.resolve(__dirname, './jsx/Filter'),
+      FilterableDataTable: path.resolve(__dirname, './jsx/FilterableDataTable'),
+      FilterForm: path.resolve(__dirname, './jsx/FilterForm'),
+      Form: path.resolve(__dirname, './jsx/Form'),
+      Loader: path.resolve(__dirname, './jsx/Loader'),
+      Markdown: path.resolve(__dirname, './jsx/Markdown'),
+      Modal: path.resolve(__dirname, './jsx/Modal'),
+      MultiSelectDropdown: path.resolve(__dirname, './jsx/MultiSelectDropdown'),
+      PaginationLinks: path.resolve(__dirname, './jsx/PaginationLinks'),
+      Panel: path.resolve(__dirname, './jsx/Panel'),
+      ProgressBar: path.resolve(__dirname, './jsx/ProgressBar'),
+      StaticDataTable: path.resolve(__dirname, './jsx/StaticDataTable'),
+      Tabs: path.resolve(__dirname, './jsx/Tabs'),
+      TriggerableModal: path.resolve(__dirname, './jsx/TriggerableModal'),
+      Card: path.resolve(__dirname, './jsx/Card'),
+    },
+    extensions: ['*', '.js', '.jsx', '.json'],
+};
+
+const module = {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader?cacheDirectory',
+          },
+          {
+            loader: 'eslint-loader',
+            options: {
+              cache: true,
+            },
+          },
+        ],
+        enforce: 'pre',
+      },
+    ],
+  };
+
 const config = [{
   entry: {
     './htdocs/js/components/DynamicDataTable.js': './jsx/DynamicDataTable.js',
@@ -68,51 +129,9 @@ const config = [{
   output: {
     path: __dirname + '/',
     filename: '[name]',
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader?cacheDirectory',
-          },
-          {
-            loader: 'eslint-loader',
-            options: {
-              cache: true,
-            },
-          },
-        ],
-        enforce: 'pre',
-      },
-    ],
-  },
-  resolve: {
-    alias: {
-      util: path.resolve(__dirname, './htdocs/js/util'),
-      jsx: path.resolve(__dirname, './jsx'),
-      Breadcrumbs: path.resolve(__dirname, './jsx/Breadcrumbs'),
-      DataTable: path.resolve(__dirname, './jsx/DataTable'),
-      DynamicDataTable: path.resolve(__dirname, './jsx/DynamicDataTable'),
-      Filter: path.resolve(__dirname, './jsx/Filter'),
-      FilterableDataTable: path.resolve(__dirname, './jsx/FilterableDataTable'),
-      FilterForm: path.resolve(__dirname, './jsx/FilterForm'),
-      Form: path.resolve(__dirname, './jsx/Form'),
-      Loader: path.resolve(__dirname, './jsx/Loader'),
-      Markdown: path.resolve(__dirname, './jsx/Markdown'),
-      Modal: path.resolve(__dirname, './jsx/Modal'),
-      MultiSelectDropdown: path.resolve(__dirname, './jsx/MultiSelectDropdown'),
-      PaginationLinks: path.resolve(__dirname, './jsx/PaginationLinks'),
-      Panel: path.resolve(__dirname, './jsx/Panel'),
-      ProgressBar: path.resolve(__dirname, './jsx/ProgressBar'),
-      StaticDataTable: path.resolve(__dirname, './jsx/StaticDataTable'),
-      Tabs: path.resolve(__dirname, './jsx/Tabs'),
-      TriggerableModal: path.resolve(__dirname, './jsx/TriggerableModal'),
-        Card: path.resolve(__dirname, './jsx/Card'),
-    },
-    extensions: ['*', '.js', '.jsx', '.json'],
+    library: ['lorisjs', '[name]'],
+    libraryTarget: 'window',
+    libraryExport: 'default'
   },
   externals: {
     react: 'React',
@@ -122,21 +141,11 @@ const config = [{
   },
   devtool: 'source-map',
   plugins: [],
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        cache: true,
-        parallel: true,
-        terserOptions: {
-          compress: false,
-          ecma: 6,
-          mangle: false,
-        },
-        sourceMap: true,
-      }),
-    ],
-  },
-}];
+  optimization: optimization,
+  resolve: resolve,
+  module: module,
+},
+];
 
 // Support project overrides
 if (fs.existsSync('./project/webpack-project.config.js')) {

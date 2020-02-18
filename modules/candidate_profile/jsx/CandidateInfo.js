@@ -1,52 +1,58 @@
 import React, {Component} from 'react';
 import Loader from 'Loader';
 
-
 class CandidateInfo extends Component {
- constructor(props) {
-    super(props);
-    this.state = {
-      isLoaded: false,
-      error: false,
-        Candidate: {},
-    };
-     this.fetchData = this.fetchData.bind(this);
-     this.calcAge = this.calcAge.bind(this);
- }
+    constructor(props) {
+        super(props);
+        this.state = {
+            isLoaded: false,
+            error: false,
+            Candidate: {},
+        };
+        this.fetchData = this.fetchData.bind(this);
+        this.calcAge = this.calcAge.bind(this);
+    }
 
     fetchData() {
-          fetch(this.props.BaseURL + '/api/v0.0.2/candidates/' + this.props.CandID,
-              {method: 'GET'}
-          )
-          .then(function(response) {
-              return response.json();
-          })
-          .then((json) => {
-              this.setState({
-                  Candidate: json,
-                  isLoaded: true,
-              });
-          });
+        fetch(this.props.BaseURL + '/api/v0.0.2/candidates/' + this.props.CandID,
+            {method: 'GET'}
+        )
+        .then(function(response) {
+            return response.json();
+        })
+        .then((json) => {
+            this.setState({
+                Candidate: json,
+                isLoaded: true,
+            });
+        });
     }
 
-      componentDidMount() {
-          this.fetchData();
-      }
+    componentDidMount() {
+        this.fetchData();
+    }
 
     calcAge(dob) {
-        let dobdate = new Date(dob);
-        let now = new Date();
-        return (now.getFullYear() - dobdate.getFullYear()) + ' years old';
+        const dobdate = new Date(dob);
+        const now = new Date();
+        const years = now.getFullYear()-dobdate.getFullYear();
+        const months = years*12 + now.getMonth() - dobdate.getMonth();
+
+        if (months <= 36) {
+            return months + ' months old';
+        }
+        return years + ' years old';
     }
+
     render() {
-            // If error occurs, return a message.
-    if (this.state.error) {
-      return <h3>An error occurred while loading the page.</h3>;
-    }
-    // Waiting for async data to load
-    if (!this.state.isLoaded) {
-      return <Loader/>;
-    }
+        // If error occurs, return a message.
+        if (this.state.error) {
+            return <h3>An error occurred while loading the page.</h3>;
+        }
+        // Waiting for async data to load
+        if (!this.state.isLoaded) {
+            return <Loader/>;
+        }
         const data = [
             {
                 value: this.state.Candidate.Meta.PSCID,
@@ -115,6 +121,8 @@ class CandidateInfo extends Component {
     }
 }
 
+export default CandidateInfo;
+/*
 
 window.addEventListener('dashboardloaded', () => {
     window.dispatchEvent(
@@ -128,3 +136,4 @@ window.addEventListener('dashboardloaded', () => {
         })
     );
 });
+*/

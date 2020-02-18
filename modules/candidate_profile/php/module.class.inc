@@ -78,15 +78,14 @@ class Module extends \Module
 
             $candidate = $options['candidate'];
             return [
-                new CandidateWidget("Test", $baseurl . "/candidate_profile/js/CandidateInfo.js", null, 2),
-                /*
-                new CandidateWidget("Test2", "abc", 2, null),
-                new CandidateWidget("Test3", "abc"),
-                new CandidateWidget("Test4", "abc", 3, 2),
-                new CandidateWidget("Test5", "abc"),
-                new CandidateWidget("Test6", "abc"),
-                new CandidateWidget("Test7", "abc"),
-                 */
+                new CandidateWidget(
+                    "Candidate Info",
+                    $baseurl . "/candidate_profile/js/CandidateInfo.js",
+                    "CandidateInfo",
+                    [ 'BaseURL' => $baseurl, "CandID" => "965327"],
+                    null,
+                    2
+                ),
             ];
         }
         return [];
