@@ -61,7 +61,8 @@ class Module extends \Module
     {
         return "Candidate Profile";
     }
-        /**
+
+    /**
      * {@inheritDoc}
      *
      * @param string $type The type of widgets to get
@@ -82,7 +83,7 @@ class Module extends \Module
                     "Candidate Info",
                     $baseurl . "/candidate_profile/js/CandidateInfo.js",
                     "lorisjs.candidate_profile.CandidateInfo",
-                    [ 'BaseURL' => $baseurl, "CandID" => "965327"],
+                    [ 'BaseURL' => $baseurl, "CandID" => $candidate->getCandID()],
                     3,
                     null,
                 ),

@@ -46,7 +46,8 @@ class Candidate_Profile extends \NDB_Page
     }
 
     public function handle(ServerRequestInterface $request) : ResponseInterface {
-        $candID = $request->getAttribute('CandID') ?? new CandID("965327");
+        //$candID = $request->getAttribute('CandID') ?? new CandID("965327");
+        $candID = new CandID($request->getQueryParams()['CandID']) ?? new CandID("965327");
         $this->candidate = \Candidate::singleton($candID);
 
         $DB   = \NDB_Factory::singleton()->database();
@@ -106,7 +107,7 @@ class Candidate_Profile extends \NDB_Page
                 '/candidate_list'
             ),
             new \LORIS\Breadcrumb(
-                "Candidate Profile $candid / $pscid",
+                "Candidate Dashboard $candid / $pscid",
                 "/$candid"
             )
         );
