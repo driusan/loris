@@ -1,15 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * File contains the \LORIS\dashboard\Widget class.
- *
- * PHP Version 7
- *
- * @category Main
- * @package  Loris
- * @author   Dave MacFarlane <dave.macfarlane@mcin.ca>
- * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- * @link     https://www.github.com/aces/Loris
- */
 namespace LORIS\candidate_profile;
 
 /**
@@ -22,11 +11,7 @@ namespace LORIS\candidate_profile;
  * optionally register extra CSS or JS to be loaded for the widget to function
  * correctly.
  *
- * @category Main
- * @package  Loris
- * @author   Dave MacFarlane <dave.macfarlane@mcin.ca>
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- * @link     https://www.github.com/aces/Loris
  */
 class CandidateWidget implements \LORIS\GUI\Widget
 {

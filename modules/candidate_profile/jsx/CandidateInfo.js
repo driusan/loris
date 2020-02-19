@@ -74,12 +74,6 @@ export class CandidateInfo extends Component {
                 value: this.state.Candidate.Meta.Sex,
                 label: 'Sex',
             },
-            /*
-            {
-                value: this.state.data.candidateData.Subproject,
-                label: 'Subproject',
-            },
-            */
             {
                 value: this.state.Candidate.Meta.Project,
                 label: 'Project',
@@ -88,7 +82,12 @@ export class CandidateInfo extends Component {
                 value: this.state.Candidate.Meta.Site,
                 label: 'Site',
             },
+            {
+                value: this.state.Candidate.Visits.length,
+                label: 'Visits',
+            },
         ];
+        console.log(this.state.Candidate);
         const cardInfo = data.map((info, index) => {
             return (
                 <div className="form-horizontal" style={{flex: '1 1 25%'}}>
@@ -113,27 +112,10 @@ export class CandidateInfo extends Component {
         });
         return (
             <div style={{width: '100%'}}>
-            <div style={{display: 'flex', flexFlow: 'wrap', marginBottom: '-15px', marginTop: '10px'}}>
-            {cardInfo}
-            </div>
+                <div style={{display: 'flex', flexFlow: 'wrap', marginBottom: '-15px', marginTop: '10px'}}>
+                {cardInfo}
+                </div>
             </div>
         );
     }
 }
-
-// export CandidateInfo;
-/*
-
-window.addEventListener('dashboardloaded', () => {
-    window.dispatchEvent(
-        new CustomEvent('registercard', {
-            detail: {
-                title: 'Candidate Info',
-                content: <CandidateInfo BaseURL={loris.BaseURL} CandID="965327"/>,
-                width: 3,
-                order: -10,
-            },
-        })
-    );
-});
-*/
