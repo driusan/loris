@@ -47,8 +47,16 @@ class Candidate_Profile extends \NDB_Page
 
     public function handle(ServerRequestInterface $request) : ResponseInterface {
         //$candID = $request->getAttribute('CandID') ?? new CandID("965327");
-        $candID = new CandID($request->getQueryParams()['CandID']) ?? new CandID("965327");
-        $this->candidate = \Candidate::singleton($candID);
+        $candIDStr = ltrim($request->getURI()->getPath(), '/');
+        try {
+            $candID = new CandID($candIDStr);
+            $this->candidate = \Candidate::singleton($candID);
+       } catch (\DomainException | \LORISException $e) {
+           // A LORISException means the \Candidate::singleton couldn't load the candidate (ie
+           // because the CandID doesn't exist in the database.) A \DomainException means the
+           // CandID format was invalid. Either one means the URL was not valid.
+           return (new \LORIS\Http\Response())->withBody(new \LORIS\Http\StringStream("Candidate not found"))->withStatus(404);
+       }
 
         $DB   = \NDB_Factory::singleton()->database();
         $user = \User::singleton();
@@ -98,6 +106,14 @@ class Candidate_Profile extends \NDB_Page
      */
     public function getBreadcrumbs(): \LORIS\BreadcrumbTrail
     {
+        if($this->candidate === null) {
+            return new \LORIS\BreadcrumbTrail(
+                new \LORIS\Breadcrumb(
+                    'Access Profile',
+                    '/candidate_list'
+                ),
+            );
+        }
         $candid = $this->candidate->getCandID();
         $pscid  = $this->candidate->getPSCID();
 
