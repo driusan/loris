@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Loader from 'Loader';
 
-class CandidateInfo extends Component {
+export class CandidateInfo extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -121,7 +121,7 @@ class CandidateInfo extends Component {
     }
 }
 
-export default CandidateInfo;
+// export CandidateInfo;
 /*
 
 window.addEventListener('dashboardloaded', () => {

@@ -10,7 +10,7 @@ window.addEventListener('dashboardloaded', () => {
             detail: {
                 title: 'Behavioural Data ',
                 content: React.createElement(
-                    lorisjs.{$widget->getComponentName()},
+                    {$widget->getComponentName()},
                     {$widget->getComponentProps()|json_encode}
                 )
                 {if $widget->getWidth()},width: {$widget->getWidth()}{/if}

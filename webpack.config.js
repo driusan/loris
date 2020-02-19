@@ -38,9 +38,10 @@ const resolve = {
       Tabs: path.resolve(__dirname, './jsx/Tabs'),
       TriggerableModal: path.resolve(__dirname, './jsx/TriggerableModal'),
       Card: path.resolve(__dirname, './jsx/Card'),
-    },
-    extensions: ['*', '.js', '.jsx', '.json'],
-const module = {
+    }
+};
+
+const mod = {
     rules: [
       {
         test: /\.(js|jsx)$/,
@@ -150,6 +151,7 @@ const config = [
     lorisModule('module_manager', [ 'modulemanager' ]),
     lorisModule('imaging_qc', [ 'imagingQCIndex' ]),
     lorisModule('server_processes_manager', [ 'server_processes_managerIndex' ]),
+    lorisModule('candidate_profile', [ 'candidateProfileIndex', 'candidateInfo' ]),
 ];
 
 // Support project overrides
