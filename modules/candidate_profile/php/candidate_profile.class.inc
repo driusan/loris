@@ -79,6 +79,7 @@ class Candidate_Profile extends \NDB_Page
         }
 
         $this->tpl_data['widgets'] = $widgets;
+        $this->tpl_data['candidate'] = $this->candidate;
 
         return parent::handle($request);
     }

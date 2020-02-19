@@ -15,7 +15,6 @@ class CandidateProfileIndex extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        error: false,
         isLoaded: false,
         cards: [],
     };
@@ -41,15 +40,10 @@ class CandidateProfileIndex extends Component {
               </Card>);
           this.setState({cards: this.state.cards, isLoaded: true});
       });
-      window.dispatchEvent( new CustomEvent('dashboardloaded'));
   }
 
   render() {
-    // If error occurs, return a message.
-    if (this.state.error) {
-      return <h3>An error occurred while loading the page.</h3>;
-    }
-    // Waiting for async data to load
+    // Show a loading spin wheel until at least 1 card is loaded.
     if (!this.state.isLoaded) {
       return <Loader/>;
     }
