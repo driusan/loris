@@ -53,6 +53,8 @@ window.addEventListener('load', () => {
                     allprops
                 )
                 {if $widget->getWidth()},width: {$widget->getWidth()}{/if}
+                {if $widget->getOrder()},order: {$widget->getOrder()}{/if}
+                {if $widget->getHeight()},height: {$widget->getHeight()}{/if}
                 }
             })
         );

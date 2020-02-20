@@ -102,9 +102,9 @@ class VisitInstrumentList extends Component {
 
         return (<div style={style} onClick={this.toggleExpanded}>
             <div style={center}>
-                <h4 style={{width: '15%'}}><a href={this.props.BaseURL + '/' + this.props.Candidate.Meta.CandID + '/' + this.props.Visit.Meta.Visit}>{this.props.Visit.Meta.Visit}</a></h4>
+                <h4 style={{width: '10%'}}><a href={this.props.BaseURL + '/' + this.props.Candidate.Meta.CandID + '/' + this.props.Visit.Meta.Visit}>{this.props.Visit.Meta.Visit}</a></h4>
                 <div>
-                <dl style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', width: '100%', alignContent: 'center', justifyContent: 'center', margin: 0}}>
+                <dl style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', width: '100%', /* alignContent: 'center', justifyContent: 'center', */ placeContent: 'space-around', margin: 0}}>
                     <div style={termstyle}><dt>Subproject</dt><dd>{this.props.Visit.Meta.Battery}</dd></div>
                     <div style={termstyle}><dt>Site</dt><dd>{this.props.Visit.Meta.Site}</dd></div>
                     <div style={termstyle}><dt>Date Of Visit</dt><dd>{this.props.Visit.Stages.Visit.Date}</dd></div>

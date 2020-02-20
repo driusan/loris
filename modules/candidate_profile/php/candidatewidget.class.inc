@@ -31,7 +31,8 @@ class CandidateWidget implements \LORIS\GUI\Widget
         string $componentname,
         array $props,
         ?int $width = null,
-        ?int $height = null
+        ?int $height = null,
+        ?int $order = null
     ) {
         $this->title = $title;
         $this->url = $jsurl;
@@ -39,6 +40,7 @@ class CandidateWidget implements \LORIS\GUI\Widget
         $this->height = $height;
         $this->componentname = $componentname;
         $this->props = $props;
+        $this->order = $order;
     }
 
 
@@ -65,6 +67,9 @@ class CandidateWidget implements \LORIS\GUI\Widget
         return $this->height;
     }
 
+    public function getOrder() : ?int {
+        return $this->order;
+    }
     public function getJSURL() : string {
         return $this->url;
     }

@@ -83,9 +83,10 @@ class Module extends \Module
                     "Candidate Info",
                     $baseurl . "/candidate_profile/js/CandidateInfo.js",
                     "lorisjs.candidate_profile.CandidateInfo",
-                    [ 'BaseURL' => $baseurl, "CandID" => $candidate->getCandID()],
-                    3,
-                    null,
+                    [],
+                    1,
+                    1,
+                    -100,
                 ),
             ];
         }
