@@ -18,8 +18,6 @@ window.addEventListener('load', () => {
         };
 
         async function loadVisits(candidate) {
-            console.log('loading visits for ', candidate);
-
             visits = candidate.Visits.map(async function(visit) {
                 // FIXME: This shouldn't use the dev version. See #6058
                 let response = await fetch(loris.BaseURL + '/api/v0.0.3-dev/candidates/' + candidate.Meta.CandID + '/' + visit);
@@ -30,10 +28,6 @@ window.addEventListener('load', () => {
         }
 
     async function loadCards(visits) {
-        console.log("loading cards");
-        console.log("candidate", candidate);
-        console.log("visits", visits);
-
         let baseprops = { BaseURL: loris.BaseURL, Candidate: candidate, Visits: visits};
 
         let modprops, allprops;

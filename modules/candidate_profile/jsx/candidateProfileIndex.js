@@ -35,7 +35,8 @@ class CandidateProfileIndex extends Component {
           }
           style.alignSelf = 'stretch';
 
-          this.state.cards.push(<Card title={title} style={style}>
+          let cardID = 'card' + this.state.cards.length;
+          this.state.cards.push(<Card title={title} style={style} id={cardID} key={cardID}>
               {e.detail.content}
               </Card>);
           this.setState({cards: this.state.cards, isLoaded: true});

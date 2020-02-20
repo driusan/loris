@@ -1,12 +1,33 @@
 import React, {Component} from 'react';
 
+/**
+ * CandidateInfo is a React component which is used for the
+ * CandidateInfo table providing an overview of the candidate.
+ */
 export class CandidateInfo extends Component {
+    /**
+     * Construct the object.
+     *
+     * @param {array} props - The React props
+     */
     constructor(props) {
         super(props);
 
         this.calcAge = this.calcAge.bind(this);
+        this.getSubprojects = this.getSubprojects.bind(this);
+        this.getVisitList = this.getVisitList.bind(this);
     }
 
+    /**
+     * Calculate the age (as of today) based on the date of birth
+     * passed as an argument. If the age is less than or equal to
+     * 3 years old, it will return a string describing the age in
+     * months. Otherwise, it will return an age in years.
+     *
+     * @param {string} dob - The date of birth in format YYYY-MM-DD
+     *
+     * @return {string} - A human readable string of the age.
+     */
     calcAge(dob) {
         const dobdate = new Date(dob);
         const now = new Date();
@@ -19,68 +40,133 @@ export class CandidateInfo extends Component {
         return years + ' years old';
     }
 
+    /**
+     * Return a list of the unique subprojects contained in the
+     * visits passed.
+     *
+     * @param {array} visits - An array of visits in the format of
+     *                         the LORIS API
+     *
+     * @return {array} - The unique list of subprojects as a string.
+     */
+    getSubprojects(visits) {
+        let mapped = [...new Set(visits.map( (visit) => {
+            return visit.Meta.Battery;
+        }))];
+        return mapped;
+    }
+
+    /**
+     * Converts the list of visits passed as a parameter to a React element
+     * that can be rendered. The React element is a comma separated list
+     * of visits, each of which link to the timepoint.
+     *
+     * The instrument_list is currently used as the 'timepoint' because
+     * that's where you end up when going via Access Profile, but eventually
+     * it would be a good idea to have a non-modality specific visit dashboard
+     * similar to the candidate dashboard.
+     *
+     * @param {array} visits - List of visits in the format returned by the LORIS API.
+     *
+     * @return {object} - A React element containing a comma separated list of links.
+     */
+    getVisitList(visits) {
+        let visitlinks = visits.map( (visit) => {
+            return <a
+                href={
+                    this.props.BaseURL
+                    + '/instrument_list/?candID='
+                    + this.props.Candidate.Meta.CandID
+                    + '&sessionID=1'}
+                key={visit.Meta.Visit}
+                >{visit.Meta.Visit}</a>;
+        });
+        return <div>
+            {
+                // Equivalent of .join(', ') that doesn't convert the React
+                // element into the string [object Object].
+                // See https://stackoverflow.com/questions/33577448/is-there-a-way-to-do-array-join-in-react
+                visitlinks.reduce(
+                    (acc, el) => {
+                        if (acc === null) {
+                            return [el];
+                        }
+                        return [acc, ', ', el];
+                    },
+                    null,
+                )
+            }
+            </div>;
+    }
+
+    /**
+     * Render the React component
+     *
+     * @return {object} - The rendered react component
+     */
     render() {
+        const subprojects = this.getSubprojects(this.props.Visits);
+        const subprojlabel = subprojects.length == 1 ? 'Subproject'
+            : 'Subprojects';
+
         const data = [
             {
-                value: this.props.Candidate.Meta.PSCID,
                 label: 'PSCID',
+                value: this.props.Candidate.Meta.PSCID,
             },
             {
-                value: this.props.Candidate.Meta.CandID,
                 label: 'DCCID',
+                value: this.props.Candidate.Meta.CandID,
             },
             {
-                value: this.props.Candidate.Meta.DoB,
                 label: 'Date of Birth',
+                value: this.props.Candidate.Meta.DoB,
             },
             {
-                value: this.calcAge(this.props.Candidate.Meta.DoB),
                 label: 'Age',
+                value: this.calcAge(this.props.Candidate.Meta.DoB),
             },
             {
-                value: this.props.Candidate.Meta.Sex,
                 label: 'Sex',
+                value: this.props.Candidate.Meta.Sex,
             },
             {
-                value: this.props.Candidate.Meta.Project,
                 label: 'Project',
+                value: this.props.Candidate.Meta.Project,
             },
             {
-                value: this.props.Candidate.Meta.Site,
+                label: subprojlabel,
+                value: subprojects,
+            },
+            {
                 label: 'Site',
+                value: this.props.Candidate.Meta.Site,
             },
             {
-                value: this.props.Candidate.Visits.length,
                 label: 'Visits',
+                value: this.getVisitList(this.props.Visits),
+                flexBasis: '40%',
             },
         ];
+
         const cardInfo = data.map((info, index) => {
+            const cardStyle = {
+                flexBasis: info.flexBasis || '20%',
+                padding: '1em',
+                margin: 0,
+            };
             return (
-                <div className="form-horizontal" style={{flex: '1 1 25%'}}>
-                <StaticElement
-                key={index}
-                text={
-                    <span>
-                    <h3
-                    style={{
-                        lineHeight: '1.42857143',
-                            marginTop: '-7px',
-                    }}
-                    >
-                    {info.value}
-                    </h3>
-                    </span>
-                }
-                label={info.label}
-                />
+                <div style={cardStyle} key={info.label}>
+                    <dt>{info.label}</dt>
+                    <dd>{info.value}</dd>
                 </div>
             );
         });
         return (
             <div style={{width: '100%'}}>
-                <div style={{display: 'flex', flexFlow: 'wrap', marginBottom: '-15px', marginTop: '10px'}}>
-                {cardInfo}
-                </div>
+                <dl style={{display: 'flex', flexFlow: 'wrap', margin: 0}}>
+                    {cardInfo}
+                </dl>
             </div>
         );
     }
