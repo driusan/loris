@@ -12,6 +12,11 @@ import Card from 'Card';
  * @version 1.0.0
  * */
 class CandidateProfileIndex extends Component {
+   /**
+    * Construct the React component
+    *
+    * @param {array} props - The list of React props
+    */
   constructor(props) {
     super(props);
     this.state = {
@@ -20,6 +25,11 @@ class CandidateProfileIndex extends Component {
     };
   }
 
+  /**
+   * React lifecycle method. After the component is mounted,
+   * it will listen to 'registercard' events to add cards to
+   * the grid.
+   */
   componentDidMount() {
       window.addEventListener('registercard', (e) => {
           const title = e.detail.title;
@@ -36,13 +46,22 @@ class CandidateProfileIndex extends Component {
           style.alignSelf = 'stretch';
 
           let cardID = 'card' + this.state.cards.length;
-          this.state.cards.push(<Card title={title} style={style} id={cardID} key={cardID}>
-              {e.detail.content}
+          this.state.cards.push(<Card
+              title={title}
+              style={style}
+              id={cardID}
+              key={cardID}>
+                  {e.detail.content}
               </Card>);
           this.setState({cards: this.state.cards, isLoaded: true});
       });
   }
 
+  /**
+   * Render the react component
+   *
+   * @return {object} - A rendered CSS grid containing all cards.
+   */
   render() {
     // Show a loading spin wheel until at least 1 card is loaded.
     if (!this.state.isLoaded) {
