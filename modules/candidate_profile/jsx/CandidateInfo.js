@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * CandidateInfo is a React component which is used for the
@@ -72,12 +73,13 @@ export class CandidateInfo extends Component {
      */
     getVisitList(visits) {
         let visitlinks = visits.map( (visit) => {
+            const sessionID = this.props.VisitMap[visit.Meta.Visit];
+            const candID = this.props.Candidate.Meta.CandID;
             return <a
                 href={
                     this.props.BaseURL
-                    + '/instrument_list/?candID='
-                    + this.props.Candidate.Meta.CandID
-                    + '&sessionID=1'}
+                    + '/instrument_list/?candID=' + candID
+                    + '&sessionID=' + sessionID}
                 key={visit.Meta.Visit}
                 >{visit.Meta.Visit}</a>;
         });
@@ -171,3 +173,11 @@ export class CandidateInfo extends Component {
         );
     }
 }
+
+
+CandidateInfo.propTypes = {
+  BaseURL: PropTypes.string.isRequired,
+  Candidate: PropTypes.object.isRequired,
+  Visits: PropTypes.array.isRequired,
+  VisitMap: PropTypes.object.isRequired,
+};

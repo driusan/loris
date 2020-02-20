@@ -81,6 +81,8 @@ class Candidate_Profile extends \NDB_Page
         $this->tpl_data['widgets'] = $widgets;
         $this->tpl_data['candidate'] = $this->candidate;
 
+        $this->tpl_data['visitmap'] = array_flip($this->candidate->getListOfVisitLabels());
+
         return parent::handle($request);
     }
 

@@ -28,7 +28,12 @@ window.addEventListener('load', () => {
         }
 
     async function loadCards(visits) {
-        let baseprops = { BaseURL: loris.BaseURL, Candidate: candidate, Visits: visits};
+        let baseprops = {
+            BaseURL: loris.BaseURL,
+            Candidate: candidate,
+            Visits: visits,
+            VisitMap: {$visitmap|json_encode},
+        };
 
         let modprops, allprops;
 
