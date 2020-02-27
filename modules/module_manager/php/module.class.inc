@@ -62,11 +62,15 @@ class Module extends \Module
     public function validateConfiguration(\LORIS\LorisInstance $loris) : array {
         $ret = [];
         if(!$loris->hasPermission('module_manager_view')) {
-            $ret[] = 'Missing module_manager_view permission';
+            $ret[] = \LORIS\ConfigurationError('Missing module_manager_view permission');
         }
         if(!$loris->hasPermission('module_manager_edit')) {
-            $ret[] = 'Missing module_manager_edit permission';
+            $ret[] = \LORIS\ConfigurationError('Missing module_manager_edit permission');
         }
+        $ret[] = new \LORIS\ConfigurationWarning("This is a test warning");
+        $ret[] = new \LORIS\ConfigurationError("This is a test error");
+        $ret[] = "This is just a test";
+
         return $ret;
     }
 }

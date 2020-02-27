@@ -528,6 +528,9 @@ abstract class Module extends \LORIS\Router\PrefixRouter
         return $renderer->fetch($template);
     }
 
+    /**
+     * @return ConfigurationProblem[]
+     */
     public function validateConfiguration(\LORIS\LorisInstance $loris) : array {
         return [];
     }

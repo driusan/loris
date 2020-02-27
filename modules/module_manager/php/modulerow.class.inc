@@ -32,7 +32,7 @@ class ModuleRow implements \LORIS\Data\DataInstance
             $this->Active = $row['active'];
             $this->errors = $this->Module->validateConfiguration($loris);
         } catch (\LorisModuleMissingException $e) {
-            $this->errors = ["INVALID MODULE -- " . $e->getMessage()];
+            $this->errors = [new \LORIS\ConfigurationError("INVALID MODULE -- " . $e->getMessage())];
         }
     }
 
@@ -52,7 +52,19 @@ class ModuleRow implements \LORIS\Data\DataInstance
                 'Name'     => $this->Name,
                 'LongName' => $name,
                 'Active'   => $this->Active,
-                'Errors'   => $this->errors,
+                'Errors'   => array_map(
+                    function($err) {
+                        if ($err instanceof \LORIS\ConfiguratIonError) {
+                            return ['Class' => 'error', 'Msg' => "$err"];
+                        } else if ($err instanceof \LORIS\ConfigurationWarning) {
+                            return ['Class' => 'warning', 'Msg' => "$err"];
+                        } else {
+                            return ['Class' => 'unknown', 'Msg' => "$err"];
+                        }
+
+                    },
+                    $this->errors,
+                ),
             ]
         );
     }

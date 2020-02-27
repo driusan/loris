@@ -124,7 +124,27 @@ class ModuleManagerIndex extends Component {
             /></td>;
     } else if (column == 'Configuration Errors') {
         console.log(cell, row);
-        return <td>{cell.join(',')}</td>;
+        return <td>
+            {
+                cell.reduce(
+                    (acc, el) => {
+                        let msg;
+                        if (el.Class == 'error') {
+                            msg = <span className='error'>{el.Msg}</span>;
+                        } else if (el.Class == 'warning') {
+                            msg = <span className='warning'>{el.Msg}</span>;
+                        } else {
+                            msg = <span className='unknown'>{el.Msg}</span>;
+                        }
+                        if (acc === null) {
+                            return [msg];
+                        }
+                        return [acc, ', ', msg];
+                    },
+                    null,
+                )
+            }
+        </td>;
     }
     cell = this.mapColumn(column, cell);
     return <td>{cell}</td>;
