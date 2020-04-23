@@ -2783,4 +2783,6 @@ abstract class NDB_BVL_Instrument extends NDB_Page
             ->withBody(new \LORIS\Http\StringStream($this->display() ?? ""));
     }
 
+//    abstract function getDataDictionary() : iterable;
+    use \LorisFormDictionaryImpl;
 }
