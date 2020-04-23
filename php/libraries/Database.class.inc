@@ -858,7 +858,7 @@ class Database
      *
      * @throws DatabaseException if the query selected more than one column
      *
-     * @return array<string,string> Format: rowID=>value containing
+     * @return array<int,string> Format: rowID=>value containing
      *               all values for the only column of the select statement
      */
     function pselectCol(string $query, array $params): array

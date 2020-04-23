@@ -154,30 +154,11 @@ class Module extends \Module
      * Return the data dictionary for all instruments installed on a LORIS
      * instance.
      *
-     * @param \LORIS\LorisInstance $loris The loris instance whose dictionary
-     *                                    should be retrieved
-     *
-     * @return \LORIS\Data\Dictionary\Category[]
+     * @return \LORIS\Data\Query\QueryEngine
      */
-    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
+    public function getQueryEngine() : \LORIS\Data\Query\QueryEngine
     {
-        $tests = array_keys(\Utility::getAllInstruments());
-
-        $dict = [];
-        foreach ($tests as $testname) {
-            try {
-                $inst   = \NDB_BVL_Instrument::factory($loris, $testname, "", "");
-                $cat    = new \LORIS\Data\Dictionary\Category(
-                    $testname,
-                    $inst->getFullName()
-                );
-                $fields = $inst->getDataDictionary();
-                $dict[] = $cat->withItems($fields);
-            } catch (\LorisException $e) {
-                error_log($e);
-            }
-        }
-        return $dict;
+        return new InstrumentQueryEngine($this->lorisinstance);
     }
 }
 

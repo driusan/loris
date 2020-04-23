@@ -131,4 +131,15 @@ class Module extends \Module
         }
         return [];
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return \LORIS\Data\Query\QueryEngine
+     */
+    public function getQueryEngine() : \LORIS\Data\Query\QueryEngine
+    {
+        return new QueryEngine($this->lorisinstance);
+    }
+
 }

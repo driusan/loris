@@ -35,7 +35,7 @@ abstract class Module extends \LORIS\Router\PrefixRouter
         . "your project administrator and/or verify your LORIS configuration.";
     protected $name;
     protected $dir;
-    protected $lorisinstance;
+    public $lorisinstance;
 
     /**
      * Retrieve all active module descriptors from the given database
@@ -554,17 +554,14 @@ abstract class Module extends \LORIS\Router\PrefixRouter
     }
 
     /**
-     * Return a data dictionary of data types managed by this module.
-     * DictionaryItems are grouped into categories and a module may
-     * provide 0 or more categories of dictionaryitems.
+     * Returns a QueryEngine to deal with querying data from this module.
+     * By default, a Module will return a NullQueryEngine that matches nothing
+     * and has an empty dictionary.
      *
-     * @param \LORIS\LorisInstance $loris The LORIS instance whose data
-     *                                    dictionary should be retrieved.
-     *
-     * @return \LORIS\Data\Dictionary\Category[]
+     * @return \LORIS\Data\Query\QueryEngine
      */
-    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
+    public function getQueryEngine() : \LORIS\Data\Query\QueryEngine
     {
-        return [];
+        return new \LORIS\Data\Query\NullQueryEngine();
     }
 }
