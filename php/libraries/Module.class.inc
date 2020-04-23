@@ -35,6 +35,7 @@ abstract class Module extends \LORIS\Router\PrefixRouter
         . "your project administrator and/or verify your LORIS configuration.";
     protected $name;
     protected $dir;
+    protected $lorisinstance;
 
     /**
      * Retrieve all active module descriptors from the given database
@@ -330,6 +331,7 @@ abstract class Module extends \LORIS\Router\PrefixRouter
             return $resp;
         }
 
+        $this->lorisinstance = $request->getAttribute("loris");
         $pagename = $this->getName();
         $path     = trim($request->getURI()->getPath(), "/");
         if (!empty($path)) {
@@ -526,5 +528,12 @@ abstract class Module extends \LORIS\Router\PrefixRouter
         $renderer = new \Smarty_NeuroDB($this->getName());
         $renderer->assign($tpl_data);
         return $renderer->fetch($template);
+    }
+
+    /**
+     * @return \LORIS\Data\Dictionary\DictionaryItem[]
+     */
+    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable {
+        return [];
     }
 }

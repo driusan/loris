@@ -146,5 +146,29 @@ class Module extends \Module
         }
         return [];
     }
+
+    /**
+     * @return \LORIS\Data\Dictionary\DictionaryItem[]
+     */
+    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable {
+        $DB = $loris->getDatabaseConnection();
+
+        $rows = $DB->pselectCol("SELECT Test_name FROM test_names", []);
+
+        $i = 0;
+        $dict = [];
+
+        foreach($rows as $testname) {
+            try {
+                $inst = \NDB_BVL_Instrument::factory($testname, "", "");
+                $fields = $inst->getDataDictionary();
+                $dict = array_merge($dict, $fields);
+            } catch (\LorisException $e) {
+                // error_log($e);
+            }
+        }
+        return $dict;
+    }
+
 }
 
