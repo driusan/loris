@@ -10,15 +10,18 @@ class Category
     protected $name;
     protected $description;
 
-    public function __construct(string $name, string $desc) {
-        $this->name = $name;
+    public function __construct(string $name, string $desc)
+    {
+        $this->name        = $name;
         $this->description = $desc;
     }
-    public function getName() : string {
+    public function getName() : string
+    {
         return $this->name;
     }
 
-    public function getDescription() : string {
+    public function getDescription() : string
+    {
         return $this->description;
     }
 }

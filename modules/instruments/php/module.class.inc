@@ -148,21 +148,26 @@ class Module extends \Module
     }
 
     /**
+     * Return the data dictionary for all instruments installed on a LORIS
+     * instance.
+     *
+     * @param \LORIS\LorisInstance $loris The loris instance whose dictionary
+     *                                    should be retrieved
+     *
      * @return \LORIS\Data\Dictionary\DictionaryItem[]
      */
-    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable {
+    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
+    {
         $DB = $loris->getDatabaseConnection();
 
         $rows = $DB->pselectCol("SELECT Test_name FROM test_names", []);
 
-        $i = 0;
         $dict = [];
-
-        foreach($rows as $testname) {
+        foreach ($rows as $testname) {
             try {
-                $inst = \NDB_BVL_Instrument::factory($testname, "", "");
+                $inst   = \NDB_BVL_Instrument::factory($testname, "", "");
                 $fields = $inst->getDataDictionary();
-                $dict = array_merge($dict, $fields);
+                $dict   = array_merge($dict, $fields);
             } catch (\LorisException $e) {
                 // error_log($e);
             }
