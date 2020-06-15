@@ -593,7 +593,11 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         } else {
                             $this->addTextElement($pieces[1], $pieces[2]);
                         }
-                        $this->dictionary[] = new DictionaryItem($pieces[1], $pieces[2], $dictcat);
+                        $this->dictionary[] = new DictionaryItem(
+                            $pieces[1],
+                            $pieces[2],
+                            $dictcat
+                        );
                     }
                     $this->dictionary[] = new DictionaryItem(
                         $this->testName."_".$pieces[1],
@@ -619,7 +623,11 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         } else {
                             $this->addTextAreaElement($pieces[1], $pieces[2]);
                         }
-                        $this->dictionary[] = new DictionaryItem($pieces[1], $pieces[2], $dictcat);
+                        $this->dictionary[] = new DictionaryItem(
+                            $pieces[1],
+                            $pieces[2],
+                            $dictcat,
+                        );
                     }
                     $this->dictionary[] = new DictionaryItem(
                         $this->testName."_".$pieces[1],
@@ -648,7 +656,11 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                                 'emptyOptionValue' => null,
                             ];
                         }
-                        $this->dictionary[] = new DictionaryItem($pieces[1], $pieces[2], $dictcat);
+                        $this->dictionary[] = new DictionaryItem(
+                            $pieces[1],
+                            $pieces[2],
+                            $dictcat
+                        );
 
                         $this->dictionary[] = new DictionaryItem(
                             $this->testName."_".$pieces[1],
