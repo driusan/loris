@@ -11,21 +11,25 @@ class DictionaryItem
     protected $category;
     protected $description;
 
-    public function __construct(string $name, string $desc, Category $cat) {
-        $this->name = $name;
-        $this->category = $cat;
+    public function __construct(string $name, string $desc, Category $cat)
+    {
+        $this->name        = $name;
+        $this->category    = $cat;
         $this->description = $desc;
     }
 
-    public function getName() : string {
+    public function getName() : string
+    {
         return $this->name;
     }
 
-    public function getDescription() : string {
+    public function getDescription() : string
+    {
         return $this->description;
     }
 
-    public function getCategory() : Category {
+    public function getCategory() : Category
+    {
         return $this->category;
     }
 }

@@ -332,8 +332,8 @@ abstract class Module extends \LORIS\Router\PrefixRouter
         }
 
         $this->lorisinstance = $request->getAttribute("loris");
-        $pagename = $this->getName();
-        $path     = trim($request->getURI()->getPath(), "/");
+        $pagename            = $this->getName();
+        $path = trim($request->getURI()->getPath(), "/");
         if (!empty($path)) {
             // There is a subpage
             $pagename = explode("/", $path)[0];
@@ -531,9 +531,15 @@ abstract class Module extends \LORIS\Router\PrefixRouter
     }
 
     /**
+     * Return a data dictionary of data types managed by this module.
+     *
+     * @param \LORIS\LorisInstance $loris The LORIS instance whose data
+     *                                    dictionary should be retrieved.
+     *
      * @return \LORIS\Data\Dictionary\DictionaryItem[]
      */
-    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable {
+    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
+    {
         return [];
     }
 }
