@@ -79,7 +79,7 @@ trait LorisFormDictionaryImpl
         }
 
         $formElements = $this->form->toElementArray();
-        $cat          = new ategory($this->testName, $this->getFullName());
+        $cat          = new Category($this->testName, $this->getFullName());
         return $this->_getDataDictionaryGroup($cat, $formElements["elements"], '');
     }
 }
