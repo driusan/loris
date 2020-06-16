@@ -12,13 +12,15 @@ class DictionaryItem
     protected $category;
     protected $description;
     protected $scope;
+    protected $typ;
 
-    public function __construct(string $name, string $desc, Category $cat, Scope $scope)
+    public function __construct(string $name, string $desc, Category $cat, Scope $scope, Type $t)
     {
         $this->name        = $name;
         $this->category    = $cat;
         $this->description = $desc;
         $this->scope = $scope;
+        $this->typ = $t;
     }
 
     public function getName() : string
@@ -38,5 +40,9 @@ class DictionaryItem
 
     public function getScope() : Scope {
         return $this->scope;
+    }
+
+    public function getDataType() : \LORIS\Data\Type {
+        return $this->typ;
     }
 }
