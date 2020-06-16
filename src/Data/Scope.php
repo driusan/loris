@@ -12,11 +12,10 @@ namespace LORIS\Data;
  * @link       https://www.github.com/aces/Loris/
  */
 class Scope {
-{
     // Valid scopes for data to apply to.
-    const Project   = 1
-    const Candidate = 2
-    const Session   = 3
+    const Project   = 1;
+    const Candidate = 2;
+    const Session   = 3;
 
     protected $scope;
 
@@ -28,10 +27,11 @@ class Scope {
      */
     public function __construct(int $scope) {
         switch($scope) {
-        case Candidate: // fallthrough
-        case Project: // fallthrough
-        case Session:
+        case self::Candidate: // fallthrough
+        case self::Project: // fallthrough
+        case self::Session:
             $this->scope = $scope;
+            break;
         default:
             throw new \DomainException("Invalid scope");
         }
@@ -45,11 +45,11 @@ class Scope {
      */
     public function __toString() : string {
         switch($this->scope) {
-        case Candidate: 
+        case self::Candidate:
             return "candidate";
-        case Project: 
+        case self::Project:
             return "project";
-        case Session: 
+        case self::Session:
             return "session";
         default:
             // This shouldn't happen since the constructor threw an
