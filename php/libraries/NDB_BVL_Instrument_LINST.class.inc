@@ -620,7 +620,8 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $this->dictionary[] = new DictionaryItem(
                             $pieces[1],
                             $pieces[2],
-                            $dictcat
+                            $dictcat,
+                            $scope,
                         );
                     }
                     $this->dictionary[] = new DictionaryItem(
@@ -651,6 +652,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[1],
                             $pieces[2],
                             $dictcat,
+                            $scope,
                         );
                     }
                     $this->dictionary[] = new DictionaryItem(
@@ -683,7 +685,8 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $this->dictionary[] = new DictionaryItem(
                             $pieces[1],
                             $pieces[2],
-                            $dictcat
+                            $dictcat,
+                            $scope,
                         );
 
                         $this->dictionary[] = new DictionaryItem(
