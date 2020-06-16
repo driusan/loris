@@ -11,7 +11,7 @@ namespace LORIS\Data;
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link       https://www.github.com/aces/Loris/
  */
-class Scope {
+class Scope implements \JsonSerializable {
     // Valid scopes for data to apply to.
     const Project   = 1;
     const Candidate = 2;
@@ -56,5 +56,9 @@ class Scope {
             // exception for an invalid value.
             return "invalid scope";
         }
+    }
+
+    public function jsonSerialize() {
+        return $this->__toString();
     }
 }
