@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 use \LORIS\Data\Dictionary\DictionaryItem;
 use \LORIS\Data\Dictionary\Category;
+use \LORIS\Data\Scope;
 /**
  * Helper to extract a dictionary from a LorisForm, primarily
  * used by instruments. This is based on lorisform_parser.php
@@ -28,6 +29,7 @@ trait LorisFormDictionaryImpl
         string $groupLabel=''
     ) : array {
         $items = [];
+        $scope = new Scope(Scope::Session);
         foreach ($elements AS $element) {
             if (!empty($element['label'])) {
                 $label = str_replace("&nbsp;", "", $element['label']);
@@ -45,7 +47,7 @@ trait LorisFormDictionaryImpl
             case 'time':
             case 'static':
                 if (array_key_exists('name', $element)) {
-                    $items[] = new DictionaryItem($element['name'], $label, $cat);
+                    $items[] = new DictionaryItem($element['name'], $label, $cat, $scope);
                 }
                 break;
             case 'group':
