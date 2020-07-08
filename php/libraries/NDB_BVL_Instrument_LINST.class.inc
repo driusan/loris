@@ -20,6 +20,11 @@ use \LORIS\Data\Types\IntegerType;
 use \LORIS\Data\Types\Enumeration;
 use \LORIS\Data\Types\DateType;
 
+use \LORIS\Data\Types\StringType;
+use \LORIS\Data\Types\IntegerType;
+use \LORIS\Data\Types\Enumeration;
+use \LORIS\Data\Types\DateType;
+
 /**
  * Base class for all NeuroDB behavioural instruments
  *
@@ -606,6 +611,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $dictcat,
                             $scope,
+                            new StringType(255),
                         );
                     }
                     $this->dictionary[] = new DictionaryItem(
@@ -637,6 +643,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $dictcat,
                             $scope,
+                            new StringType(),
                         );
                     }
                     $this->dictionary[] = new DictionaryItem(
@@ -671,6 +678,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $dictcat,
                             $scope,
+                            new DateType(),
                         );
 
                         $this->dictionary[] = new DictionaryItem(
