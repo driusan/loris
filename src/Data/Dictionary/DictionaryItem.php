@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace LORIS\Data\Dictionary;
 use \LORIS\Data\Scope;
+use \LORIS\Data\Type;
 
 /**
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
