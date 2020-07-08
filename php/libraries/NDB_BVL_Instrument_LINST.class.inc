@@ -14,6 +14,11 @@ namespace Loris\Behavioural;
 use \LORIS\Data\Dictionary\DictionaryItem;
 use \LORIS\Data\Scope;
 
+use \LORIS\Data\Types\StringType;
+use \LORIS\Data\Types\IntegerType;
+use \LORIS\Data\Types\Enumeration;
+use \LORIS\Data\Types\DateType;
+
 /**
  * Base class for all NeuroDB behavioural instruments
  *
@@ -492,24 +497,29 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                                 'Date of Administration',
                                 $dictcat,
                                 $scope,
+                                new \LORIS\Data\Types\DateType(),
                             ),
                             new DictionaryItem(
                                 'Candidate_age',
                                 'Candidate Age (Months)',
                                 $dictcat,
                                 $scope,
+                                new \LORIS\Data\Types\Duration(),
                             ),
                             new DictionaryItem(
                                 'Window_Difference',
                                 'Window difference from test battery (days)',
                                 $dictcat,
                                 $scope,
+                                new \LORIS\Data\Types\Duration(),
                             ),
                             new DictionaryItem(
                                 'Examiner',
                                 'Examiner',
                                 $dictcat,
                                 $scope,
+                                // Should this be an enum of examiners?
+                                new StringType(255),
                             ),
                         ]
                     );
@@ -586,6 +596,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $dictcat,
                             $scope,
+                            new StringType(255),
                         );
                     }
                     if ($firstFieldOfPage) {
@@ -610,6 +621,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $dictcat,
                             $scope,
+                            new StringType(),
                         );
                     }
                     if ($firstFieldOfPage) {
@@ -644,6 +656,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $dictcat,
                             $scope,
+                            new DateType(),
                         );
 
                         // Set date format
@@ -688,6 +701,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $dictcat,
                             $scope,
+                            new IntegerType(),
                         );
                     }
                     if ($firstFieldOfPage) {
@@ -770,7 +784,9 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $this->_requiredElements[] = $fieldname;
                         $firstFieldOfPage          = false;
                     }
-                    $it = new DictionaryItem($pieces[1], $pieces[2], $dictcat, $scope);
+
+                    $t = new Enumeration(...array_keys($opt));
+                    $it = new DictionaryItem($pieces[1], $pieces[2], $dictcat, $scope, $t);
                     $this->dictionary[] = $it;
 
                     $this->LinstQuestions[$pieces[1]] = array('type' => 'select');
@@ -804,7 +820,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         = array('type' => 'score');
 
                     $this->dictionary[]
-                        = new DictionaryItem($pieces[1], $pieces[2], $dictcat, $scope);
+                        = new DictionaryItem($pieces[1], $pieces[2], $dictcat, $scope, new StringType(255));
                     break;
                 default:
                     break;

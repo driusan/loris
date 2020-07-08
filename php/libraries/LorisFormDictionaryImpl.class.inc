@@ -47,7 +47,7 @@ trait LorisFormDictionaryImpl
             case 'time':
             case 'static':
                 if (array_key_exists('name', $element)) {
-                    $items[] = new DictionaryItem($element['name'], $label, $cat, $scope);
+                    // $items[] = new DictionaryItem($element['name'], $label, $cat, $scope);
                 }
                 break;
             case 'group':
