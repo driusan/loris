@@ -10,15 +10,13 @@ use \LORIS\Data\Type;
 class DictionaryItem
 {
     protected $name;
-    protected $category;
     protected $description;
     protected $scope;
     protected $typ;
 
-    public function __construct(string $name, string $desc, Category $cat, Scope $scope, Type $t)
+    public function __construct(string $name, string $desc, Scope $scope, Type $t)
     {
         $this->name        = $name;
-        $this->category    = $cat;
         $this->description = $desc;
         $this->scope = $scope;
         $this->typ = $t;
@@ -32,11 +30,6 @@ class DictionaryItem
     public function getDescription() : string
     {
         return $this->description;
-    }
-
-    public function getCategory() : Category
-    {
-        return $this->category;
     }
 
     public function getScope() : Scope {

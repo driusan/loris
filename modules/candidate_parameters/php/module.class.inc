@@ -2,6 +2,8 @@
 namespace LORIS\candidate_parameters;
 use LORIS\candidate_profile\CandidateInfo;
 use LORIS\candidate_profile\CandidateWidget;
+use LORIS\Data\Scope;
+use LORIS\Data\Dictionary\DictionaryItem;
 
 /**
  * {@inheritDoc}
@@ -185,4 +187,40 @@ class Module extends \Module
         }
         return $entries;
     }
+
+    /**
+     * Return a data dictionary of data types managed by this module.
+     * DictionaryItems are grouped into categories and a module may
+     * provide 0 or more categories of dictionaryitems.
+     *
+     * @param \LORIS\LorisInstance $loris The LORIS instance whose data
+     *                                    dictionary should be retrieved.
+     *
+     * @return \LORIS\Data\Dictionary\Category[]
+     */
+    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
+    {
+        $scope = new Scope(Scope::Candidate);
+
+        $category = new \LORIS\Data\Dictionary\Category("Identifiers", "Candidate Identifiers");
+
+        $category = $category->withItems([
+            new DictionaryItem(
+                "CandID",
+                "LORIS Candidate Identifier",
+                $scope,
+                new \LORIS\Data\Types\IntegerType(999999),
+            ),
+            new DictionaryItem(
+                "PSCID",
+                "Project Candidate Identifier",
+                $scope,
+                new \LORIS\Data\Types\StringType(255),
+            ),
+        ]);
+        // Include: Participant Status, Date of birth, /* dccid, pscid, */
+        // registration site, registration project..
+        return [$category];
+    }
+
 }

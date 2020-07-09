@@ -13,7 +13,7 @@ class IntegerType implements \LORIS\Data\Type {
     }
 
     public function __toString() {
-        return "string";
+        return "integer";
     }
 
     public function jsonSerialize() {
