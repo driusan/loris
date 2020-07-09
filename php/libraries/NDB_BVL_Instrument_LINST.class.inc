@@ -432,14 +432,6 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                 'Delimiter' => $this->_GUIDelimiter,
             ];
 
-            // This needs to be initialized to a valid category, phan doesn't
-            // know enough about the LINST format to know that the "table" case
-            // is always encountered before the other dictionary items.
-            $dictcat = new \LORIS\Data\Dictionary\Category(
-                "Unknown",
-                "Unknown Category"
-            );
-
             while (($line = fgets($fp, 4096)) !== false) {
                 $pieces = preg_split("/{@}/", $line);
                 $this->LinstLines[] = $pieces;
@@ -480,9 +472,9 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                     $firstFieldOfPage = true;
                     break;
                 case 'table':
-                    $this->testName = trim($pieces[1]);
-                    $this->table    = trim($pieces[1]);
-                    $dictcat        = new \LORIS\Data\Dictionary\Category(
+                    $this->testName     = trim($pieces[1]);
+                    $this->table        = trim($pieces[1]);
+                    $this->dictcategory = new \LORIS\Data\Dictionary\Category(
                         $this->testName,
                         $this->getFullName()
                     );
@@ -495,28 +487,24 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             new DictionaryItem(
                                 'Date_taken',
                                 'Date of Administration',
-                                $dictcat,
                                 $scope,
                                 new \LORIS\Data\Types\DateType(),
                             ),
                             new DictionaryItem(
                                 'Candidate_age',
                                 'Candidate Age (Months)',
-                                $dictcat,
                                 $scope,
                                 new \LORIS\Data\Types\Duration(),
                             ),
                             new DictionaryItem(
                                 'Window_Difference',
                                 'Window difference from test battery (days)',
-                                $dictcat,
                                 $scope,
                                 new \LORIS\Data\Types\Duration(),
                             ),
                             new DictionaryItem(
                                 'Examiner',
                                 'Examiner',
-                                $dictcat,
                                 $scope,
                                 // Should this be an enum of examiners?
                                 new StringType(255),
@@ -594,7 +582,6 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $this->dictionary[] = new DictionaryItem(
                             $pieces[1],
                             $pieces[2],
-                            $dictcat,
                             $scope,
                             new StringType(255),
                         );
@@ -619,7 +606,6 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $this->dictionary[] = new DictionaryItem(
                             $pieces[1],
                             $pieces[2],
-                            $dictcat,
                             $scope,
                             new StringType(),
                         );
@@ -654,7 +640,6 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $this->dictionary[] = new DictionaryItem(
                             $pieces[1],
                             $pieces[2],
-                            $dictcat,
                             $scope,
                             new DateType(),
                         );
@@ -699,7 +684,6 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $this->dictionary[] = new DictionaryItem(
                             $pieces[1],
                             $pieces[2],
-                            $dictcat,
                             $scope,
                             new IntegerType(),
                         );
@@ -724,6 +708,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                 case 'select':
                     $options = preg_split("/{-}/", trim($pieces[3]));
                     $opt     = [];
+                    $dictopts = [];
 
                     foreach ($options as $o) {
                         $arr = explode("=>", $o);
@@ -736,6 +721,10 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         }
                         if ($val[0] == "'" && $val[strlen($val)-1] == "'") {
                             $val = substr($val, 1, -1);
+                        }
+
+                        if($key !== '') {
+                            $dictopts[] = $key;
                         }
                         $opt[$key] = $val;
                     }
@@ -785,8 +774,8 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $firstFieldOfPage          = false;
                     }
 
-                    $t = new Enumeration(...array_keys($opt));
-                    $it = new DictionaryItem($pieces[1], $pieces[2], $dictcat, $scope, $t);
+                    $t = new Enumeration(...$dictopts);
+                    $it = new DictionaryItem($pieces[1], $pieces[2], $scope, $t);
                     $this->dictionary[] = $it;
 
                     $this->LinstQuestions[$pieces[1]] = array('type' => 'select');
@@ -816,11 +805,13 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             );
                         }
                     }
-                    $this->LinstQuestions[$pieces[1]]
-                        = array('type' => 'score');
+                    if(!empty($pieces[1])) {
+                        $this->LinstQuestions[$pieces[1]]
+                            = array('type' => 'score');
 
-                    $this->dictionary[]
-                        = new DictionaryItem($pieces[1], $pieces[2], $dictcat, $scope, new StringType(255));
+                        $this->dictionary[]
+                            = new DictionaryItem($pieces[1], $pieces[2], $scope, new StringType(255));
+                    }
                     break;
                 default:
                     break;

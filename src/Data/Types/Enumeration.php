@@ -13,7 +13,7 @@ class Enumeration implements \LORIS\Data\Type {
     }
 
     public function __toString() {
-        return "enumeration(" . join($this->options, "{@}") . ")";
+        return join(";", $this->options);
     }
 
     public function jsonSerialize() {
@@ -21,6 +21,6 @@ class Enumeration implements \LORIS\Data\Type {
     }
     public function asSQLType() {
         // FIXME: Escape options
-        return "enum(" . join($this->options, ",") . ")";
+        return "enum(" . join(",", $this->options) . ")";
     }
 }

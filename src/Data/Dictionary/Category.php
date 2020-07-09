@@ -9,11 +9,13 @@ class Category
 {
     protected $name;
     protected $description;
+    protected $items = null;
 
-    public function __construct(string $name, string $desc)
+    public function __construct(string $name, string $desc, ?iterable $items=null)
     {
         $this->name        = $name;
         $this->description = $desc;
+        $this->items = $items;
     }
     public function getName() : string
     {
@@ -23,5 +25,15 @@ class Category
     public function getDescription() : string
     {
         return $this->description;
+    }
+
+    public function getItems() : ?iterable {
+        return $this->items;
+    }
+
+    public function withItems($items) : Category {
+        $c = clone($this);
+        $c->items = $items;
+        return $c;
     }
 }
