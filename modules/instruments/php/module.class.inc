@@ -166,8 +166,9 @@ class Module extends \Module
         foreach ($rows as $testname) {
             try {
                 $inst   = \NDB_BVL_Instrument::factory($testname, "", "");
+                $cat = new \LORIS\Data\Dictionary\Category($testname, $inst->getFullName());
                 $fields = $inst->getDataDictionary();
-                $dict   = array_merge($dict, $fields);
+                $dict[] = $cat->withItems($fields);
             } catch (\LorisException $e) {
                 // error_log($e);
             }

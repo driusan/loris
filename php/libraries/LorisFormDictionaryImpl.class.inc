@@ -38,19 +38,7 @@ trait LorisFormDictionaryImpl
                 $label = trim(preg_replace('/\s+/', ' ', $groupLabel));
             }
 
-            switch($element['type']) {
-            case 'select':
-            case 'text':
-            case 'textarea':
-            case 'textdate':
-            case 'advcheckbox':
-            case 'time':
-            case 'static':
-                if (array_key_exists('name', $element)) {
-                    // $items[] = new DictionaryItem($element['name'], $label, $cat, $scope);
-                }
-                break;
-            case 'group':
+            if ($element['type'] === 'group') {
                 $items = array_merge(
                     $items,
                     $this->_getDataDictionaryGroup(
@@ -59,8 +47,53 @@ trait LorisFormDictionaryImpl
                         $label,
                     ),
                 );
-                break;
+                continue;
             }
+
+            if (!array_key_exists('name', $element)) {
+                continue;
+            }
+
+            switch($element['type']) {
+            case 'select':
+                // The values of the enumeration are the keys of the
+                // options, but when the key is something like "0" or
+                // "1" array_keys turns it into an int and we want to
+                // ignore null/empty, so instead we just walk through
+                // the array and coerce things to a string.
+                $keys = [];
+                foreach ($element['options'] as $key => $val) {
+                    if($key === '' || $key === null) {
+                        continue;
+                    }
+
+                    // Coerce it to a string 
+                    $keys[] = "$key";
+                }
+                $t = new \LORIS\Data\Types\Enumeration(...$keys);
+                break;
+            case 'text':
+                $t = new \LORIS\Data\Types\StringType(255);
+                break;
+            case 'textarea':
+                $t = new \LORIS\Data\Types\StringType();
+                break;
+            case 'date':
+                $t = new \LORIS\Data\Types\DateType();
+                break;
+            case 'advcheckbox':
+                $t = new \LORIS\Data\Types\Enumeration("true", "false");
+                break;
+            case 'time':
+                $t = new \LORIS\Data\Types\DateTimeType();
+                break;
+            case 'static':
+                $t = new \LORIS\Data\Types\StringType(255);
+                break;
+            default:
+                throw new \LorisException("Unknown element type: " . $element['type']);
+            }
+            $items[] = new DictionaryItem($element['name'], $label, $scope, $t);
         }
         return $items;
     }
