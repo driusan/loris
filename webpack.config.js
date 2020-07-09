@@ -256,7 +256,6 @@ const config = [
     'onLoad',
     'candidateListIndex',
   ]),
-  lorisModule('datadict', ['dataDictIndex']),
   lorisModule('data_release', [
     'dataReleaseIndex',
   ]),
@@ -310,6 +309,7 @@ const config = [
   lorisModule('instruments', ['CandidateInstrumentList']),
   lorisModule('candidate_profile', ['CandidateInfo']),
   lorisModule('api_docs', ['swagger-ui_custom']),
+  lorisModule('datadict', ['dataDictIndex']),
 ];
 
 // Support project overrides
