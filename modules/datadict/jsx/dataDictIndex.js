@@ -29,12 +29,13 @@ class DataDictIndex extends Component {
       data: {},
       error: false,
       isLoaded: false,
-      reloading: false,
+      moduleFilter: '',
     };
 
     this.fetchData = this.fetchData.bind(this);
     this.formatColumn = this.formatColumn.bind(this);
     this.editSwal = this.editSwal.bind(this);
+    this.updateFilter = this.updateFilter.bind(this);
   }
 
   /**
@@ -43,6 +44,16 @@ class DataDictIndex extends Component {
   componentDidMount() {
     this.fetchData()
       .then( () => this.setState({isLoaded: true}));
+  }
+
+  updateFilter(filter) {
+      if (filter.Module) {
+          this.setState({moduleFilter: filter.Module.value});
+      } else {
+          this.setState({moduleFilter: ''});
+      }
+
+      console.log(filter);
   }
 
   editSwal(row) {
@@ -186,14 +197,24 @@ class DataDictIndex extends Component {
     }
 
     let options = this.state.data.fieldOptions;
+    console.log(this.state);
     let fields = [
         {
-            label: 'Source From',
+            label: 'Module',
             show: true,
             filter: {
-                name: 'Source From',
+                name: 'Module',
                 type: 'select',
-                options: options.sourceFrom,
+                options: options.modules,
+            },
+        },
+        {
+            label: 'Category',
+            show: true,
+            filter: {
+                name: 'Category',
+                type: 'select',
+                options: this.state.moduleFilter == '' ? {} : options.categories[this.state.moduleFilter],
             },
         },
         {
@@ -261,6 +282,7 @@ class DataDictIndex extends Component {
            data={this.state.data.Data}
            fields={fields}
            getFormattedCell={this.formatColumn}
+           updateFilterCallback={this.updateFilter}
         />
     );
   }
