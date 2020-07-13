@@ -201,13 +201,75 @@ class Module extends \Module
      */
     public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
     {
-        $candscope = new Scope(Scope::CANDIDATE);
-        $sesscope  = new Scope(Scope::SESSION);
+        $candscope = new Scope(Scope::Candidate);
+        $sesscope = new Scope(Scope::Session);
 
-        $ids = new \LORIS\Data\Dictionary\Category(
-            "Identifiers",
-            "Candidate Identifiers"
-        );
+        $ids = new \LORIS\Data\Dictionary\Category("Identifiers", "Candidate Identifiers");
+
+        $ids = $ids->withItems([
+            new DictionaryItem(
+                "CandID",
+                "LORIS Candidate Identifier",
+                $candscope,
+                new \LORIS\Data\Types\IntegerType(999999),
+            ),
+            new DictionaryItem(
+                "PSCID",
+                "Project Candidate Identifier",
+                $candscope,
+                new \LORIS\Data\Types\StringType(255),
+            ),
+        ]);
+        
+        $demographics = new \LORIS\Data\Dictionary\Category("Demographics", "Candidate Demographics");
+        $demographics= $demographics->withItems([
+            new DictionaryItem(
+                "DoB",
+                "Date of Birth",
+                $candscope,
+                new \LORIS\Data\Types\DateType(),
+            ),
+            new DictionaryItem(
+                "DoD",
+                "Date of Death",
+                $candscope,
+                new \LORIS\Data\Types\DateType(),
+            ),
+            new DictionaryItem(
+                "Sex",
+                "Candidate's biological sex",
+                $candscope,
+                new \LORIS\Data\Types\Enumeration('Male', 'Female', 'Other'),
+            ),
+        ]);
+        
+        $meta = new \LORIS\Data\Dictionary\Category("Meta", "Other parameters");
+        $meta = $meta->withItems([
+            new DictionaryItem(
+                "VisitLabel",
+                "The study visit label",
+                $sesscope,
+                new \LORIS\Data\Types\StringType(255),
+            ),
+            new DictionaryItem(
+                "Project",
+                "The LORIS project to categorize this session",
+                $sesscope,
+                new \LORIS\Data\Types\StringType(255),
+            ),
+            new DictionaryItem(
+                "Subproject",
+                "The LORIS subproject used for battery selection",
+                $sesscope,
+                new \LORIS\Data\Types\StringType(255),
+            ),
+            new DictionaryItem(
+                "Site",
+                "The Site at which a visit occurred",
+                $sesscope,
+                new \LORIS\Data\Types\Enumeration(...\Utility::getSiteList()),
+            ),
+        ]);
 
         $ids = $ids->withItems(
             [
