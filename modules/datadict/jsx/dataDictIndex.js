@@ -108,14 +108,24 @@ class DataDictIndex extends Component {
     }
 
     let options = this.state.data.fieldOptions;
+    console.log(this.state);
     let fields = [
         {
-            label: 'Source From',
+            label: 'Module',
             show: true,
             filter: {
-                name: 'Source From',
+                name: 'Module',
                 type: 'select',
-                options: options.sourceFrom,
+                options: options.modules,
+            },
+        },
+        {
+            label: 'Category',
+            show: true,
+            filter: {
+                name: 'Category',
+                type: 'select',
+                options: this.state.moduleFilter == '' ? {} : options.categories[this.state.moduleFilter],
             },
         },
         {
@@ -162,6 +172,7 @@ class DataDictIndex extends Component {
            data={this.state.data.Data}
            fields={fields}
            getFormattedCell={this.formatColumn}
+           updateFilterCallback={this.updateFilter}
         />
     );
   }
