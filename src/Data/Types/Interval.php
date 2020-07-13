@@ -1,10 +1,9 @@
 <?php
 namespace LORIS\Data\Types;
-
 /**
  * An Duration data type represents an amount of time
  *
- * @license http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
+ * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
 class Duration implements \LORIS\Data\Type
 {
