@@ -38,6 +38,7 @@ class DataDictIndex extends Component {
     this.fetchData = this.fetchData.bind(this);
     this.formatColumn = this.formatColumn.bind(this);
     this.editSwal = this.editSwal.bind(this);
+    this.updateFilter = this.updateFilter.bind(this);
   }
 
   /**
@@ -56,6 +57,16 @@ class DataDictIndex extends Component {
             console.error(error);
         });
     this.fetchData();
+  }
+
+  updateFilter(filter) {
+      if (filter.Module) {
+          this.setState({moduleFilter: filter.Module.value});
+      } else {
+          this.setState({moduleFilter: ''});
+      }
+
+      console.log(filter);
   }
 
   /**
@@ -225,7 +236,16 @@ class DataDictIndex extends Component {
     const options = this.state.fieldOptions;
     let fields = [
         {
-            label: 'Source From',
+            label: 'Module',
+            show: true,
+            filter: {
+                name: 'Module',
+                type: 'select',
+                options: options.modules,
+            },
+        },
+        {
+            label: 'Category',
             show: true,
             filter: {
                 name: 'Source From',
@@ -299,6 +319,7 @@ class DataDictIndex extends Component {
            fields={fields}
            loading={this.state.isLoading}
            getFormattedCell={this.formatColumn}
+           updateFilterCallback={this.updateFilter}
         />
     );
   }
