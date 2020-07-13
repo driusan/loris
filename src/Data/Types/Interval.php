@@ -1,13 +1,13 @@
 <?php
 namespace LORIS\Data\Types;
 /**
- * A Scope represents the scope that a DataPoint applies to.
+ * An Interval data type represents a time interval or duration.
  *
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
-class Duration implements \LORIS\Data\Type {
+class Interval implements \LORIS\Data\Type {
     public function __toString() {
-        return "duration";
+        return "interval";
     }
 
     public function jsonSerialize() {

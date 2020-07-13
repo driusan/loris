@@ -170,7 +170,7 @@ class Module extends \Module
                 $fields = $inst->getDataDictionary();
                 $dict[] = $cat->withItems($fields);
             } catch (\LorisException $e) {
-                // error_log($e);
+                error_log($e);
             }
         }
         return $dict;

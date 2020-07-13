@@ -85,11 +85,14 @@ trait LorisFormDictionaryImpl
                 $t = new \LORIS\Data\Types\Enumeration("true", "false");
                 break;
             case 'time':
-                $t = new \LORIS\Data\Types\DateTimeType();
+                $t = new \LORIS\Data\Types\DateType();
+                // $t = new \LORIS\Data\Types\DateTimeType();
                 break;
             case 'static':
                 $t = new \LORIS\Data\Types\StringType(255);
                 break;
+            case 'header':
+                continue 2;
             default:
                 throw new \LorisException("Unknown element type: " . $element['type']);
             }
