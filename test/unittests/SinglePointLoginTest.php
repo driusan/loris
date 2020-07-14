@@ -27,6 +27,13 @@ class SinglePointLoginTest extends TestCase
 {
     private $login;
 
+    /**
+     * Config settings to be mocked.
+     *
+     * var array
+     */
+    private $_configMap;
+
     protected function setUp()
     {
         $Factory = NDB_Factory::singleton();

@@ -72,6 +72,12 @@ class UserTest extends TestCase
      */
     private $_userInfoComplete;
 
+    /** A mocked NDB_Config object
+     *
+     * @var \NDB_Config
+     */
+    protected $_mockConfig;
+
     /**
      * Psc table information
      *

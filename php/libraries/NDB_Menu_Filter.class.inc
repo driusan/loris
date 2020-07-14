@@ -62,9 +62,9 @@ class NDB_Menu_Filter extends NDB_Menu
      * Items selected from the GUI selection form
      *
      * @var    array
-     * @access private
+     * @access public
      */
-    var $filter;
+    public $filter;
 
     /**
      * An array of all valid filters to use

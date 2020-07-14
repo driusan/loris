@@ -10,6 +10,33 @@ require_once 'NDB_Config.class.inc';
 class NDB_BVL_Instrument_ToJSON_Test extends TestCase
 {
     /**
+     * The instrument being tested.
+     *
+     * @var \NDB_BVL_Instrument
+     */
+    protected $i;
+
+    /**
+     * The login state
+     *
+     * @var \State
+     */
+    protected $Session;
+
+    /**
+     * The mock singlepointlogin instance for testing.
+     *
+     * @var \SinglePointLogin
+     */
+    protected $MockSinglePointLogin;
+
+    /**
+     * A Mock LorisForm instance for testing.
+     *
+     * @var \LorisForm
+     */
+    protected $QuickForm;
+    /**
      * Set up sets a fake $_SESSION object that we can use for
      * assertions
      */
@@ -366,6 +393,7 @@ class NDB_BVL_Instrument_ToJSON_Test extends TestCase
 
     function testPageGroup() {
         $this->i = $this->getMockBuilder(\NDB_BVL_Instrument::class)->disableOriginalConstructor()->setMethods(array("getFullName", "getSubtestList", '_setupForm'))->getMock();
+
         $this->i->method('getFullName')->willReturn("Test Instrument");
         $this->i->method('getSubtestList')->willReturn(
             array(

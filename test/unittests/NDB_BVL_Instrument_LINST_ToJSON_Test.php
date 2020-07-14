@@ -10,6 +10,20 @@ use PHPUnit\Framework\TestCase;
 class NDB_BVL_Instrument_LINST_ToJSON_Test extends TestCase
 {
     /**
+     * The login state
+     *
+     * @var \State
+     */
+    private $Session;
+
+    /**
+     * The instrument being tested
+     *
+     * @var \Loris\Behavioural\NDB_BVL_Instrument_LINST
+     */
+    private $i;
+
+    /**
      * Set up sets a fake $_SESSION object that we can use for
      * assertions
      */

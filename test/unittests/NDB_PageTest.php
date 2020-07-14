@@ -26,7 +26,7 @@ class NDB_PageTest extends TestCase
     /**
      * The NDB_Page object used for testing
      *
-     * @var NDB_Page
+     * @var \NDB_Page
      */
     private $_page;
 

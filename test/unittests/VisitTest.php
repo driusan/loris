@@ -32,6 +32,30 @@ class VisitTest extends TestCase
 {
     protected $factory;
     protected $DB;
+    protected $config;
+
+    /**
+     * A visit controller.
+     *
+     * @var \Loris\VisitController
+     */
+    protected $_visitController;
+
+    /**
+     * A list of visits to use in the test.
+     *
+     * @var array
+     */
+    protected $_listOfVisit;
+
+    /**
+     * A list of projects affiliation for each visit in
+     * the test.
+     *
+     * @var array
+     */
+    protected $_listOfVisitProject;
+
 
     /**
      * Visit object use in tests

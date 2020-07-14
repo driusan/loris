@@ -29,6 +29,13 @@ use \Psr\Http\Message\ResponseInterface;
 class NDB_Page implements RequestHandlerInterface
 {
     /**
+     * Default date options to use for addDate helpers.
+     *
+     * @var array
+     */
+    public $dateOptions;
+
+    /**
      * The name of the test_name being accessed
      */
     var $name;

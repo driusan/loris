@@ -5,6 +5,13 @@ use PHPUnit\Framework\TestCase;
 class NDB_Menu_Filter_Test extends TestCase
 {
     /**
+     * The login state
+     *
+     * @var \State
+     */
+    private $Session;
+
+    /**
      * Set up sets a fake $_SESSION object that we can use for
      * assertions
      */
@@ -39,6 +46,7 @@ class NDB_Menu_Filter_Test extends TestCase
             ->setMethods($allOtherMethods)
             ->disableOriginalConstructor()
             ->getMock();
+        '@phan-var \NDB_Menu_Filter $stub';
 
         // Reset calls
         $this->Session->expects($this->exactly(2))
@@ -64,6 +72,7 @@ class NDB_Menu_Filter_Test extends TestCase
             ->setMethods($allOtherMethods)
             ->disableOriginalConstructor()
             ->getMock();
+        '@phan-var \NDB_Menu_Filter $stub';
 
         $stub->_setSearchKeyword('abc');
 
@@ -89,6 +98,7 @@ class NDB_Menu_Filter_Test extends TestCase
             ->setMethods($allOtherMethods)
             ->disableOriginalConstructor()
             ->getMock();
+        '@phan-var \NDB_Menu_Filter $stub';
 
         $stub->form = new LorisForm();
         $stub->form->applyFilter('__ALL__', 'trim');
@@ -144,6 +154,7 @@ class NDB_Menu_Filter_Test extends TestCase
             ->setMethods($allOtherMethods)
             ->disableOriginalConstructor()
             ->getMock();
+        '@phan-var \NDB_Menu_Filter $stub';
 
         $stub->headers = array('FakeField', "FakeField2");
         $stub->formToFilter = array(

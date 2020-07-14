@@ -24,6 +24,9 @@ use PHPUnit\Framework\TestCase;
  */
 class PasswordTest extends TestCase
 {
+    private $_factory;
+    private $_dbMock;
+
     protected const VALID_PASSWORD = 'correct horse battery staple';
 
     /**
@@ -32,6 +35,7 @@ class PasswordTest extends TestCase
      * @var \NDB_Config | PHPUnit_Framework_MockObject_MockObject
      */
     private $_configMock;
+
 
     private $_configInfo = array(0 => array('65' => 'false'));
 
