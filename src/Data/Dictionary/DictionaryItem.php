@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace LORIS\Data\Dictionary;
 use \LORIS\Data\Scope;
 use \LORIS\Data\Type;
+use \LORIS\Data\Cardinality;
 
 /**
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
@@ -14,12 +15,13 @@ class DictionaryItem implements \LORIS\StudyEntities\AccessibleResource
     protected $scope;
     protected $typ;
 
-    public function __construct(string $name, string $desc, Scope $scope, Type $t)
+    public function __construct(string $name, string $desc, Scope $scope, Type $t, Cardinality $c)
     {
         $this->name        = $name;
         $this->description = $desc;
         $this->scope = $scope;
         $this->typ = $t;
+        $this->cardinality = $c;
     }
 
     public function getName() : string
@@ -38,6 +40,10 @@ class DictionaryItem implements \LORIS\StudyEntities\AccessibleResource
 
     public function getDataType() : \LORIS\Data\Type {
         return $this->typ;
+    }
+
+    public function getCardinality() : \LORIS\Data\Cardinality {
+        return $this->cardinality;
     }
 
     /**
