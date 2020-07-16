@@ -619,6 +619,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new StringType(255),
+                            new Cardinality(Cardinality::Single),
                         );
                     }
                     $this->dictionary[] = new DictionaryItem(
@@ -650,6 +651,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new StringType(),
+                            new Cardinality(Cardinality::Single),
                         );
                     }
                     $this->dictionary[] = new DictionaryItem(
@@ -684,6 +686,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new DateType(),
+                            new Cardinality(Cardinality::Single),
                         );
 
                         $this->dictionary[] = new DictionaryItem(
