@@ -13,6 +13,7 @@
 namespace Loris\Behavioural;
 use \LORIS\Data\Dictionary\DictionaryItem;
 use \LORIS\Data\Scope;
+use \LORIS\Data\Cardinality;
 
 use \LORIS\Data\Types\StringType;
 use \LORIS\Data\Types\IntegerType;
@@ -489,18 +490,21 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                                 'Date of Administration',
                                 $scope,
                                 new \LORIS\Data\Types\DateType(),
+                                new Cardinality(Cardinality::Single),
                             ),
                             new DictionaryItem(
                                 'Candidate_age',
                                 'Candidate Age (Months)',
                                 $scope,
                                 new \LORIS\Data\Types\Interval(),
+                                new Cardinality(Cardinality::Single),
                             ),
                             new DictionaryItem(
                                 'Window_Difference',
                                 'Window difference from test battery (days)',
                                 $scope,
                                 new \LORIS\Data\Types\Interval(),
+                                new Cardinality(Cardinality::Single),
                             ),
                             new DictionaryItem(
                                 'Examiner',
@@ -508,6 +512,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                                 $scope,
                                 // Should this be an enum of examiners?
                                 new StringType(255),
+                                new Cardinality(Cardinality::Single),
                             ),
                         ]
                     );
@@ -584,6 +589,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new StringType(255),
+                            new Cardinality(Cardinality::Single),
                         );
                     }
                     if ($firstFieldOfPage) {
@@ -608,6 +614,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new StringType(),
+                            new Cardinality(Cardinality::Single),
                         );
                     }
                     if ($firstFieldOfPage) {
@@ -642,6 +649,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new DateType(),
+                            new Cardinality(Cardinality::Single),
                         );
 
                         // Set date format
@@ -686,6 +694,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new IntegerType(),
+                            new Cardinality(Cardinality::Single),
                         );
                     }
                     if ($firstFieldOfPage) {
@@ -775,7 +784,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                     }
 
                     $t = new Enumeration(...$dictopts);
-                    $it = new DictionaryItem($pieces[1], $pieces[2], $scope, $t);
+                    $it = new DictionaryItem($pieces[1], $pieces[2], $scope, $t, new Cardinality(Cardinality::Single));
                     $this->dictionary[] = $it;
 
                     $this->LinstQuestions[$pieces[1]] = array('type' => 'select');
@@ -810,7 +819,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             = array('type' => 'score');
 
                         $this->dictionary[]
-                            = new DictionaryItem($pieces[1], $pieces[2], $scope, new StringType(255));
+                            = new DictionaryItem($pieces[1], $pieces[2], $scope, new StringType(255), new Cardinality(Cardinality::Single));
                     }
                     break;
                 default:

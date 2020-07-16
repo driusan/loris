@@ -2,6 +2,7 @@
 use \LORIS\Data\Dictionary\DictionaryItem;
 use \LORIS\Data\Dictionary\Category;
 use \LORIS\Data\Scope;
+use \LORIS\Data\Cardinality;
 /**
  * Helper to extract a dictionary from a LorisForm, primarily
  * used by instruments. This is based on lorisform_parser.php
@@ -30,6 +31,7 @@ trait LorisFormDictionaryImpl
     ) : array {
         $items = [];
         $scope = new Scope(Scope::Session);
+        $card = new Cardinality(Cardinality::Single);
         foreach ($elements AS $element) {
             if (!empty($element['label'])) {
                 $label = str_replace("&nbsp;", "", $element['label']);
@@ -81,12 +83,11 @@ trait LorisFormDictionaryImpl
             case 'date':
                 $t = new \LORIS\Data\Types\DateType();
                 break;
+            case 'time':
+                $t = new \LORIS\Data\Types\TimeType();
+                break;
             case 'advcheckbox':
                 $t = new \LORIS\Data\Types\Enumeration("true", "false");
-                break;
-            case 'time':
-                $t = new \LORIS\Data\Types\DateType();
-                // $t = new \LORIS\Data\Types\DateTimeType();
                 break;
             case 'static':
                 $t = new \LORIS\Data\Types\StringType(255);
@@ -96,7 +97,7 @@ trait LorisFormDictionaryImpl
             default:
                 throw new \LorisException("Unknown element type: " . $element['type']);
             }
-            $items[] = new DictionaryItem($element['name'], $label, $scope, $t);
+            $items[] = new DictionaryItem($element['name'], $label, $scope, $t, $card);
         }
         return $items;
     }

@@ -2,6 +2,10 @@
 namespace LORIS\imaging_browser;
 use \LORIS\candidate_profile\CandidateWidget;
 
+use \LORIS\Data\Dictionary\DictionaryItem;
+use \LORIS\Data\Scope;
+use \LORIS\Data\Cardinality;
+
 /**
  * {@inheritDoc}
  *
@@ -121,5 +125,34 @@ class Module extends \Module
         }
         return [];
     }
+    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
+    {
+        $scope = new Scope(Scope::Session);
 
+        $images = new \LORIS\Data\Dictionary\Category("Images", "Image Acquisitions");
+
+        $items = [];
+        $scantypes = \Utility::getScanTypeList();
+        foreach ($scantypes as $ScanType) {
+            $items[] = new DictionaryItem(
+                $ScanType,
+                "$ScanType acquisition location",
+                $scope,
+                new \LORIS\Data\Types\URI(),
+                new Cardinality(Cardinality::Many),
+            );
+            // TODO: Investigate adding a file scope instead of having this apply
+            // on a session scope with a Many cardinality.
+            $items[] = new DictionaryItem(
+                $ScanType  . "_QCStatus",
+                "Quality Control status for $ScanType acquisition",
+                $scope,
+                new \LORIS\Data\Types\Enumeration("Pass", "Fail"),
+                new Cardinality(Cardinality::Many),
+            );
+        }
+        $images = $images->withItems($items);
+
+        return [$images];
+    }
 }
