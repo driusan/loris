@@ -95,6 +95,12 @@ class FilterableDataTable extends Component {
     this.updateFilters({});
   }
 
+  /**
+   * Returns filters which aren't in an invalid
+   * state
+   *
+   * @return {object}
+   */
   validFilters() {
       let filters = {};
       this.props.fields.forEach((field) => {
