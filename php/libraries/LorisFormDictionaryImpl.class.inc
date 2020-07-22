@@ -97,6 +97,9 @@ trait LorisFormDictionaryImpl
             case 'static':
                 $t = new \LORIS\Data\Types\StringType(255);
                 break;
+            case 'file':
+                $t = new \LORIS\Data\Types\StringType(255);
+                break;
             case 'header':
                 continue 2;
             default:
