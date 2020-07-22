@@ -25,6 +25,7 @@ trait LorisFormDictionaryImpl
      * @return DictionaryItem[]
      */
     private function _getDataDictionaryGroup(
+        string $prefix,
         \LORIS\Data\Dictionary\Category $cat,
         array $elements,
         string $groupLabel=''
@@ -44,6 +45,7 @@ trait LorisFormDictionaryImpl
                 $items = array_merge(
                     $items,
                     $this->_getDataDictionaryGroup(
+                        $prefix,
                         $cat,
                         $element['elements'],
                         $label,
@@ -97,7 +99,7 @@ trait LorisFormDictionaryImpl
             default:
                 throw new \LorisException("Unknown element type: " . $element['type']);
             }
-            $items[] = new DictionaryItem($element['name'], $label, $scope, $t, $card);
+            $items[] = new DictionaryItem($prefix . $element['name'], $label, $scope, $t, $card);
         }
         return $items;
     }
@@ -119,6 +121,6 @@ trait LorisFormDictionaryImpl
 
         $formElements = $this->form->toElementArray();
         $cat          = new Category($this->testName, $this->getFullName());
-        return $this->_getDataDictionaryGroup($cat, $formElements["elements"], '');
+        return $this->_getDataDictionaryGroup($this->testName . "_", $cat, $formElements["elements"], '');
     }
 }
