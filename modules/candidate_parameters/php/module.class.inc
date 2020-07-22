@@ -382,7 +382,7 @@ class Module extends \Module
                 $prepbindings[$prepname] = $criteria->getValue();
                 break;
             default:
-                break;
+                throw new \DomainException("Invalid field " . $dict->getName());
             }
         }
 

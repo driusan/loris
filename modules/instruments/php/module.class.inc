@@ -176,5 +176,47 @@ class Module extends \Module
         return $dict;
     }
 
+    public function getCandidateMatches(array $criteria, ?array $visitlist=null) : iterable {
+        // This is stupid, but the parameter_type_override table uses '_' as a delimiter 
+        // between instrument and fieldname, despite the fact that either one may itself
+        // have a _ in the name. This can't be easily changed without losing all
+        // existing overrides from the old datadict module.
+        //
+        // We walk the existing test names ordered by length to look for the longest prefix
+        // match to find out what the instrument for the fieldname is.
+        $DB = \Database::singleton();
+        $rows = $DB->pselectCol("SELECT Test_name FROM test_names ORDER BY Length(Test_name) DESC", []);
+
+        foreach($criteria as $crit) {
+            $testname = null;
+            foreach($rows as $testcandidate) {
+                if (strpos($crit->getDictionaryItem()->getName(), $testcandidate) === 0) {
+                    $testname = $testcandidate;
+                    break;
+                }
+            }
+            if($testname=== null) {
+                throw new \DomainException("Field for unknown instrument");
+            }
+
+            // FIXME: This should be made more efficient
+            $commentIDs = $DB->pselectCol("SELECT CommentID
+                FROM flag f 
+                    JOIN session s ON (s.ID=f.SessionID AND s.Active='Y')
+                    JOIN candidate c ON (s.CandID=c.CandID AND c.Active='Y')
+                WHERE Test_name=:tn", ['tn' => $testname]);
+            //var_dump($commentIDs);
+            $inst = \NDB_BVL_Instrument::factory($testname, '');
+            foreach($commentIDs as $commentID) {
+                $inst->commentID = $commentID;
+                \NDB_BVL_Instrument::loadInstanceData($inst);
+                print $inst->getFieldValue('informant_relation');
+            }
+        }
+        foreach ($rows as $testname) {
+        }
+        var_dump($criteria);
+        throw new \Exception("ABC");
+    }
 }
 
