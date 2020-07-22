@@ -1,11 +1,16 @@
 <?php
+declare(strict_types=1);
 namespace LORIS\candidate_parameters;
 use LORIS\candidate_profile\CandidateInfo;
 use LORIS\candidate_profile\CandidateWidget;
 use LORIS\Data\Scope;
 use LORIS\Data\Cardinality;
 use LORIS\Data\Dictionary\DictionaryItem;
+use LORIS\StudyEntities\Candidate\CandID;
 
+use LORIS\Data\Query\EqualCriteria;
+use LORIS\Data\Query\LessThanCriteria;
+use LORIS\Data\Query\LessThanOrEqualCriteria;
 /**
  * {@inheritDoc}
  *
@@ -269,6 +274,13 @@ class Module extends \Module
                 $sesscope,
                 new \LORIS\Data\Types\Enumeration(...\Utility::getSiteList()),
             ),
+            new DictionaryItem(
+                "EntityType",
+                "The type of entity which this candidate represents",
+                $candscope,
+                new \LORIS\Data\Types\Enumeration('Human', 'Scanner'),
+                new Cardinality(Cardinality::Single),
+            ),
         ]);
 
         $ids = $ids->withItems(
@@ -362,5 +374,137 @@ class Module extends \Module
         );
 
         return [$ids, $demographics, $meta];
+    }
+
+    private function sqlOperator($criteria) {
+        if($criteria instanceof EqualCriteria) {
+            return '=';
+        }
+        if($criteria instanceof LessThanCriteria) {
+            return '<';
+        }
+        if($criteria instanceof LessThanOrEqualCriteria) {
+            return '<=';
+        }
+        throw new \Exception("Unhandled operator");
+    }
+    /**
+     * Returns a list of candidates where all criteria matches. When multiple
+     * criteria are specified, the result is the AND of all the criteria.
+     */
+    //public function getCandidateMatches(\LORIS\Data\Query\CandidateQuery ...$criteria) : iterable {
+    public function getCandidateMatches(array $criteria, ?array $visitlist=null) : iterable {
+        var_dump($criteria);
+        $joinsession = false;
+        $joinpsc = false;
+        $joinproj = false;
+        $joinsubproj = false;
+        $where = [];
+        $prepbindings = [];
+        $i = 0;
+        foreach($criteria as $crit) {
+            $dict = $crit->getDictionaryItem();
+            $criteria = $crit->getCriteria();
+            switch($dict->getName()) {
+            case 'CandID':
+                $prepname = ':val' . $i++;
+                $where[] = 'c.CandID' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            case 'PSCID':
+                $prepname = ':val' . $i++;
+                $where[] = 'c.PSCID' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            case 'Site':
+                $joinsession = true;
+                $joinpsc = true;
+                $prepname = ':val' . $i++;
+
+                $where[] = 'site.Name ' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            case 'Sex':
+                $prepname = ':val' . $i++;
+                $where[] = 'c.Sex ' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            case 'DoB':
+                $prepname = ':val' . $i++;
+                $where[] = 'c.DoB ' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            case 'DoD':
+                $prepname = ':val' . $i++;
+                $where[] = 'c.DoD ' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            case 'Project':
+                $joinsession = true;
+                $joinproj = true;
+
+                $prepname = ':val' . $i++;
+                $where[] = 'proj.Name ' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            case 'Subproject':
+                $joinsession = true;
+                $joinsubproj = true;
+
+                $prepname = ':val' . $i++;
+                $where[] = 'subproj.title ' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            case 'VisitLabel':
+                $joinsession = true;
+                $prepname = ':val' . $i++;
+                $where[] = 's.Visit_label' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            case 'EntityType':
+                $prepname = ':val' . $i++;
+                $where[] = 'c.Entity_type' . $this->sqlOperator($criteria) . " $prepname";
+                $prepbindings[$prepname] = $criteria->getValue();
+                break;
+            default:
+                break;
+            }
+        }
+
+        $query = 'SELECT DISTINCT c.CandID FROM candidate c';
+        if($joinsession) {
+            $query .= ' LEFT JOIN session s ON (s.CandID=c.CandID)';
+
+            if ($joinpsc) {
+                $query .= ' LEFT JOIN psc site ON (s.CenterID=site.CenterID)';
+            };
+
+            if($joinsubproj) {
+                $query .= ' LEFT JOIN subproject subproj ON (s.SubprojectID=subproj.SubProjectID)';
+            }
+
+            if($joinproj) {
+                $query .= ' LEFT JOIN project proj ON (s.ProjectID=proj.ProjectID)';
+            }
+
+            if ($visitlist != null) {
+                $inset = [];
+                foreach($visitlist as $vl) {
+                    $prepname = ':val' . $i++;
+                    $inset[] = $prepname;
+                    $prepbindings[$prepname] = $vl;
+                }
+                $where[] = 's.Visit_label IN (' . join(",", $inset) . ')';
+            }
+        }
+
+        $query .= ' WHERE ';
+        $query .= join(' AND ', $where);
+
+        $DB = \Database::singleton();
+        $rows = $DB->pselectCol($query, $prepbindings);
+        return array_map(function($cid) {
+            return new CandID($cid);
+        }, $rows);
     }
 }
