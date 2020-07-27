@@ -2139,14 +2139,17 @@ abstract class NDB_BVL_Instrument extends NDB_Page
                 "SELECT Data FROM flag WHERE CommentID=:CID",
                 ['CID' => $this->getCommentID()]
             );
-            return json_decode($jsondata, true) ?? [];
+
+            $this->instanceData = json_decode($jsondata, true) ?? [];
         } else {
             $defaults = $db->pselectRow(
                 "SELECT * FROM $this->table WHERE CommentID=:CID",
                 ['CID' => $this->getCommentID()]
             );
-            return $defaults ?? [];
+
+            $this->instanceData = $defaults ?? [];
         }
+        return $this->instanceData;
     }
 
     /**
