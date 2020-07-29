@@ -15,6 +15,7 @@
 namespace LORIS\instruments;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
+use LORIS\StudyEntities\Candidate\CandID;
 
 /**
  * Class module implements the basic LORIS module functionality
