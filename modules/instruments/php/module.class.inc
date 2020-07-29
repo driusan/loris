@@ -15,6 +15,7 @@
 namespace LORIS\instruments;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
+use LORIS\StudyEntities\Candidate\CandID;
 
 /**
  * Class module implements the basic LORIS module functionality
@@ -192,9 +193,12 @@ class Module extends \Module
 
         foreach($criteria as $crit) {
             $testname = null;
+            $fieldname = null;
+            $fullname = $crit->getDictionaryItem()->getName();
             foreach($rows as $testcandidate) {
-                if (strpos($crit->getDictionaryItem()->getName(), $testcandidate) === 0) {
+                if (strpos($fullname, $testcandidate) === 0) {
                     $testname = $testcandidate;
+                    $fieldname = substr($fullname, strlen($testname)+1);
                     break;
                 }
             }
@@ -202,24 +206,46 @@ class Module extends \Module
                 throw new \DomainException("Field for unknown instrument");
             }
 
-            // FIXME: This should be made more efficient
-            $commentIDs = $DB->pselectCol("SELECT CommentID
+            $data = $DB->pselect("SELECT c.CandID, f.CommentID
                 FROM flag f 
                     JOIN session s ON (s.ID=f.SessionID AND s.Active='Y')
                     JOIN candidate c ON (s.CandID=c.CandID AND c.Active='Y')
                 WHERE Test_name=:tn", ['tn' => $testname]);
             //var_dump($commentIDs);
-            $inst = \NDB_BVL_Instrument::factory($testname, '');
-            foreach($commentIDs as $commentID) {
-                $inst->commentID = $commentID;
-                \NDB_BVL_Instrument::loadInstanceData($inst);
-                print $inst->getFieldValue('informant_relation');
+            $inst = \NDB_BVL_Instrument::factory($testname);
+            $values = $inst->bulkLoadInstanceData(array_map(function($row) {
+                return $row['CommentID'];
+            }, $data));
+
+            $map = [];
+            foreach($data as $row) {
+                $map[$row['CommentID']] = new CandID($row['CandID']);
+            }
+            return $this->filtered($values, $map, $fieldname, $crit->getCriteria());
+        }
+    }
+
+    private function filtered($values, $candidmap, $fieldname, $criteria) : \Traversable {
+        foreach($values as $inst) {
+            $value = $inst->getFieldValue($fieldname);
+
+            switch(get_class($criteria)) {
+            case \LORIS\Data\Query\InCriteria::class:
+                foreach($criteria->getValue() as $valuecandidate) {
+                    if($value == $valuecandidate) {
+                        /*
+                        var_dump($candidmap);
+                        var_dump($inst->getCommentID());
+                        exit;
+                         */
+                        yield $candidmap[$inst->getCommentID()];
+                    }
+                }
+                break;
+            default:
+                throw new \Exception("Unhandled operator: " . get_class($criteria));
             }
         }
-        foreach ($rows as $testname) {
-        }
-        var_dump($criteria);
-        throw new \Exception("ABC");
     }
 }
 
