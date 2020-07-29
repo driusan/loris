@@ -59,7 +59,7 @@ $instm = \Module::factory('instruments');
 
 
 $canddict = $cpm->getDataDictionary($loris);
-$instdict= $instm->getDataDictionary($loris);
+$instdict = $instm->getDataDictionary($loris);
 
 $criteria = [];
         /*
@@ -119,5 +119,9 @@ foreach($instdict as $cat) {
     }
 }
 
-var_dump($instm->getCandidateMatches($criteria, null));
+$matches = $instm->getCandidateMatches($criteria, null);
 var_dump($criteria);
+
+foreach($matches as $match) {
+    print "$match\n";
+}
