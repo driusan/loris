@@ -120,8 +120,9 @@ foreach($instdict as $cat) {
 }
 
 $matches = $instm->getCandidateMatches($criteria, null);
-var_dump($criteria);
+// var_dump($criteria);
 
-foreach($matches as $match) {
+var_dump($matches);
+/* foreach($matches as $match) {
     print "$match\n";
-}
+}*/
