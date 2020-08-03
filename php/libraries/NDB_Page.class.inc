@@ -696,9 +696,12 @@ class NDB_Page implements RequestHandlerInterface
             return $handler->handle($request)
                 ->withHeader("Content-Type", "application/json");
         }
-        return (new \LORIS\Middleware\PageDecorationMiddleware($user))
-            ->process($request, $handler)
-            ->withHeader("Content-Type", "text/html");
+        $resp = (new \LORIS\Middleware\PageDecorationMiddleware($user))
+            ->process($request, $handler);
+        if ($resp->hasHeader('Content-Type') === false) {
+            $resp = $resp->withHeader("Content-Type", "text/html");
+        }
+        return $resp;
     }
 
     /**
