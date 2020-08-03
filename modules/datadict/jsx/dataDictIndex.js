@@ -59,6 +59,12 @@ class DataDictIndex extends Component {
     this.fetchData();
   }
 
+  /**
+   * Update the filter to dynamically change the options in the
+   * 'Category' dropdown based on the selected module.
+   *
+   * @param {object} filter - The current filter state
+   */
   updateFilter(filter) {
       if (filter.Module) {
           this.setState({moduleFilter: filter.Module.value});
@@ -68,11 +74,11 @@ class DataDictIndex extends Component {
   }
 
   /**
-   * Trigger a swal to edit a row
+   * Display a sweetalert popup to modify the row
    *
-   * @param {object} row - The row being edited
+   * @param {object} row - The row being modified
    *
-   * @return {callback}
+   * @return {function} callback function for react to activate swal
    */
   editSwal(row) {
     return () => {
@@ -92,7 +98,9 @@ class DataDictIndex extends Component {
               return;
           }
 
-          const url = loris.BaseURL + '/datadict/fields/' + encodeURI(row['Field Name']);
+          const url = this.props.BaseURL
+              + '/datadict/fields/'
+              + encodeURI(row['Field Name']);
 
           // The fetch happens asyncronously, which means that the
           // swal closes before it returns. We find the index that
@@ -212,9 +220,6 @@ class DataDictIndex extends Component {
         </td>
       );
     }
-    return <td>
-        {cell} <span style={{color: '#838383'}}>{edited} {editIcon} </span>
-    </td>;
   }
 
   /**
@@ -315,6 +320,15 @@ class DataDictIndex extends Component {
                     'many': 'Many',
                 },
             },
+        },
+        {
+            // We may or may not have an 8th column depending
+            // on type, which we need for formatting other columns.
+            // We don't show or display a filter because it's only
+            // valid for some data types.
+            label: 'Field Options',
+            show: false,
+            filter: null,
         },
     ];
     return (
