@@ -46,6 +46,12 @@ class DataDictIndex extends Component {
       .then( () => this.setState({isLoaded: true}));
   }
 
+  /**
+   * Update the filter to dynamically change the options in the
+   * 'Category' dropdown based on the selected module.
+   *
+   * @param {object} filter - The current filter state
+   */
   updateFilter(filter) {
       if (filter.Module) {
           this.setState({moduleFilter: filter.Module.value});
@@ -54,6 +60,13 @@ class DataDictIndex extends Component {
       }
   }
 
+  /**
+   * Display a sweetalert popup to modify the row
+   *
+   * @param {object} row - The row being modified
+   *
+   * @return {function} callback function for react to activate swal
+   */
   editSwal(row) {
     return () => {
         swal.fire({
@@ -72,7 +85,9 @@ class DataDictIndex extends Component {
               return;
           }
 
-          const url = loris.BaseURL + '/datadict/fields/' + encodeURI(row['Field Name']);
+          const url = this.props.BaseURL
+              + '/datadict/fields/'
+              + encodeURI(row['Field Name']);
 
           // The fetch happens asyncronously, which means that the
           // swal closes before it returns. We find the index that
@@ -167,16 +182,29 @@ class DataDictIndex extends Component {
     const hasEditPermission = loris.userHasPermission('data_dict_edit');
     let editIcon = '';
     let edited='';
-    if (column === 'Description') {
+    switch (column) {
+    case 'Description':
       if (hasEditPermission) {
-          editIcon = <i className="fas fa-edit" style={{cursor: 'pointer'}}onClick={this.editSwal(rowData)}></i>;
+          editIcon = (<i className="fas fa-edit"
+            style={{cursor: 'pointer'}}
+            onClick={this.editSwal(rowData)}>
+          </i>);
       }
 
       if (rowData['Description Status'] == 'Modified') {
           edited = <span>(edited)</span>;
       }
+      return <td>{cell}
+            <span style={{color: '#838383'}}>{edited} {editIcon} </span>
+      </td>;
+    case 'Data Type':
+      if (cell == 'enumeration') {
+          cell = rowData['Field Options'].join(';');
+      }
+      return <td>{cell}</td>;
+    default:
+      return <td>{cell}</td>;
     }
-    return <td>{cell} <span style={{color: '#838383'}}>{edited} {editIcon} </span></td>;
   }
 
   /**
@@ -211,7 +239,9 @@ class DataDictIndex extends Component {
             filter: {
                 name: 'Category',
                 type: 'select',
-                options: this.state.moduleFilter == '' ? {} : options.categories[this.state.moduleFilter],
+                options: this.state.moduleFilter == ''
+                    ? {}
+                    : options.categories[this.state.moduleFilter],
             },
         },
         {
@@ -278,6 +308,15 @@ class DataDictIndex extends Component {
                 },
             },
         },
+        {
+            // We may or may not have an 8th column depending
+            // on type, which we need for formatting other columns.
+            // We don't show or display a filter because it's only
+            // valid for some data types.
+            label: 'Field Options',
+            show: false,
+            filter: null,
+        },
     ];
     return (
         <FilterableDataTable
@@ -299,6 +338,7 @@ window.addEventListener('load', () => {
   ReactDOM.render(
       <DataDictIndex
         dataURL={`${loris.BaseURL}/datadict/?format=json`}
+        BaseURL={loris.BaseURL}
       />,
       document.getElementById('lorisworkspace')
   );

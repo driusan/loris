@@ -12,8 +12,12 @@ class Enumeration implements \LORIS\Data\Type {
         $this->options = $values;
     }
 
+    public function getOptions() : array {
+        return $this->options;
+    }
+
     public function __toString() {
-        return join(";", $this->options);
+        return "enumeration";
     }
 
     public function jsonSerialize() {
