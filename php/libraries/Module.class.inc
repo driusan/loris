@@ -252,6 +252,7 @@ abstract class Module extends \LORIS\Router\PrefixRouter
         }
         return true;
     }
+
     /**
      * Loads a page within this module and calls all necessary setup.
      *
