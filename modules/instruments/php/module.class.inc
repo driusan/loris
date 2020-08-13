@@ -263,6 +263,37 @@ class Module extends \Module
                     yield $candidmap[$inst->getCommentID()];
                 }
                 break;
+
+            case \LORIS\Data\Query\IsNullCriteria::class:
+                if ($value === null) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\IsNotNullCriteria::class:
+                if ($value !== null) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+
+            case \LORIS\Data\Query\StartsWithCriteria::class:
+                if ($value !== null && strpos($value, $criteria->getValue()) === 0) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\EndsWithCriteria::class:
+                $critval = $criteria->getValue();
+                if ($value !== null &&
+                    strrpos($value, $critval)
+                        === strlen($value)-strlen($critval)
+                ) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\SubstringCriteria::class:
+                if ($value !== null && strpos($value, $criteria->getValue()) !== false) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
             default:
                 throw new \Exception("Unhandled operator: " . get_class($criteria));
             }
