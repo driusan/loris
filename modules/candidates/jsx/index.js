@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import DataTable from 'jsx/DataTable';
 import Panel from 'jsx/Panel';
 
 /**
@@ -461,7 +462,7 @@ function FieldList(props) {
                         />
             </li>);
         }
-        return (<li>
+        return (<li key={row + idx}>
             <DisplayField
                 field={row}
                 idx={idx}
@@ -523,11 +524,44 @@ function CandidateCriteria(props) {
                 loadModule={props.loadModule}
                 dictionary={props.dictionary}
             />
-            <button type="button" className="btn btn-primary">
+            <button type="button" className="btn btn-primary"
+                onClick={props.search}>
                 Search
             </button>
         </fieldset>
     </form>);
+}
+
+/**
+ * Display the results of the current search query
+ *
+ * @param {object} props - React props
+ *
+ * @return {JSX}
+ */
+function Results(props) {
+    if (!props.data) {
+        return <div>No search performed</div>;
+    }
+    if (props.data.length == 0) {
+        return <div>No results found.</div>;
+    }
+
+    const fields = [
+        {
+            'label': 'CandID',
+            'show': true,
+        },
+    ];
+
+    const datarows = props.data.map((row) => {
+        return [row];
+    });
+
+    return <DataTable
+        data={datarows}
+        fields={fields}
+        />;
 }
 /**
  * Return the main index page for the candidates module
@@ -542,6 +576,7 @@ function CandidatesIndex(props) {
     const [categories, setCategories] = useState({});
     const [dictionary, setDictionary] = useState({});
     const [curmodule, setSelectedModule] = useState('');
+    const [resultdata, setResultData] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -591,6 +626,43 @@ function CandidatesIndex(props) {
         const newcriteria = [...criteria];
         setCriteria(newcriteria);
     };
+
+    const performSearch = () => {
+        console.log(criteria);
+        let payloadcriteria = {};
+
+        for (const value of criteria) {
+            if (!payloadcriteria.hasOwnProperty(value.module)) {
+                payloadcriteria[value.module] = [];
+            }
+
+            payloadcriteria[value.module].push(
+                {
+                    field: value.field,
+                    op: value.op,
+                    value: value.value,
+                }
+            );
+        }
+
+        const payload = {
+            type: searchType,
+            criteria: payloadcriteria,
+        };
+
+        fetch(props.SearchURL,
+            {
+                method: 'POST',
+                credentials: 'same-origin',
+                cache: 'no-cache',
+                body: JSON.stringify(payload),
+            }
+        ).then((resp) => resp.json())
+        .then((result) => {
+            setResultData(result.candidates);
+        });
+    };
+
     return (<Panel title="Candidate List">
                 <CandidateCriteria criteria={criteria}
                     onAddCriteria={addCriteria}
@@ -601,7 +673,9 @@ function CandidatesIndex(props) {
                     loadModule={setSelectedModule}
                     categories={categories}
                     dictionary={dictionary}
+                    search={performSearch}
                 />
+            <Results data={resultdata} />
       </Panel>
     );
 }
@@ -610,6 +684,7 @@ window.addEventListener('load', () => {
   ReactDOM.render(
       <CandidatesIndex
         CategoriesURL={loris.BaseURL + '/datadict/categories'}
+        SearchURL={loris.BaseURL + '/candidates/search'}
       />,
       document.getElementById('lorisworkspace')
   );
