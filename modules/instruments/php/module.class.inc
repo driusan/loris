@@ -210,8 +210,7 @@ class Module extends \Module
                 FROM flag f 
                     JOIN session s ON (s.ID=f.SessionID AND s.Active='Y')
                     JOIN candidate c ON (s.CandID=c.CandID AND c.Active='Y')
-                WHERE Test_name=:tn", ['tn' => $testname]);
-            //var_dump($commentIDs);
+                WHERE Test_name=:tn AND f.CommentID NOT LIKE 'DDE%'", ['tn' => $testname]);
             $inst = \NDB_BVL_Instrument::factory($testname);
             $values = $inst->bulkLoadInstanceData(array_map(function($row) {
                 return $row['CommentID'];
@@ -233,13 +232,38 @@ class Module extends \Module
             case \LORIS\Data\Query\InCriteria::class:
                 foreach($criteria->getValue() as $valuecandidate) {
                     if($value == $valuecandidate) {
-                        /*
-                        var_dump($candidmap);
-                        var_dump($inst->getCommentID());
-                        exit;
-                         */
                         yield $candidmap[$inst->getCommentID()];
                     }
+                }
+                break;
+            case \LORIS\Data\Query\LessThanCriteria::class:
+                if ($value < $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\LessThanOrEqualCriteria::class:
+                if ($value <= $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\EqualCriteria::class:
+                if ($value == $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\NotEqualCriteria::class:
+                if ($value != $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\GreaterThanOrEqualCriteria::class:
+                if ($value >= $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\GreaterThanCriteria::class:
+                if ($value > $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
                 }
                 break;
             default:
