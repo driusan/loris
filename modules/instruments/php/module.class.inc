@@ -237,32 +237,32 @@ class Module extends \Module
                 }
                 break;
             case \LORIS\Data\Query\LessThanCriteria::class:
-                if ($value < $criteria->getValue()) {
+                if ($value !== null && $value < $criteria->getValue()) {
                     yield $candidmap[$inst->getCommentID()];
                 }
                 break;
             case \LORIS\Data\Query\LessThanOrEqualCriteria::class:
-                if ($value <= $criteria->getValue()) {
+                if ($value !== null && $value <= $criteria->getValue()) {
                     yield $candidmap[$inst->getCommentID()];
                 }
                 break;
             case \LORIS\Data\Query\EqualCriteria::class:
-                if ($value == $criteria->getValue()) {
+                if ($value !== null && $value == $criteria->getValue()) {
                     yield $candidmap[$inst->getCommentID()];
                 }
                 break;
             case \LORIS\Data\Query\NotEqualCriteria::class:
-                if ($value != $criteria->getValue()) {
+                if ($value !== null && $value != $criteria->getValue()) {
                     yield $candidmap[$inst->getCommentID()];
                 }
                 break;
             case \LORIS\Data\Query\GreaterThanOrEqualCriteria::class:
-                if ($value >= $criteria->getValue()) {
+                if ($value !== null && $value >= $criteria->getValue()) {
                     yield $candidmap[$inst->getCommentID()];
                 }
                 break;
             case \LORIS\Data\Query\GreaterThanCriteria::class:
-                if ($value > $criteria->getValue()) {
+                if ($value !== null && $value > $criteria->getValue()) {
                     yield $candidmap[$inst->getCommentID()];
                 }
                 break;
