@@ -9,8 +9,19 @@ use LORIS\Data\Dictionary\DictionaryItem;
 use LORIS\StudyEntities\Candidate\CandID;
 
 use LORIS\Data\Query\EqualCriteria;
+use LORIS\Data\Query\NotEqualCriteria;
 use LORIS\Data\Query\LessThanCriteria;
 use LORIS\Data\Query\LessThanOrEqualCriteria;
+use LORIS\Data\Query\GreaterThanOrEqualCriteria;
+use LORIS\Data\Query\GreaterThanCriteria;
+use LORIS\Data\Query\InCriteria;
+
+use LORIS\Data\Query\NotNullCriteria;
+use LORIS\Data\Query\NullCriteria;
+
+use LORIS\Data\Query\StartsWithCriteria;
+use LORIS\Data\Query\SubstringCriteria;
+use LORIS\Data\Query\EndsWithCriteria;
 /**
  * {@inheritDoc}
  *
@@ -377,94 +388,150 @@ class Module extends \Module
     }
 
     private function sqlOperator($criteria) {
-        if($criteria instanceof EqualCriteria) {
-            return '=';
-        }
         if($criteria instanceof LessThanCriteria) {
             return '<';
         }
         if($criteria instanceof LessThanOrEqualCriteria) {
             return '<=';
         }
+        if($criteria instanceof EqualCriteria) {
+            return '=';
+        }
+        if($criteria instanceof NotEqualCriteria) {
+            return '<>';
+        }
+        if($criteria instanceof GreaterThanOrEqualCriteria) {
+            return '>=';
+        }
+        if($criteria instanceof GreaterThanCriteria) {
+            return '>';
+        }
+        if($criteria instanceof InCriteria) {
+            return 'IN';
+        }
+        if($criteria instanceof NullCriteria) {
+            return "IS NULL";
+        }
+        if($criteria instanceof NotNullCriteria) {
+            return "IS NOT NULL";
+        }
+
+        if($criteria instanceof StartsWithCriteria) {
+            return "LIKE";
+        }
+        if($criteria instanceof EndsWithCriteria) {
+            return "LIKE";
+        }
+        if($criteria instanceof SubstringCriteria) {
+            return "LIKE";
+        }
         throw new \Exception("Unhandled operator");
     }
+
+    private function sqlValue($criteria, array &$prepbindings) {
+        static $i = 1;
+
+        if($criteria instanceof InCriteria) {
+            $val = '(';
+            $critvalues= $criteria->getValue();
+            foreach($critvalues as $critnum => $critval) {
+                $prepname = ':val' . $i++;
+                $prepbindings[$prepname] = $critval;
+                $val .= $prepname;
+                if ($critnum != count($critvalues)-1) {
+                    $val .= ', ';
+                }
+            }
+            $val .= ')';
+            return $val;
+        }
+
+        if($criteria instanceof NullCriteria) {
+            return "";
+        }
+        if($criteria instanceof NotNullCriteria) {
+            return "";
+        }
+
+        $prepname = ':val' . $i++;
+        $prepbindings[$prepname] = $criteria->getValue();
+
+        if($criteria instanceof StartsWithCriteria) {
+            return "CONCAT($prepname, '%')";
+        }
+        if($criteria instanceof EndsWithCriteria) {
+            return "CONCAT('%', $prepname)";
+        }
+        if($criteria instanceof SubstringCriteria) {
+            return "CONCAT('%', $prepname, '%')";
+        }
+        return $prepname;
+    }
+
     /**
      * Returns a list of candidates where all criteria matches. When multiple
      * criteria are specified, the result is the AND of all the criteria.
      */
-    //public function getCandidateMatches(\LORIS\Data\Query\CandidateQuery ...$criteria) : iterable {
     public function getCandidateMatches(array $criteria, ?array $visitlist=null) : iterable {
-        var_dump($criteria);
         $joinsession = false;
         $joinpsc = false;
         $joinproj = false;
         $joinsubproj = false;
         $where = [];
         $prepbindings = [];
-        $i = 0;
         foreach($criteria as $crit) {
             $dict = $crit->getDictionaryItem();
             $criteria = $crit->getCriteria();
             switch($dict->getName()) {
             case 'CandID':
-                $prepname = ':val' . $i++;
-                $where[] = 'c.CandID' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 'c.CandID ' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'PSCID':
-                $prepname = ':val' . $i++;
-                $where[] = 'c.PSCID' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 'c.PSCID ' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'Site':
                 $joinsession = true;
                 $joinpsc = true;
-                $prepname = ':val' . $i++;
 
-                $where[] = 'site.Name ' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 'site.Name ' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'Sex':
-                $prepname = ':val' . $i++;
-                $where[] = 'c.Sex ' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 'c.Sex ' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'DoB':
-                $prepname = ':val' . $i++;
-                $where[] = 'c.DoB ' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 'c.DoB ' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'DoD':
-                $prepname = ':val' . $i++;
-                $where[] = 'c.DoD ' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 'c.DoD ' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'Project':
                 $joinsession = true;
                 $joinproj = true;
 
-                $prepname = ':val' . $i++;
-                $where[] = 'proj.Name ' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 'proj.Name ' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'Subproject':
                 $joinsession = true;
                 $joinsubproj = true;
 
-                $prepname = ':val' . $i++;
-                $where[] = 'subproj.title ' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 'subproj.title ' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'VisitLabel':
                 $joinsession = true;
-                $prepname = ':val' . $i++;
-                $where[] = 's.Visit_label' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 's.Visit_label' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'EntityType':
-                $prepname = ':val' . $i++;
-                $where[] = 'c.Entity_type' . $this->sqlOperator($criteria) . " $prepname";
-                $prepbindings[$prepname] = $criteria->getValue();
+                $where[] = 'c.Entity_type' . $this->sqlOperator($criteria) . " "
+                    . $this->sqlValue($criteria, $prepbindings);
                 break;
             default:
                 throw new \DomainException("Invalid field " . $dict->getName());
@@ -489,6 +556,7 @@ class Module extends \Module
 
             if ($visitlist != null) {
                 $inset = [];
+                $i = count($prepbindings);
                 foreach($visitlist as $vl) {
                     $prepname = ':val' . $i++;
                     $inset[] = $prepname;
