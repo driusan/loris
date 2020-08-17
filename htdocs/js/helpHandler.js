@@ -96,6 +96,7 @@ $(document).ready(function() {
   $('.fileUpload').FileUpload();
   swal.setDefaults({confirmButtonColor: '#064785'});
 });
+
 $(document).ajaxError(function(event, jqxhr, settings, thrownError) {
   if (jqxhr.status === 401) {
     if ($('#login-modal').hasClass('in')) {
