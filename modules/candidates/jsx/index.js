@@ -48,11 +48,36 @@ function SearchTypeSelect(props) {
  * @return {JSX}
  */
 function EditField(props) {
+    const [forceVisitRefresh, setForceVisitRefresh] = useState(0);
+    const [validvisits, setVisitList] = useState([]);
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!field.module || !field.field) {
+                return;
+            }
+
+            const result = await fetch(
+                props.VisitListURL
+                    + '?module='
+                    + field.module
+                    + '&item=' + field.field,
+                {credentials: 'same-origin'}
+            );
+
+            const results = await result.json();
+            setVisitList(results.Visits);
+        };
+        fetchData();
+    }, [forceVisitRefresh]);
+
     const andword = props.last != true ? 'and' : '';
     let field = props.field;
 
     const setField = (f, v) => {
         console.log(f, v);
+        if (f == 'module' || f == 'field') {
+            setForceVisitRefresh(forceVisitRefresh + 1);
+        }
         field[f] = v;
         if (f == 'module') {
             delete field['category'];
@@ -293,14 +318,15 @@ function EditField(props) {
         if (fielddict.scope != 'session') {
             return;
         }
-        const fields = {'a': 'b', 'c': 'd'};
+        const fields = validvisits;
 
         return <div className="row">
                 <div className="col-xs-8">
                     <SelectElement
-                        label='At Visit'
+                        label='At at least one visit of'
                         name='visits'
                         options={fields}
+                        multiple={true}
                         value={field.visits}
                         onUserInput={setField}
                         sortByValue={false}
@@ -459,6 +485,8 @@ function FieldList(props) {
                             categories={props.categories}
                             loadModule={props.loadModule}
                             dictionary={props.dictionary}
+
+                            VisitListURL={props.VisitListURL}
                         />
             </li>);
         }
@@ -523,6 +551,8 @@ function CandidateCriteria(props) {
                 categories={props.categories}
                 loadModule={props.loadModule}
                 dictionary={props.dictionary}
+
+                VisitListURL={props.VisitListURL}
             />
             <button type="button" className="btn btn-primary"
                 onClick={props.search}>
@@ -674,6 +704,8 @@ function CandidatesIndex(props) {
                     categories={categories}
                     dictionary={dictionary}
                     search={performSearch}
+
+                    VisitListURL={props.VisitListURL}
                 />
             <Results data={resultdata} />
       </Panel>
@@ -685,6 +717,7 @@ window.addEventListener('load', () => {
       <CandidatesIndex
         CategoriesURL={loris.BaseURL + '/datadict/categories'}
         SearchURL={loris.BaseURL + '/candidates/search'}
+        VisitListURL={loris.BaseURL + '/candidates/visitlist'}
       />,
       document.getElementById('lorisworkspace')
   );

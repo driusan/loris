@@ -58,6 +58,7 @@ class Categories extends \NDB_Page {
         $this->modules = $usermodules;
         $this->categories = $categories;
     }
+
     public function moduleDictionary(ServerRequestInterface $request, string $modulename) : ResponseInterface
     {
         $loris = $this->lorisinstance;
@@ -74,34 +75,20 @@ class Categories extends \NDB_Page {
         }
         $mdict = $module->getDataDictionary($loris);
         $dict  = [];
-        /*
-        [
-            'module'        => $module->getName(),
-            'category'     => $cat->getName(),
-            'field'              => $item->getName(),
-            'description'        => $desc,
-            'description_status' => $status,
-            'datascope' => $item->getScope(),
-            'type' => $item->getDataType(),
-            'cardinality' => $item->getCardinality(),
-        ]
-            );
-    }
-         */
 
-    foreach ($mdict as $cat) {
-        $catdict = [];
+        foreach ($mdict as $cat) {
+            $catdict = [];
 
-        foreach($cat->getItems() as $item) {
-            $catdict[$item->getName()] = [
-                'description' => $item->getDescription(),
-                'scope' => $item->getScope(),
-                'type' => $item->getDataType(),
-                'cardinality' => $item->getCardinality(),
-            ];
+            foreach($cat->getItems() as $item) {
+                $catdict[$item->getName()] = [
+                    'description' => $item->getDescription(),
+                    'scope' => $item->getScope(),
+                    'type' => $item->getDataType(),
+                    'cardinality' => $item->getCardinality(),
+                ];
+            }
+            $dict[$cat->getName()] = $catdict;
         }
-        $dict[$cat->getName()] = $catdict;
+        return new \LORIS\Http\Response\JSON\OK($dict);
     }
-    return new \LORIS\Http\Response\JSON\OK($dict);
-}
 }

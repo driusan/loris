@@ -299,5 +299,25 @@ class Module extends \Module
             }
         }
     }
+
+
+    public function getVisitList(\LORIS\Data\Dictionary\Category $inst, \LORIS\Data\Dictionary\DictionaryItem $item) : iterable
+    {
+        if($item->getScope()->__toString() !== 'session') {
+            return null;
+        }
+
+        $DB = \NDB_Factory::singleton()->database();
+        $visits = $DB->pselectCol("SELECT DISTINCT s.Visit_Label
+                                    FROM flag f
+                                        JOIN session s ON (f.SessionID=s.ID)
+                                        JOIN candidate c ON (c.CandID=s.CandID)
+                                    WHERE s.Active='Y' AND c.Active='Y' and f.Test_name=:tn
+                                    ORDER BY s.Visit_label",
+            ['tn' => $inst->getName()]
+        );
+
+        return $visits;
+    }
 }
 
