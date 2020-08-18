@@ -131,7 +131,12 @@ class Search extends \NDB_Page
                 }
             }
 
-            $results[] = iterator_to_array($module->getCandidateMatches($criteria, null));
+            $matches = $module->getCandidateMatches($criteria, null);
+            if (is_array($matches)) {
+                $results[] = $matches;
+            } else {
+                $results[] = iterator_to_array($matches);
+            }
         }
 
         $combinedresult = [];
