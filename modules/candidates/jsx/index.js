@@ -41,6 +41,21 @@ function SearchTypeSelect(props) {
 }
 
 /**
+ * Extracts the scope for a field from the data dictionary
+ *
+ * @param {object} dictionary - The data dictionary
+ * @param {object} field - the field whose scope should
+ *      be extracted
+ *
+ * @return {string}
+ */
+function getFieldScope(dictionary, field) {
+    const fmod = dictionary[field.module];
+    const fcat = fmod[field.category];
+    const fdict = fcat[field.field];
+    return fdict.scope;
+}
+/**
  * React
  *
  * @param {object} props - React props
@@ -49,14 +64,19 @@ function SearchTypeSelect(props) {
  */
 function EditField(props) {
     const [forceVisitRefresh, setForceVisitRefresh] = useState(0);
-    const [validvisits, setVisitList] = useState([]);
+    const [validvisits, setVisitList] = useState({});
     useEffect(() => {
         const fetchData = async () => {
             if (!field.module || !field.field) {
                 return;
             }
 
+            if (getFieldScope(props.dictionary, field) === 'candidate') {
+                return;
+            }
+
             const result = await fetch(
+
                 props.VisitListURL
                     + '?module='
                     + field.module
@@ -65,7 +85,11 @@ function EditField(props) {
             );
 
             const results = await result.json();
-            setVisitList(results.Visits);
+            let resultobj = {};
+            for (const visit of results.Visits) {
+                resultobj[visit] = visit;
+            }
+            setVisitList(resultobj);
         };
         fetchData();
     }, [forceVisitRefresh]);
@@ -74,7 +98,6 @@ function EditField(props) {
     let field = props.field;
 
     const setField = (f, v) => {
-        console.log(f, v);
         if (f == 'module' || f == 'field') {
             setForceVisitRefresh(forceVisitRefresh + 1);
         }
@@ -88,6 +111,22 @@ function EditField(props) {
 
     const setValue = (e) => {
         field['value'] = e.target.value;
+        props.setCriteria(props.criteria);
+    };
+
+    const addFieldVisit = (visit) => {
+        if (!field['visits']) {
+            field.visits = {};
+        }
+        field.visits[visit] = true;
+        props.setCriteria(props.criteria);
+    };
+
+    const removeFieldVisit = (visit) => {
+        delete field.visits[visit];
+        if (Object.keys(field.visits).length == 0) {
+            delete field.visits;
+        }
         props.setCriteria(props.criteria);
     };
 
@@ -263,7 +302,6 @@ function EditField(props) {
     };
 
     const fieldIsValid = () => {
-        console.log(field);
         if (!field.field) {
             return false;
         }
@@ -303,34 +341,60 @@ function EditField(props) {
 
     const actions = <div className="row"
        style={{width: '100%', textAlign: 'center'}}>
-           <i className="fas fa-check"
-              style={checkmarkstyle}
-              onClick={editClick}>
-          </i>
-           <i className="fa fa-trash-alt"
-              style={actionstyle}
-              onClick={() => props.deleteCriteria(props.idx)}>
-          </i>
+           <span style={checkmarkstyle}
+                onClick={editClick}>Accept <i className="fas fa-check"></i>
+           </span>
+           <span style={actionstyle}
+              onClick={() => props.deleteCriteria(props.idx)}>Remove
+           <i className="fa fa-trash-alt"></i>
+           </span>
     </div>;
 
     const visitSelect = () => {
-        console.log(fielddict);
         if (fielddict.scope != 'session') {
             return;
         }
         const fields = validvisits;
 
+        const visitlist = () => {
+            const addVisit = (label) => {
+                return (fieldname, value) => {
+                    // fieldname is unused, but it needs
+                    // to be in the signature to get to the
+                    // second parameter..
+                    if (value) {
+                        addFieldVisit(label);
+                    } else {
+                        removeFieldVisit(label);
+                    }
+                };
+            };
+
+            const entries =
+                Object.keys(fields);
+            return entries.map((visit) => {
+                const checked = (field.visits && field.visits[visit])
+                    ? true
+                    : false;
+                return <div key={'visit_' + visit}>
+                            <CheckboxElement
+                                label={visit}
+                                value={checked}
+                                name="visit"
+                                onUserInput={addVisit(visit)} />
+                    </div>;
+            });
+        };
+
         return <div className="row">
                 <div className="col-xs-8">
-                    <SelectElement
-                        label='At at least one visit of'
-                        name='visits'
-                        options={fields}
-                        multiple={true}
-                        value={field.visits}
-                        onUserInput={setField}
-                        sortByValue={false}
-                    />
+                    <label className="col-xs-4">
+                        At at least one visit of<br />
+                (leave all visits unchecked for "any visit"):
+                    </label>
+                    <span className="col-xs-8">
+                        {visitlist()}
+                    </span>
                 </div>
             </div>;
     };
@@ -428,10 +492,44 @@ function DisplayField(props) {
         }
     };
 
+    const visitlist = () => {
+        if (getFieldScope(props.dictionary, props.field) === 'candidate') {
+            return <span className="col-sm-2">for the candidate</span>;
+        }
+
+        if (!field.visits) {
+            return <span className="col-sm-2">at any visit</span>;
+        }
+
+        const visits = Object.keys(field.visits);
+        if (visits.length == 1) {
+            return (<span className="col-sm-2">
+                at visit {visits[0]}
+                </span>);
+        }
+
+        let str = '';
+        for (let idx = 0; idx < visits.length; idx++) {
+            const visit = visits[idx];
+            if (idx == 0) {
+                str += visit;
+            } else if (idx == visits.length-1) {
+                str += ' or ' + visit;
+            } else {
+                str += ', ' + visit;
+            }
+        }
+
+        return (<span className="col-sm-2">
+            at at least one visit of {str}
+            </span>);
+    };
+
     return <div className="row">
         <span className="col-sm-3">{props.field.field}</span>
         <span className="col-sm-2">{displayOp(props.field.op)}</span>
         <span className="col-sm-2">{props.field.value}</span>
+        {visitlist()}
         <span className="col-sm-2">
             <i
                 className="fas fa-edit"
@@ -443,7 +541,7 @@ function DisplayField(props) {
             <i
                 className="fa fa-trash-alt"
                 style={{cursor: 'pointer',
-            marginRight: '1ex'}}
+                    marginRight: '1ex'}}
                 onClick={() => props.deleteCriteria(props.idx)}>
             </i>
             {andword}
@@ -471,10 +569,16 @@ function FieldList(props) {
 
     let canAddNew = true;
     const fieldlist = props.criteria.map((row, idx) => {
+        let style = {};
+
+        if (idx % 2 == 1) {
+            style.backgroundColor = '#e1e1e1';
+        }
         if (row.editstate=='new' || row.editstate=='editing') {
             canAddNew = false;
+            style.padding = '1.2em';
             return (<li key={'row' + idx} className="row"
-                        style={{padding: '1.2em'}}>
+                        style={style}>
                         <EditField
                             field={row}
                             idx={idx}
@@ -490,7 +594,9 @@ function FieldList(props) {
                         />
             </li>);
         }
-        return (<li key={row + idx}>
+
+        style.padding = '1ex';
+        return (<li key={row + idx} style={style}>
             <DisplayField
                 field={row}
                 idx={idx}
@@ -499,6 +605,7 @@ function FieldList(props) {
                 deleteCriteria={props.deleteCriteria}
                 setCriteria={props.setCriteria}
                 loadModule={props.loadModule}
+                dictionary={props.dictionary}
             />
             </li>);
     });
@@ -510,6 +617,7 @@ function FieldList(props) {
                     Add Criteria
             </button>
         : <button className="btn btn-primary disabled"
+                title="Must finish editing current criteria before adding more"
                 style={{cursor: 'not-allowed', pointerEvents: 'auto',
                     color: 'white'}}
                     type="button">
@@ -518,7 +626,7 @@ function FieldList(props) {
 
     return (<div>
         <h4>with</h4>
-        <ul style={{listStyleType: 'none'}}>
+        <ul style={{listStyleType: 'none', padding: 0, margin: '1em'}}>
             {fieldlist}
         </ul>
         <div>{addButton}</div>
@@ -658,7 +766,6 @@ function CandidatesIndex(props) {
     };
 
     const performSearch = () => {
-        console.log(criteria);
         let payloadcriteria = {};
 
         for (const value of criteria) {
@@ -666,13 +773,16 @@ function CandidatesIndex(props) {
                 payloadcriteria[value.module] = [];
             }
 
-            payloadcriteria[value.module].push(
-                {
+            let fieldobj = {
                     field: value.field,
                     op: value.op,
                     value: value.value,
-                }
-            );
+                };
+
+            if (value.visits) {
+                fieldobj.visits = Object.keys(value.visits);
+            }
+            payloadcriteria[value.module].push(fieldobj);
         }
 
         const payload = {
