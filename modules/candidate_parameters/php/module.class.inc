@@ -575,4 +575,14 @@ class Module extends \Module
             return new CandID($cid);
         }, $rows);
     }
+
+      public function getVisitList(\LORIS\Data\Dictionary\Category $inst, \LORIS\Data\Dictionary\DictionaryItem $item) : iterable
+      {
+          if($item->getScope()->__toString() !== 'session') {
+              return null;
+          }
+
+          // Session scoped variables: VisitLabel, project, site, subproject
+          return array_keys(\Utility::getVisitList());
+      }
 }
