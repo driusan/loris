@@ -1,8 +1,8 @@
 <?php
 
-namespace LORIS\Data\Query;
+namespace LORIS\Data\Query\Criteria;
 
-class InCriteria
+class In
 {
     public function __construct(...$val)
     {
