@@ -1,8 +1,8 @@
 <?php
 
-namespace LORIS\Data\Query;
+namespace LORIS\Data\Query\Criteria;
 
-class NotNullCriteria {
+class NotNull {
     public function __construct() {
     }
 

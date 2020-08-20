@@ -1,8 +1,8 @@
 <?php
 
-namespace LORIS\Data\Query;
+namespace LORIS\Data\Query\Criteria;
 
-class EqualCriteria {
+class LessThanOrEqual {
     public function __construct($val) {
         $this->val = $val;
     }

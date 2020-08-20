@@ -1,8 +1,8 @@
 <?php
 
-namespace LORIS\Data\Query;
+namespace LORIS\Data\Query\Criteria;
 
-class LessThanCriteria {
+class StartsWith {
     public function __construct($val) {
         $this->val = $val;
     }

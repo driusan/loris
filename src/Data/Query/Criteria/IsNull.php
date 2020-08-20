@@ -2,7 +2,7 @@
 
 namespace LORIS\Data\Query;
 
-class NullCriteria {
+class IsNull {
     public function __construct() {
     }
 
