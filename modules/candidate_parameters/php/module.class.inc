@@ -8,20 +8,20 @@ use LORIS\Data\Cardinality;
 use LORIS\Data\Dictionary\DictionaryItem;
 use LORIS\StudyEntities\Candidate\CandID;
 
-use LORIS\Data\Query\EqualCriteria;
-use LORIS\Data\Query\NotEqualCriteria;
-use LORIS\Data\Query\LessThanCriteria;
-use LORIS\Data\Query\LessThanOrEqualCriteria;
-use LORIS\Data\Query\GreaterThanOrEqualCriteria;
-use LORIS\Data\Query\GreaterThanCriteria;
-use LORIS\Data\Query\InCriteria;
+use LORIS\Data\Query\Criteria\Equal;
+use LORIS\Data\Query\Criteria\NotEqual;
+use LORIS\Data\Query\Criteria\LessThan;
+use LORIS\Data\Query\Criteria\LessThanOrEqual;
+use LORIS\Data\Query\Criteria\GreaterThanOrEqual;
+use LORIS\Data\Query\Criteria\GreaterThan;
+use LORIS\Data\Query\Criteria\In;
 
-use LORIS\Data\Query\NotNullCriteria;
-use LORIS\Data\Query\NullCriteria;
+use LORIS\Data\Query\Criteria\NotNull;
+use LORIS\Data\Query\Criteria\IsNull;
 
-use LORIS\Data\Query\StartsWithCriteria;
-use LORIS\Data\Query\SubstringCriteria;
-use LORIS\Data\Query\EndsWithCriteria;
+use LORIS\Data\Query\Criteria\StartsWith;
+use LORIS\Data\Query\Criteria\Substring;
+use LORIS\Data\Query\Criteria\EndsWith;
 /**
  * {@inheritDoc}
  *
@@ -388,41 +388,41 @@ class Module extends \Module
     }
 
     private function sqlOperator($criteria) {
-        if($criteria instanceof LessThanCriteria) {
+        if($criteria instanceof LessThan) {
             return '<';
         }
-        if($criteria instanceof LessThanOrEqualCriteria) {
+        if($criteria instanceof LessThanOrEqual) {
             return '<=';
         }
-        if($criteria instanceof EqualCriteria) {
+        if($criteria instanceof Equal) {
             return '=';
         }
-        if($criteria instanceof NotEqualCriteria) {
+        if($criteria instanceof NotEqual) {
             return '<>';
         }
-        if($criteria instanceof GreaterThanOrEqualCriteria) {
+        if($criteria instanceof GreaterThanOrEqual) {
             return '>=';
         }
-        if($criteria instanceof GreaterThanCriteria) {
+        if($criteria instanceof GreaterThan) {
             return '>';
         }
-        if($criteria instanceof InCriteria) {
+        if($criteria instanceof In) {
             return 'IN';
         }
-        if($criteria instanceof NullCriteria) {
+        if($criteria instanceof IsNull) {
             return "IS NULL";
         }
-        if($criteria instanceof NotNullCriteria) {
+        if($criteria instanceof NotNull) {
             return "IS NOT NULL";
         }
 
-        if($criteria instanceof StartsWithCriteria) {
+        if($criteria instanceof StartsWith) {
             return "LIKE";
         }
-        if($criteria instanceof EndsWithCriteria) {
+        if($criteria instanceof EndsWith) {
             return "LIKE";
         }
-        if($criteria instanceof SubstringCriteria) {
+        if($criteria instanceof Substring) {
             return "LIKE";
         }
         throw new \Exception("Unhandled operator");
@@ -431,7 +431,7 @@ class Module extends \Module
     private function sqlValue($criteria, array &$prepbindings) {
         static $i = 1;
 
-        if($criteria instanceof InCriteria) {
+        if($criteria instanceof In) {
             $val = '(';
             $critvalues= $criteria->getValue();
             foreach($critvalues as $critnum => $critval) {
@@ -446,23 +446,23 @@ class Module extends \Module
             return $val;
         }
 
-        if($criteria instanceof NullCriteria) {
+        if($criteria instanceof IsNull) {
             return "";
         }
-        if($criteria instanceof NotNullCriteria) {
+        if($criteria instanceof NotNull) {
             return "";
         }
 
         $prepname = ':val' . $i++;
         $prepbindings[$prepname] = $criteria->getValue();
 
-        if($criteria instanceof StartsWithCriteria) {
+        if($criteria instanceof StartsWith) {
             return "CONCAT($prepname, '%')";
         }
-        if($criteria instanceof EndsWithCriteria) {
+        if($criteria instanceof EndsWith) {
             return "CONCAT('%', $prepname)";
         }
-        if($criteria instanceof SubstringCriteria) {
+        if($criteria instanceof Substring) {
             return "CONCAT('%', $prepname, '%')";
         }
         return $prepname;
