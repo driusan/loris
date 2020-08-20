@@ -526,11 +526,11 @@ class Module extends \Module
                 break;
             case 'VisitLabel':
                 $joinsession = true;
-                $where[] = 's.Visit_label' . $this->sqlOperator($criteria) . " "
+                $where[] = 's.Visit_label ' . $this->sqlOperator($criteria) . " "
                     . $this->sqlValue($criteria, $prepbindings);
                 break;
             case 'EntityType':
-                $where[] = 'c.Entity_type' . $this->sqlOperator($criteria) . " "
+                $where[] = 'c.Entity_type ' . $this->sqlOperator($criteria) . " "
                     . $this->sqlValue($criteria, $prepbindings);
                 break;
             default:
@@ -585,4 +585,145 @@ class Module extends \Module
           // Session scoped variables: VisitLabel, project, site, subproject
           return array_keys(\Utility::getVisitList());
       }
+
+    /**
+     * @param DictionaryItem[] $items
+     * @param CandID[] $candidates
+     * @param ?VisitLabel[] $visits
+     *
+     * @return DataInstance[]
+     */
+    public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
+        $fields = [];
+        $joinsession = ($visitlist !== null);
+        $joinpsc = false;
+        $joinproj = false;
+        $joinsubproj= false;
+
+        foreach($items as $dict) {
+            switch($dict->getName()) {
+            case 'CandID':
+                $fields[] = 'c.CandID';
+                break;
+            case 'PSCID':
+                $fields[] = 'c.PSCID';
+                break;
+            case 'Site':
+                $joinsession = true;
+                $joinpsc = true;
+
+                $fields[] = 'site.Name as Site';
+                break;
+            case 'Sex':
+                $fields[] = 'c.Sex';
+                break;
+            case 'DoB':
+                $fields[] = 'c.DoB';
+                break;
+            case 'DoD':
+                $fields[] = 'c.DoD';
+                break;
+            case 'Project':
+                $joinsession = true;
+                $joinproj = true;
+
+                $fields[] = 'proj.Name as Project';
+                break;
+            case 'Subproject':
+                $joinsession = true;
+                $joinsubproj = true;
+
+                $fields[] = 'subproj.title as Subproject';
+                break;
+            case 'VisitLabel':
+                $joinsession = true;
+                $fields[] = 's.Visit_label as VisitLabel';
+                break;
+            case 'EntityType':
+                $fields[] = 'c.Entity_type as EntityType';
+                break;
+            default:
+                throw new \DomainException("Invalid field " . $dict->getName());
+            }
+        }
+
+        $query = 'SELECT ' . join(', ', $fields) . ' FROM candidate c';
+
+        if($joinsession) {
+            $query .= ' LEFT JOIN session s ON (s.CandID=c.CandID)';
+
+            if ($joinpsc) {
+                $query .= ' LEFT JOIN psc site ON (s.CenterID=site.CenterID)';
+            };
+
+            if($joinsubproj) {
+                $query .= ' LEFT JOIN subproject subproj ON (s.SubprojectID=subproj.SubProjectID)';
+            }
+
+            if($joinproj) {
+                $query .= ' LEFT JOIN project proj ON (s.ProjectID=proj.ProjectID)';
+            }
+
+        }
+
+        $prepbindings = [];
+        $query .= ' WHERE c.CandID IN (';
+        $i = count($prepbindings);
+        $inset = [];
+        foreach($candidates as $candid) {
+            $prepname = ':cand' . $i++;
+            $inset[] = $prepname;
+            $prepbindings[$prepname] = $candid;
+        }
+        $query .= join(',', $inset);
+        $query .= ')';
+
+        if ($visitlist != null) {
+            $inset = [];
+            $i = count($prepbindings);
+            foreach($visitlist as $vl) {
+                $prepname = ':val' . $i++;
+                $inset[] = $prepname;
+                $prepbindings[$prepname] = $vl;
+            }
+            $query .= 'AND s.Visit_label IN (' . join(",", $inset) . ')';
+        }
+        $query .= ' ORDER BY c.CandID';
+
+        $DB = \Database::singleton();
+        $rows = $DB->pselect($query, $prepbindings);
+        return $this->candidateCombine($items, $rows);
+    }
+
+    private function candidateCombine(array $dict, array $rows) {
+        $lastcandid = null;
+        $candval = [];
+
+        foreach ($rows as $row) {
+            if($lastcandid !== null && $row['CandID'] !== $lastcandid) {
+                yield $candval;
+                $candval = [];
+            }
+            $lastcandid = $row['CandID'];
+            foreach($dict as $field) {
+                $fname = $field->getName();
+                if ($field->getScope() == 'session') {
+
+                    if (!isset($candval[$fname])) {
+                        $candval[$fname] = [];
+                    }
+                    if (!in_array($row[$fname], $candval[$fname])
+                        && $row[$fname] !== null
+                    ) {
+                        $candval[$fname][] = $row[$fname];
+                    }
+                } else {
+                    $candval[$fname] = $row[$fname];
+                }
+            }
+        }
+        if (!empty($candval)) {
+            yield $candval;
+        }
+    }
 }

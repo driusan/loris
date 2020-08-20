@@ -76,11 +76,11 @@ class Search extends \NDB_Page
                 return $this->allCandidates();
             }
 
-            return $this->doSearch($requestdata['criteria']);
+            return $this->doSearch($requestdata['criteria'], $requestdata['fields']);
         }
     }
 
-    public function doSearch(array $crit) : ResponseInterface {
+    public function doSearch(array $crit, array $fields) : ResponseInterface {
         $results = [];
         foreach($crit as $modulename => $crit) {
             $criteria = [];
@@ -146,8 +146,27 @@ class Search extends \NDB_Page
             $combinedresult = array_intersect(...$results);
         }
 
+        $candidates = array_values(array_unique($combinedresult));
+
+        $fielddict = [];
+        $vals = [];
+
+        foreach ($fields as $modulename => $mfields) {
+            $module = \Module::factory($modulename);
+
+            $flatdict = $this->getFlattenedDictionary($module);
+
+            $fielddict = [];
+
+            foreach ($mfields as $fieldname) {
+                $fielddict[] = $flatdict[$fieldname];
+            }
+
+            $vals = array_merge($vals, iterator_to_array($module->getCandidateData($fielddict, $candidates, null)));
+        }
+
         return new \LORIS\Http\Response\JSON\OK(
-            ['candidates' => array_values(array_unique($combinedresult))],
+            ['data' => $vals],
         );
     }
 
