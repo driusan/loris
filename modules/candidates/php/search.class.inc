@@ -17,19 +17,20 @@ use \Psr\Http\Message\ResponseInterface;
 use LORIS\StudyEntities\Candidate\CandID;
 
 use \LORIS\Data\Query\CandidateQuery;
-use \LORIS\Data\Query\EqualCriteria;
-use \LORIS\Data\Query\NotEqualCriteria;
-use \LORIS\Data\Query\InCriteria;
-use \LORIS\Data\Query\LessThanCriteria;
-use \LORIS\Data\Query\LessThanOrEqualCriteria;
-use \LORIS\Data\Query\GreaterThanCriteria;
-use \LORIS\Data\Query\GreaterThanOrEqualCriteria;
-use \LORIS\Data\Query\NullCriteria;
-use \LORIS\Data\Query\NotNullCriteria;
+use \LORIS\Data\Query\Criteria\Equal;
+use \LORIS\Data\Query\Criteria\NotEqual;
+use \LORIS\Data\Query\Criteria\In;
+use \LORIS\Data\Query\Criteria\LessThan;
+use \LORIS\Data\Query\Criteria\LessThanOrEqual;
+use \LORIS\Data\Query\Criteria\GreaterThan;
+use \LORIS\Data\Query\Criteria\GreaterThanOrEqual;
 
-use \LORIS\Data\Query\StartsWithCriteria;
-use \LORIS\Data\Query\SubstringCriteria;
-use \LORIS\Data\Query\EndsWithCriteria;
+use \LORIS\Data\Query\Criteria\IsNull;
+use \LORIS\Data\Query\Criteria\NotNull;
+
+use \LORIS\Data\Query\Criteria\StartsWith;
+use \LORIS\Data\Query\Criteria\Substring;
+use \LORIS\Data\Query\Criteria\EndsWith;
 
 
 /**
@@ -91,40 +92,40 @@ class Search extends \NDB_Page
                 $dictitem = $dict[$query['field']];
                 switch ($query['op']) {
                 case 'lt':
-                    $criteria[] = new CandidateQuery($dictitem, new LessThanCriteria($query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new LessThan($query['value']));
                     break;
                 case 'lte':
-                    $criteria[] = new CandidateQuery($dictitem, new LessThanOrEqualCriteria($query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new LessThanOrEqual($query['value']));
                     break;
                 case 'eq':
-                    $criteria[] = new CandidateQuery($dictitem, new EqualCriteria($query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new Equal($query['value']));
                     break;
                 case 'neq':
-                    $criteria[] = new CandidateQuery($dictitem, new NotEqualCriteria($query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new NotEqual($query['value']));
                     break;
                 case 'gte':
-                    $criteria[] = new CandidateQuery($dictitem, new GreaterThanOrEqualCriteria($query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new GreaterThanOrEqual($query['value']));
                     break;
                 case 'gt':
-                    $criteria[] = new CandidateQuery($dictitem, new GreaterThanCriteria($query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new GreaterThan($query['value']));
                     break;
                 case 'startsWith':
-                    $criteria[] = new CandidateQuery($dictitem, new StartsWithCriteria($query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new StartsWith($query['value']));
                     break;
                 case 'endsWith':
-                    $criteria[] = new CandidateQuery($dictitem, new EndsWithCriteria($query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new EndsWith($query['value']));
                     break;
                 case 'contains':
-                    $criteria[] = new CandidateQuery($dictitem, new SubstringCriteria($query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new Substring($query['value']));
                     break;
                 case 'isnotnull':
-                    $criteria[] = new CandidateQuery($dictitem, new NotNullCriteria());
+                    $criteria[] = new CandidateQuery($dictitem, new NotNull());
                     break;
                 case 'isnull':
-                    $criteria[] = new CandidateQuery($dictitem, new NullCriteria());
+                    $criteria[] = new CandidateQuery($dictitem, new IsNull());
                     break;
                 case 'in':
-                    $criteria[] = new CandidateQuery($dictitem, new InCriteria(...$query['value']));
+                    $criteria[] = new CandidateQuery($dictitem, new In(...$query['value']));
                     break;
                 default:
                     throw new \Exception("Unhandled operator");
