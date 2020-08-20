@@ -687,13 +687,50 @@ function Results(props) {
 
     const fields = [
         {
+            'label': 'PSCID',
+            'show': true,
+        },
+        {
             'label': 'CandID',
+            'show': true,
+        },
+        {
+            'label': 'Site',
+            'show': true,
+        },
+        {
+            'label': 'Subproject',
+            'show': true,
+        },
+        {
+            'label': 'Entity Type',
+            'show': true,
+        },
+        {
+            'label': 'DoB',
+            'show': true,
+        },
+        {
+            'label': 'Sex',
+            'show': true,
+        },
+        {
+            'label': 'Project',
             'show': true,
         },
     ];
 
     const datarows = props.data.map((row) => {
-        return [row];
+        return [
+            row.PSCID,
+            row.CandID,
+            row.Site.join(', '),
+            row.Subproject.join(', '),
+            row.EntityType,
+            row.DoB,
+            row.Sex,
+            row.Project.join(', '),
+        ];
     });
 
     return <DataTable
@@ -788,6 +825,18 @@ function CandidatesIndex(props) {
         const payload = {
             type: searchType,
             criteria: payloadcriteria,
+            fields: {
+                'candidate_parameters': [
+                    'PSCID',
+                    'CandID',
+                    'Site',
+                    'Subproject',
+                    'EntityType',
+                    'DoB',
+                    'Sex',
+                    'Project',
+                ],
+            },
         };
 
         fetch(props.SearchURL,
@@ -799,7 +848,7 @@ function CandidatesIndex(props) {
             }
         ).then((resp) => resp.json())
         .then((result) => {
-            setResultData(result.candidates);
+            setResultData(result.data);
         });
     };
 
