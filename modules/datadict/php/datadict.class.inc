@@ -11,7 +11,6 @@
  * @link     https://github.com/aces/Loris-Trunk
  */
 namespace LORIS\datadict;
-use \Psr\Http\Message\ServerRequestInterface;
 /**
  * Datadict module
  *
@@ -59,13 +58,8 @@ class Datadict extends \DataFrameworkMenu
      */
     public function getFieldOptions() : array
     {
-        $amodules = [];
-        foreach($this->modules as $module) {
-            $amodules[$module->getName()] = $module->getLongName();
-        }
         return [
-            'modules' => $amodules,
-            'categories' => $this->categories,
+            'sourceFrom' => \Utility::getAllInstruments(),
         ];
     }
 
@@ -76,7 +70,7 @@ class Datadict extends \DataFrameworkMenu
      */
     public function getBaseDataProvisioner() : \LORIS\Data\Provisioner
     {
-        return new DataDictRowProvisioner($this->lorisinstance, $this->categoryitems);
+        return new DataDictRowProvisioner();
     }
 
     /**
@@ -118,25 +112,5 @@ class Datadict extends \DataFrameworkMenu
     public function useProjectFilter() : bool
     {
         return false;
-    }
-
-    // FIXME: This should be moved to the parent class
-    public function getDataProvisionerWithFilters() : \LORIS\Data\Provisioner {
-        $prov = parent::getDataProvisionerWithFilters();
-        return $prov->filter(new \LORIS\Data\Filters\AccessibleResourceFilter());
-    }
-
-    public function loadResources(
-        \User $user, ServerRequestInterface $request
-    ) : void {
-        $this->lorisinstance = $request->getAttribute("loris");
-        $modulesandcats = $this->Module->getUserModuleCategories(
-            $user,
-            $this->lorisinstance,
-        );
-
-        $this->categoryitems = $modulesandcats['CategoryItems'];
-        $this->modules = $modulesandcats['Modules'];
-        $this->categories = $modulesandcats['Categories'];
     }
 }

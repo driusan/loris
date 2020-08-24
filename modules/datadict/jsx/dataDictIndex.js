@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Loader from 'Loader';
 import FilterableDataTable from 'FilterableDataTable';
-import swal from 'sweetalert2';
 
 /**
  * Data Dictionary Page.
@@ -29,13 +28,10 @@ class DataDictIndex extends Component {
       data: {},
       error: false,
       isLoaded: false,
-      moduleFilter: '',
     };
 
     this.fetchData = this.fetchData.bind(this);
     this.formatColumn = this.formatColumn.bind(this);
-    this.editSwal = this.editSwal.bind(this);
-    this.updateFilter = this.updateFilter.bind(this);
   }
 
   /**
@@ -47,111 +43,6 @@ class DataDictIndex extends Component {
   }
 
   /**
-   * Update the filter to dynamically change the options in the
-   * 'Category' dropdown based on the selected module.
-   *
-   * @param {object} filter - The current filter state
-   */
-  updateFilter(filter) {
-      if (filter.Module) {
-          this.setState({moduleFilter: filter.Module.value});
-      } else {
-          this.setState({moduleFilter: ''});
-      }
-  }
-
-  /**
-   * Display a sweetalert popup to modify the row
-   *
-   * @param {object} row - The row being modified
-   *
-   * @return {function} callback function for react to activate swal
-   */
-  editSwal(row) {
-    return () => {
-        swal.fire({
-          title: 'Edit Description',
-          input: 'text',
-          inputValue: row.Description,
-          confirmButtonText: 'Modify',
-          showCancelButton: true,
-          inputValidator: (value) => {
-            if (!value) {
-              return 'Missing description';
-            }
-          },
-      }).then((result) => {
-          if (!result.value) {
-              return;
-          }
-
-          const url = this.props.BaseURL
-              + '/datadict/fields/'
-              + encodeURI(row['Field Name']);
-
-          // The fetch happens asyncronously, which means that the
-          // swal closes before it returns. We find the index that
-          // was being updated and aggressively update it, then
-          // re-update or reset it when the PUT request returns.
-          let i;
-          let odesc;
-          let ostat;
-          for (i = 0; i < this.state.data.Data.length; i++) {
-              if (this.state.data.Data[i][2] == row['Field Name']) {
-                  // Store the original values in case the fetch
-                  // fails and we need to restore them.
-                  odesc = this.state.data.Data[i][3];
-                  ostat = this.state.data.Data[i][4];
-
-                  // Aggressively update the state and assume
-                  // it's been modified.
-                  this.state.data.Data[i][3] = result.value;
-                  this.state.data.Data[i][4] = 'Modified';
-
-                  // Force a re-render
-                  this.setState({state: this.state});
-                  break;
-              }
-          }
-
-          fetch(url, {
-                  method: 'PUT',
-                  credentials: 'same-origin',
-                  cache: 'no-cache',
-                  body: result.value,
-          }).then((response) => {
-              if (!response.ok) {
-                  // The response wasn't in the 200-299 range,
-                  // so revert the update we did above and
-                  // force a re-render.
-                  this.state.data.Data[i][3] = odesc;
-                  this.state.data.Data[i][4] = ostat;
-
-                  // Force a re-render
-                  this.setState({state: this.state});
-                  return;
-              }
-
-              // The response to the PUT request said we're
-              // good, but it's possible the status was changed
-              // back to the original. So update the status
-              // based on what the response said the value was.
-              this.state.data.Data[i][4] = response.headers.get('X-StatusDesc');
-              this.setState({state: this.state});
-          }).catch(() => {
-              // Something went wrong, restore the original
-              // status and description
-              this.state.data.Data[i][3] = odesc;
-              this.state.data.Data[i][4] = ostat;
-
-              // Force a re-render
-              this.setState({state: this.state});
-          });
-      });
-    };
-  }
-
-  /**
    * Retrive data from the provided URL and save it in state
    *
    * @return {object}
@@ -159,9 +50,7 @@ class DataDictIndex extends Component {
   fetchData() {
     return fetch(this.props.dataURL, {credentials: 'same-origin'})
         .then((resp) => resp.json())
-        .then((data) => {
-            this.setState({data});
-        })
+        .then((data) => this.setState({data}))
         .catch((error) => {
             this.setState({error: true});
             console.error(error);
@@ -180,31 +69,27 @@ class DataDictIndex extends Component {
    */
   formatColumn(column, cell, rowData, rowHeaders) {
     const hasEditPermission = loris.userHasPermission('data_dict_edit');
-    let editIcon = '';
-    let edited='';
-    switch (column) {
-    case 'Description':
-      if (hasEditPermission) {
-          editIcon = (<i className="fas fa-edit"
-            style={{cursor: 'pointer'}}
-            onClick={this.editSwal(rowData)}>
-          </i>);
-      }
+    if (column === 'Description' && hasEditPermission) {
+      let updateDict = (name) => {
+        return (e) => {
+          e.stopPropagation();
 
-      if (rowData['Description Status'] == 'Modified') {
-          edited = <span>(edited)</span>;
-      }
-      return <td>{cell}
-            <span style={{color: '#838383'}}>{edited} {editIcon} </span>
-      </td>;
-    case 'Data Type':
-      if (cell == 'enumeration') {
-          cell = rowData['Field Options'].join(';');
-      }
-      return <td>{cell}</td>;
-    default:
-      return <td>{cell}</td>;
+          let value = e.target.valueOf().innerText;
+          $.post(loris.BaseURL + '/datadict/ajax/UpdateDataDict.php', {
+            fieldname: name, description: value,
+          }, (data) => {});
+        };
+      };
+      return (
+        <td
+          contentEditable="true"
+          className="description"
+          onBlur={updateDict(rowData.Name)}>
+            {cell}
+        </td>
+      );
     }
+    return <td>{cell}</td>;
   }
 
   /**
@@ -225,30 +110,27 @@ class DataDictIndex extends Component {
     let options = this.state.data.fieldOptions;
     let fields = [
         {
-            label: 'Module',
+            label: 'Source From',
             show: true,
             filter: {
-                name: 'Module',
+                name: 'Source From',
                 type: 'select',
-                options: options.modules,
+                options: options.sourceFrom,
             },
         },
         {
-            label: 'Category',
-            show: false,
-            filter: {
-                name: 'Category',
-                type: 'select',
-                options: this.state.moduleFilter == ''
-                    ? {}
-                    : options.categories[this.state.moduleFilter],
-            },
-        },
-        {
-            label: 'Field Name',
+            label: 'Name',
             show: true,
             filter: {
                 name: 'Name',
+                type: 'text',
+            },
+        },
+        {
+            label: 'Source Field',
+            show: true,
+            filter: {
+                name: 'Source Field',
                 type: 'text',
             },
         },
@@ -262,7 +144,7 @@ class DataDictIndex extends Component {
         },
         {
             label: 'Description Status',
-            show: false,
+            show: true,
             filter: {
                 name: 'DescriptionStatus',
                 type: 'select',
@@ -273,50 +155,6 @@ class DataDictIndex extends Component {
                 },
             },
         },
-        {
-            label: 'Data Scope',
-            show: true,
-            filter: {
-                name: 'datascope',
-                type: 'select',
-                options: {
-                    'candidate': 'Candidate',
-                    'session': 'Session',
-                    'project': 'Project',
-                },
-            },
-        },
-        {
-            label: 'Data Type',
-            show: true,
-            filter: {
-                name: 'datatype',
-                type: 'text',
-            },
-        },
-        {
-            label: 'Data Cardinality',
-            show: true,
-            filter: {
-                name: 'cardinality',
-                type: 'select',
-                options: {
-                    'unique': 'Unique',
-                    'single': 'Single',
-                    'optional': 'Optional',
-                    'many': 'Many',
-                },
-            },
-        },
-        {
-            // We may or may not have an 8th column depending
-            // on type, which we need for formatting other columns.
-            // We don't show or display a filter because it's only
-            // valid for some data types.
-            label: 'Field Options',
-            show: false,
-            filter: null,
-        },
     ];
     return (
         <FilterableDataTable
@@ -324,7 +162,6 @@ class DataDictIndex extends Component {
            data={this.state.data.Data}
            fields={fields}
            getFormattedCell={this.formatColumn}
-           updateFilterCallback={this.updateFilter}
         />
     );
   }
@@ -338,7 +175,6 @@ window.addEventListener('load', () => {
   ReactDOM.render(
       <DataDictIndex
         dataURL={`${loris.BaseURL}/datadict/?format=json`}
-        BaseURL={loris.BaseURL}
       />,
       document.getElementById('lorisworkspace')
   );
