@@ -15,6 +15,15 @@ class DictionaryItem implements \LORIS\StudyEntities\AccessibleResource
     protected $scope;
     protected $typ;
 
+    /**
+     * Construct a DictionaryItem with the given parameters
+     *
+     * @param string $name   The field name of the dictionary item
+     * @param string $desc   The dictionary item's description
+     * @param Scope  $scope  The scope to which this DictionaryItem applies
+     * @param Type   $t      The data type of this dictionary item
+     * @param Cardinality $c The data cardinality
+     */
     public function __construct(string $name, string $desc, Scope $scope, Type $t, Cardinality $c)
     {
         $this->name        = $name;
