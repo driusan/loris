@@ -290,6 +290,7 @@ const config = [
   lorisModule('instruments', ['CandidateInstrumentList']),
   lorisModule('candidate_profile', ['CandidateInfo']),
   lorisModule('datadict', ['dataDictIndex']),
+  lorisModule('dictionary', ['dataDictIndex']),
 ];
 
 // Support project overrides
