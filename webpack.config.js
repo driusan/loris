@@ -310,6 +310,7 @@ const config = [
   lorisModule('candidate_profile', ['CandidateInfo']),
   lorisModule('api_docs', ['swagger-ui_custom']),
   lorisModule('datadict', ['dataDictIndex']),
+  lorisModule('dictionary', ['dataDictIndex']),
 ];
 
 // Support project overrides
