@@ -15,6 +15,7 @@ trait LorisFormDictionaryImpl
      * Recursively extract non-group elements from $elements, and
      * return the dictionary of the items.
      *
+     * @param string   $prefix     The prefix for recursive groups
      * @param Category $cat        The dictionary category to use for the
      *                             items
      * @param array    $elements   The LorisForm elements in the format
@@ -32,7 +33,7 @@ trait LorisFormDictionaryImpl
     ) : array {
         $items = [];
         $scope = new Scope(Scope::Session);
-        $card = new Cardinality(Cardinality::Single);
+        $card  = new Cardinality(Cardinality::Single);
         foreach ($elements AS $element) {
             if (!empty($element['label'])) {
                 $label = str_replace("&nbsp;", "", $element['label']);
@@ -67,11 +68,11 @@ trait LorisFormDictionaryImpl
                 // the array and coerce things to a string.
                 $keys = [];
                 foreach ($element['options'] as $key => $val) {
-                    if($key === '' || $key === null) {
+                    if ($key === '' || $key === null) {
                         continue;
                     }
 
-                    // Coerce it to a string 
+                    // Coerce it to a string
                     $keys[] = "$key";
                 }
                 $t = new \LORIS\Data\Types\Enumeration(...$keys);
@@ -97,9 +98,17 @@ trait LorisFormDictionaryImpl
             case 'header':
                 continue 2;
             default:
-                throw new \LorisException("Unknown element type: " . $element['type']);
+                throw new \LorisException(
+                    "Unknown element type: " . $element['type']
+                );
             }
-            $items[] = new DictionaryItem($prefix . $element['name'], $label, $scope, $t, $card);
+            $items[] = new DictionaryItem(
+                $prefix . $element['name'],
+                $label,
+                $scope,
+                $t,
+                $card
+            );
         }
         return $items;
     }
@@ -121,6 +130,11 @@ trait LorisFormDictionaryImpl
 
         $formElements = $this->form->toElementArray();
         $cat          = new Category($this->testName, $this->getFullName());
-        return $this->_getDataDictionaryGroup($this->testName . "_", $cat, $formElements["elements"], '');
+        return $this->_getDataDictionaryGroup(
+            $this->testName . "_",
+            $cat,
+            $formElements["elements"],
+            ''
+        );
     }
 }

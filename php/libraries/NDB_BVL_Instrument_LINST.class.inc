@@ -715,8 +715,8 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                     $this->selectMultipleElements[] = $pieces[1];
                     // fall through and also execute select code below
                 case 'select':
-                    $options = preg_split("/{-}/", trim($pieces[3]));
-                    $opt     = [];
+                    $options  = preg_split("/{-}/", trim($pieces[3]));
+                    $opt      = [];
                     $dictopts = [];
 
                     foreach ($options as $o) {
@@ -732,7 +732,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $val = substr($val, 1, -1);
                         }
 
-                        if($key !== '') {
+                        if ($key !== '') {
                             $dictopts[] = $key;
                         }
                         $opt[$key] = $val;
@@ -783,11 +783,17 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $firstFieldOfPage          = false;
                     }
 
-                    $t = new Enumeration(...$dictopts);
-                    $it = new DictionaryItem($pieces[1], $pieces[2], $scope, $t, new Cardinality(Cardinality::Single));
+                    $t  = new Enumeration(...$dictopts);
+                    $it = new DictionaryItem(
+                        $pieces[1],
+                        $pieces[2],
+                        $scope,
+                        $t,
+                        new Cardinality(Cardinality::Single)
+                    );
                     $this->dictionary[] = $it;
 
-                    $this->LinstQuestions[$pieces[1]] = array('type' => 'select');
+                    $this->LinstQuestions[$pieces[1]] = ['type' => 'select'];
                     break;
                 case 'header':
                     if ($addElements) {
@@ -814,12 +820,17 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             );
                         }
                     }
-                    if(!empty($pieces[1])) {
+                    if (!empty($pieces[1])) {
                         $this->LinstQuestions[$pieces[1]]
-                            = array('type' => 'score');
+                            = ['type' => 'score'];
 
-                        $this->dictionary[]
-                            = new DictionaryItem($pieces[1], $pieces[2], $scope, new StringType(255), new Cardinality(Cardinality::Single));
+                        $this->dictionary[] = new DictionaryItem(
+                            $pieces[1],
+                            $pieces[2],
+                            $scope,
+                            new StringType(255),
+                            new Cardinality(Cardinality::Single)
+                        );
                     }
                     break;
                 default:

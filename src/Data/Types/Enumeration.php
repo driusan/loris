@@ -1,30 +1,65 @@
 <?php
 namespace LORIS\Data\Types;
+
 /**
- * A Scope represents the scope that a DataPoint applies to.
+ * A Enumeration represents a data type where the value must be one of
+ * a specific list of option.
  *
- * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
-class Enumeration implements \LORIS\Data\Type {
+class Enumeration implements \LORIS\Data\Type
+{
     protected $options = [];
 
-    public function __construct(string ...$values) {
+    /**
+     * Construct an Enumeration type
+     *
+     * @param string ...$values The options for this enumeration
+     */
+    public function __construct(string ...$values)
+    {
         $this->options = $values;
     }
 
-    public function getOptions() : array {
+    /**
+     * Return an array of the options which are valid for this
+     * enumeration
+     *
+     * @return string[]
+     */
+    public function getOptions() : array
+    {
         return $this->options;
     }
 
-    public function __toString() {
+    /**
+     * Represent the type as a string
+     *
+     * @return string
+     */
+    public function __toString()
+    {
         return "enumeration";
     }
 
-    public function jsonSerialize() {
+    /**
+     * Serialize to JSON by converting to a string
+     *
+     * @return string
+     */
+    public function jsonSerialize()
+    {
         return $this->__toString();
     }
-    public function asSQLType() {
-        // FIXME: Escape options
+
+    /**
+     * Represent the enumeration as an enum SQL type with
+     * the valid options.
+     *
+     * @return string
+     */
+    public function asSQLType()
+    {
         return "enum(" . join(",", $this->options) . ")";
     }
 }

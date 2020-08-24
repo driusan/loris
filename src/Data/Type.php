@@ -1,17 +1,24 @@
 <?php
 namespace LORIS\Data;
+
 /**
- * A Scope represents the scope that a DataPoint applies to.
+ * A \LORIS\Data\Type represents one of the different types
+ * of data that can be managed by LORIS.
  *
- *
- * @category   Data
- * @package    Main
- * @subpackage Data
- * @author     Dave MacFarlane <david.macfarlane2@mcgill.ca>
- * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- * @link       https://www.github.com/aces/Loris/
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
-interface Type extends \JsonSerializable {
+interface Type extends \JsonSerializable
+{
+    /**
+     * Types must be serializeable to both string and JSON
+     */
     public function __toString();
-    public function asSQLType();
+
+    /**
+     * Convert a type to a valid SQL representation that
+     * can store that type.
+     *
+     * @return string
+     */
+    public function asSQLType() : string;
 }

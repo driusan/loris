@@ -1,16 +1,4 @@
 <?php
-/**
- * This file provides an implementation of the UserProjectMatch filter.
- *
- * PHP Version 7
- *
- * @category   Data
- * @package    Main
- * @subpackage Data
- * @author     Dave MacFarlane <david.macfarlane2@mcgill.ca>
- * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- * @link       https://www.github.com/aces/Loris/
- */
 namespace LORIS\Data\Filters;
 
 /**
@@ -19,12 +7,7 @@ namespace LORIS\Data\Filters;
  *
  * It filters out any rows which the user does not have access to.
  *
- * @category   Data
- * @package    Main
- * @subpackage Data
- * @author     Dave MacFarlane <david.macfarlane2@mcgill.ca>
- * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
- * @link       https://www.github.com/aces/Loris/
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
 class AccessibleResourceFilter implements \LORIS\Data\Filter
 {
@@ -45,4 +28,3 @@ class AccessibleResourceFilter implements \LORIS\Data\Filter
         return $resource->isAccessibleBy($user);
     }
 }
-

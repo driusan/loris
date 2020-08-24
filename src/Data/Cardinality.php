@@ -1,12 +1,17 @@
 <?php
 namespace LORIS\Data;
+
 /**
  * Cardinality represents the number of data points which
  * apply to the scope of a data type.
  *
- * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
+ * Since the Cardinality class represents an enumeration, the
+ * class is final.
+ *
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
-class Cardinality implements \JsonSerializable {
+final class Cardinality implements \JsonSerializable
+{
     // Valid cardinality types for data to apply to.
 
     /**
@@ -15,28 +20,28 @@ class Cardinality implements \JsonSerializable {
      * for the candidate scope or VisitLabel for the Session
      * scope.
      */
-    const Unique = 1;
+    const UNIQUE = 1;
 
     /**
      * A Single Cardinality signifies that each data point in
      * the scope should have exactly one value. For instance,
      * date of birth for a candidate in the candidate scope.
      */
-    const Single = 2;
+    const SINGLE = 2;
 
     /**
      * An Optional Cardinality signifies that each data point
      * in the scope may have zero or one value. For instance,
      * the date of death for a candidate in the candidate scope.
      */
-    const Optional= 3;
+    const OPTIONAL = 3;
 
     /**
      * A Many Cardinality signifies that each data point will
      * have zero or more values associated. For instance,
      * the T1 scans acquired at a session.
      */
-    const Many = 4;
+    const MANY = 4;
 
     protected $cardinality;
 
@@ -44,18 +49,19 @@ class Cardinality implements \JsonSerializable {
      * Constructs a Scope object. $scope should be a class constant
      * to construct the scope for, not an int literal.
      *
-     * @param int $scope The scope 
+     * @param int $scope The scope
      */
-    public function __construct(int $card) {
-        switch($card) {
-        case self::Unique: // fallthrough
-        case self::Single: // fallthrough
-        case self::Optional: // fallthrough
-        case self::Many: // fallthrough
-            $this->cardinality = $card;
-            break;
-        default:
-            throw new \DomainException("Invalid cardinality");
+    public function __construct(int $card)
+    {
+        switch ($card) {
+            case self::UNIQUE: // fallthrough
+            case self::SINGLE: // fallthrough
+            case self::OPTIONAL: // fallthrough
+            case self::MANY: // fallthrough
+                $this->cardinality = $card;
+                break;
+            default:
+                throw new \DomainException("Invalid cardinality");
         }
     }
 
@@ -63,24 +69,32 @@ class Cardinality implements \JsonSerializable {
      * Convert the enumeration from a memory-friendly integer to a
      * human-readable string when used in a string context.
      *
-     * @return string 
+     * @return string
      */
-    public function __toString() : string {
-        switch($this->cardinality) {
-        case self::Unique: // fallthrough
-            return "unique";
-        case self::Single: // fallthrough
-            return "single";
-        case self::Optional: // fallthrough
-            return "optional";
-        case self::Many: // fallthrough
-            return "many";
-        default:
-            return "invalid cardinality";
+    public function __toString() : string
+    {
+        switch ($this->cardinality) {
+            case self::UNIQUE: // fallthrough
+                return "unique";
+            case self::SINGLE: // fallthrough
+                return "single";
+            case self::OPTIONAL: // fallthrough
+                return "optional";
+            case self::MANY: // fallthrough
+                return "many";
+            default:
+                return "invalid cardinality";
         }
     }
 
-    public function jsonSerialize() {
+    /**
+     * Implement the JsonSerializable interface by
+     * converting to a string
+     *
+     * @return string
+     */
+    public function jsonSerialize() : string
+    {
         return $this->__toString();
     }
 }
