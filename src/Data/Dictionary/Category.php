@@ -17,11 +17,11 @@ class Category
     /**
      * Construct a dictionary Category
      *
-     * @param string $name            The machine name of the category
-     * @param string $desc            The human readable description of
-     *                                the category
-     * @param DictionaryItem[] $items An optional iterable of items which
-     *                                the category contains.
+     * @param string $name             The machine name of the category
+     * @param string $desc             The human readable description of
+     *                                 the category
+     * @param ?DictionaryItem[] $items An optional iterable of items which
+     *                                 the category contains.
      */
     public function __construct(string $name, string $desc, ?iterable $items = null)
     {
@@ -53,7 +53,7 @@ class Category
     /**
      * Return the items which belong to the Category
      *
-     * @return string
+     * @return ?DictionaryItem[]
      */
     public function getItems() : ?iterable
     {

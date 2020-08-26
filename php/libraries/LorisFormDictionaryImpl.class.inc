@@ -32,8 +32,8 @@ trait LorisFormDictionaryImpl
         string $groupLabel=''
     ) : array {
         $items = [];
-        $scope = new Scope(Scope::Session);
-        $card  = new Cardinality(Cardinality::Single);
+        $scope = new Scope(Scope::SESSION);
+        $card  = new Cardinality(Cardinality::SINGLE);
         foreach ($elements AS $element) {
             if (!empty($element['label'])) {
                 $label = str_replace("&nbsp;", "", $element['label']);
@@ -58,6 +58,8 @@ trait LorisFormDictionaryImpl
             if (!array_key_exists('name', $element)) {
                 continue;
             }
+
+            $t = null;
 
             switch($element['type']) {
             case 'select':

@@ -154,7 +154,7 @@ class Module extends \Module
      * @param \LORIS\LorisInstance $loris The loris instance whose dictionary
      *                                    should be retrieved
      *
-     * @return \LORIS\Data\Dictionary\DictionaryItem[]
+     * @return \LORIS\Data\Dictionary\Category[]
      */
     public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
     {

@@ -201,8 +201,8 @@ class Module extends \Module
      */
     public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
     {
-        $candscope = new Scope(Scope::Candidate);
-        $sesscope  = new Scope(Scope::Session);
+        $candscope = new Scope(Scope::CANDIDATE);
+        $sesscope  = new Scope(Scope::SESSION);
 
         $ids = new \LORIS\Data\Dictionary\Category(
             "Identifiers",
@@ -216,14 +216,14 @@ class Module extends \Module
                     "LORIS Candidate Identifier",
                     $candscope,
                     new \LORIS\Data\Types\IntegerType(999999),
-                    new Cardinality(Cardinality::Unique),
+                    new Cardinality(Cardinality::UNIQUE),
                 ),
                 new DictionaryItem(
                     "PSCID",
                     "Project Candidate Identifier",
                     $candscope,
                     new \LORIS\Data\Types\StringType(255),
-                    new Cardinality(Cardinality::Unique),
+                    new Cardinality(Cardinality::UNIQUE),
                 ),
             ]
         );
@@ -239,21 +239,21 @@ class Module extends \Module
                     "Date of Birth",
                     $candscope,
                     new \LORIS\Data\Types\DateType(),
-                    new Cardinality(Cardinality::Single),
+                    new Cardinality(Cardinality::SINGLE),
                 ),
                 new DictionaryItem(
                     "DoD",
                     "Date of Death",
                     $candscope,
                     new \LORIS\Data\Types\DateType(),
-                    new Cardinality(Cardinality::Optional),
+                    new Cardinality(Cardinality::OPTIONAL),
                 ),
                 new DictionaryItem(
                     "Sex",
                     "Candidate's biological sex",
                     $candscope,
                     new \LORIS\Data\Types\Enumeration('Male', 'Female', 'Other'),
-                    new Cardinality(Cardinality::Single),
+                    new Cardinality(Cardinality::SINGLE),
                 ),
             ]
         );
@@ -266,28 +266,28 @@ class Module extends \Module
                     "The study visit label",
                     $sesscope,
                     new \LORIS\Data\Types\StringType(255),
-                    new Cardinality(Cardinality::Unique),
+                    new Cardinality(Cardinality::UNIQUE),
                 ),
                 new DictionaryItem(
                     "Project",
                     "The LORIS project to categorize this session",
                     $sesscope,
                     new \LORIS\Data\Types\StringType(255),
-                    new Cardinality(Cardinality::Single),
+                    new Cardinality(Cardinality::SINGLE),
                 ),
                 new DictionaryItem(
                     "Subproject",
                     "The LORIS subproject used for battery selection",
                     $sesscope,
                     new \LORIS\Data\Types\StringType(255),
-                    new Cardinality(Cardinality::Single),
+                    new Cardinality(Cardinality::SINGLE),
                 ),
                 new DictionaryItem(
                     "Site",
                     "The Site at which a visit occurred",
                     $sesscope,
                     new \LORIS\Data\Types\Enumeration(...\Utility::getSiteList()),
-                    new Cardinality(Cardinality::Single),
+                    new Cardinality(Cardinality::SINGLE),
                 ),
             ]
         );

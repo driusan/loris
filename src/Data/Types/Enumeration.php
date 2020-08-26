@@ -58,7 +58,7 @@ class Enumeration implements \LORIS\Data\Type
      *
      * @return string
      */
-    public function asSQLType()
+    public function asSQLType() : string
     {
         return "enum(" . join(",", $this->options) . ")";
     }

@@ -398,7 +398,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
      */
     function loadInstrumentFile(string $filename, bool $base64 = false): void
     {
-        $scope = new Scope(Scope::Session);
+        $scope = new Scope(Scope::SESSION);
         if (file_exists($filename) || $base64 === true) {
             $this->InstrumentType = 'LINST';
             $db = \Database::singleton();
@@ -490,21 +490,21 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                                 'Date of Administration',
                                 $scope,
                                 new \LORIS\Data\Types\DateType(),
-                                new Cardinality(Cardinality::Single),
+                                new Cardinality(Cardinality::SINGLE),
                             ),
                             new DictionaryItem(
                                 'Candidate_age',
                                 'Candidate Age (Months)',
                                 $scope,
                                 new \LORIS\Data\Types\Interval(),
-                                new Cardinality(Cardinality::Single),
+                                new Cardinality(Cardinality::SINGLE),
                             ),
                             new DictionaryItem(
                                 'Window_Difference',
                                 'Window difference from test battery (days)',
                                 $scope,
                                 new \LORIS\Data\Types\Interval(),
-                                new Cardinality(Cardinality::Single),
+                                new Cardinality(Cardinality::SINGLE),
                             ),
                             new DictionaryItem(
                                 'Examiner',
@@ -512,7 +512,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                                 $scope,
                                 // Should this be an enum of examiners?
                                 new StringType(255),
-                                new Cardinality(Cardinality::Single),
+                                new Cardinality(Cardinality::SINGLE),
                             ),
                         ]
                     );
@@ -589,7 +589,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new StringType(255),
-                            new Cardinality(Cardinality::Single),
+                            new Cardinality(Cardinality::SINGLE),
                         );
                     }
                     if ($firstFieldOfPage) {
@@ -614,7 +614,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new StringType(),
-                            new Cardinality(Cardinality::Single),
+                            new Cardinality(Cardinality::SINGLE),
                         );
                     }
                     if ($firstFieldOfPage) {
@@ -649,7 +649,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new DateType(),
-                            new Cardinality(Cardinality::Single),
+                            new Cardinality(Cardinality::SINGLE),
                         );
 
                         // Set date format
@@ -694,7 +694,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new IntegerType(),
-                            new Cardinality(Cardinality::Single),
+                            new Cardinality(Cardinality::SINGLE),
                         );
                     }
                     if ($firstFieldOfPage) {
@@ -789,7 +789,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         $pieces[2],
                         $scope,
                         $t,
-                        new Cardinality(Cardinality::Single)
+                        new Cardinality(Cardinality::SINGLE)
                     );
                     $this->dictionary[] = $it;
 
@@ -829,7 +829,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             $pieces[2],
                             $scope,
                             new StringType(255),
-                            new Cardinality(Cardinality::Single)
+                            new Cardinality(Cardinality::SINGLE)
                         );
                     }
                     break;
