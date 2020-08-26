@@ -35,7 +35,7 @@ class TimeType implements \LORIS\Data\Type
      *
      * @return string
      */
-    public function asSQLType()
+    public function asSQLType() : string
     {
         return "varchar(255)";
     }

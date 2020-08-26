@@ -46,7 +46,7 @@ class IntegerType implements \LORIS\Data\Type
      *
      * @return string
      */
-    public function asSQLType()
+    public function asSQLType() : string
     {
         return "integer";
     }

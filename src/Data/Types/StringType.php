@@ -47,7 +47,7 @@ class StringType implements \LORIS\Data\Type
      *
      * @return string
      */
-    public function asSQLType()
+    public function asSQLType() : string
     {
         if ($this->size === null) {
             return "text";

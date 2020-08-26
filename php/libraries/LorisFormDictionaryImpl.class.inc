@@ -67,7 +67,7 @@ trait LorisFormDictionaryImpl
                 // ignore null/empty, so instead we just walk through
                 // the array and coerce things to a string.
                 $keys = [];
-                foreach ($element['options'] as $key => $val) {
+                foreach (array_keys($element['options']) as $key) {
                     if ($key === '' || $key === null) {
                         continue;
                     }

@@ -40,7 +40,7 @@ class DecimalType implements \LORIS\Data\Type
      * A DecimalType is represented by the SQL decimal column
      * type
      */
-    public function asSQLType()
+    public function asSQLType() : string
     {
         return "decimal";
     }
