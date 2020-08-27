@@ -771,7 +771,7 @@ function CandidatesIndex(props) {
 
         const fetchData = async () => {
             fetch(
-                props.CategoriesURL + '?module=' + curmodule,
+                props.ModuleDictURLBase + curmodule,
                 {credentials: 'same-origin'}
             ).then((response) => response.json())
             .then((result) => {
@@ -874,7 +874,8 @@ function CandidatesIndex(props) {
 window.addEventListener('load', () => {
   ReactDOM.render(
       <CandidatesIndex
-        CategoriesURL={loris.BaseURL + '/datadict/categories'}
+        CategoriesURL={loris.BaseURL + '/dictionary/categories'}
+        ModuleDictURLBase={loris.BaseURL + '/dictionary/module/'}
         SearchURL={loris.BaseURL + '/candidates/search'}
         VisitListURL={loris.BaseURL + '/candidates/visitlist'}
       />,
