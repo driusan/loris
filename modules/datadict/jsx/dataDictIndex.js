@@ -147,7 +147,8 @@ class DataDictIndex extends Component {
             filter: {
                 name: 'Category',
                 type: 'select',
-                options: this.state.moduleFilter == '' ? {} : options.categories[this.state.moduleFilter],
+                options: this.state.moduleFilter == ''
+                    ? {} : options.categories[this.state.moduleFilter],
             },
         },
         {
