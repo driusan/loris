@@ -315,6 +315,7 @@ const lorisModules = {
   api_docs: ['swagger-ui_custom'],
   datadict: ['dataDictIndex'],
   dictionary: ['dataDictIndex'],
+  candidates: ['index'],
 };
 for (const [key] of Object.entries(lorisModules)) {
   const target = process.env.target;
