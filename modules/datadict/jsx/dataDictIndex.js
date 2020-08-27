@@ -108,7 +108,6 @@ class DataDictIndex extends Component {
     }
 
     let options = this.state.data.fieldOptions;
-    console.log(this.state);
     let fields = [
         {
             label: 'Module',
@@ -125,7 +124,8 @@ class DataDictIndex extends Component {
             filter: {
                 name: 'Category',
                 type: 'select',
-                options: this.state.moduleFilter == '' ? {} : options.categories[this.state.moduleFilter],
+                options: this.state.moduleFilter == ''
+                    ? {} : options.categories[this.state.moduleFilter],
             },
         },
         {

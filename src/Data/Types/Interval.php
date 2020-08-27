@@ -13,7 +13,7 @@ class Interval implements \LORIS\Data\Type {
     public function jsonSerialize() {
         return $this->__toString();
     }
-    public function asSQLType() {
+    public function asSQLType() : string {
         return "varchar(255)";
     }
 }

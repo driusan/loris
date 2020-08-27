@@ -266,6 +266,7 @@ const config = [
   lorisModule('candidate_profile', ['CandidateInfo']),
   lorisModule('datadict', ['dataDictIndex']),
   lorisModule('dictionary', ['dataDictIndex']),
+  lorisModule('candidates', ['index']),
 ];
 
 // Support project overrides
