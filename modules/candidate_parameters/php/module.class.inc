@@ -565,9 +565,9 @@ class Module extends \Module
 
             if ($visitlist != null) {
                 $inset = [];
-                $i = count($prepbindings);
+                $i = count($prepbindings)+1;
                 foreach($visitlist as $vl) {
-                    $prepname = ':val' . $i++;
+                    $prepname = ':val' . ++$i;
                     $inset[] = $prepname;
                     $prepbindings[$prepname] = $vl;
                 }
@@ -603,6 +603,9 @@ class Module extends \Module
      * @return DataInstance[]
      */
     public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
+        if (count($candidates) == 0) {
+            return [];
+        }
         $fields = [];
         $joinsession = ($visitlist !== null);
         $joinpsc = false;
