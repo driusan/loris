@@ -2,7 +2,7 @@
 
 namespace LORIS\Data\Query\Criteria;
 
-class NotNull {
+class NotNull  implements \LORIS\Data\Query\Criteria {
     public function __construct() {
     }
 
