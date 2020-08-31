@@ -1,8 +1,8 @@
 <?php
-
 namespace LORIS\Data\Query\Criteria;
+use LORIS\Data\Query\Criteria;
 
-class Equal {
+class Equal implements Criteria {
     public function __construct($val) {
         $this->val = $val;
     }

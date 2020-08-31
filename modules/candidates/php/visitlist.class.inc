@@ -23,7 +23,7 @@ class VisitList extends \NDB_Page {
 
         return new \LORIS\Http\Response\JSON\OK(
             [
-                'Visits' => $this->itemmodule->getVisitList($this->itemcategory, $this->dictionaryitem),
+                'Visits' => $this->itemmodule->getQueryEngine()->getVisitList($this->itemcategory, $this->dictionaryitem),
             ],
         );
     }
@@ -53,7 +53,7 @@ class VisitList extends \NDB_Page {
             }
 
             $this->itemmodule = $module;
-            $mdict = $module->getDataDictionary($this->lorisinstance);
+            $mdict = $module->getQueryEngine()->getDataDictionary();
 
             if(count($mdict) > 0) {
                 foreach($mdict as $cat) {
