@@ -151,13 +151,9 @@ class Module extends \Module
     /**
      * Return the data dictionary for all instruments installed on a LORIS
      * instance.
-     *
-     * @param \LORIS\LorisInstance $loris The loris instance whose dictionary
-     *                                    should be retrieved
-     *
      * @return \LORIS\Data\Dictionary\Category[]
      */
-    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
+    public function getQueryEngine() : \LORIS\Data\Query\QueryEngine
     {
         $tests = array_keys(\Utility::getAllInstruments());
 

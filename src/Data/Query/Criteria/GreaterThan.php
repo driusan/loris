@@ -1,8 +1,9 @@
 <?php
-
 namespace LORIS\Data\Query\Criteria;
+use LORIS\Data\Query\Criteria;
 
-class GreaterThan {
+
+class GreaterThan implements Criteria {
     public function __construct($val) {
         $this->val = $val;
     }

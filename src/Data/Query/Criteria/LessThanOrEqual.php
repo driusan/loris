@@ -2,7 +2,7 @@
 
 namespace LORIS\Data\Query\Criteria;
 
-class LessThanOrEqual {
+class LessThanOrEqual  implements \LORIS\Data\Query\Criteria {
     public function __construct($val) {
         $this->val = $val;
     }
