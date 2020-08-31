@@ -158,7 +158,7 @@ class Module extends \Module
             // on a session scope with a Many cardinality.
             $items[] = new ImagingDictionaryItem(
                 $ScanType  . "_QCStatus",
-                "Quality Control status for $ScanType acquisition",
+                "Quality control status for $ScanType acquisition",
                 $scope,
                 new \LORIS\Data\Types\Enumeration("Pass", "Fail"),
                 new Cardinality(Cardinality::MANY),
@@ -234,5 +234,28 @@ class Module extends \Module
         // Fall back on all visits if something ends up getting
         // added that we can't derive the modality of.
         return array_keys(\Utility::getVisitList());
+    }
+
+    public function getCandidateMatches(array $criteria, ?array $visitlist=null) : iterable {
+        if (count($criteria) != 1) {
+            throw new \Exception("Not implemented");
+        }
+        foreach($criteria as $crit) {
+        }
+        // (modality) acquisition location
+        //      =
+        //      !=
+        //      exists
+        //      does not exist
+        //      number of
+        //
+        // (modality) qc status
+        //      =
+        //      !=
+        //      in
+        //      exists
+        //      does not exist
+        //      number of
+        return [];
     }
 }
