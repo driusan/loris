@@ -2,7 +2,7 @@
 
 namespace LORIS\Data\Query\Criteria;
 
-class In
+class In implements \LORIS\Data\Query\Criteria
 {
     public function __construct(...$val)
     {
