@@ -1017,7 +1017,12 @@ abstract class NDB_BVL_Instrument extends NDB_Page
         }
 
         $candID    = $_REQUEST['candID'] ?? '';
-        $sessionID = $this->getSessionID();
+        $sessionID = null;
+        try {
+            $sessionID = $this->getSessionID();
+        } catch (\NotFound $e) {
+            $sessionID = null;
+        }
 
         $project = $db->pselectOne(
             "SELECT ProjectID from session where CandID =:cnd_id AND ID=:sid",
