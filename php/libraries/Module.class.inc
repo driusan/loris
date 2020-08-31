@@ -161,6 +161,12 @@ abstract class Module extends \LORIS\Router\PrefixRouter
         return $cls;
     }
 
+    static public function factoryWithInstance(string $name, $loris): \Module
+    {
+        $m = self::factory($name);
+        $m->lorisinstance = $loris;
+        return $m;
+    }
     /**
      * Creates a new module instance
      *
@@ -538,5 +544,9 @@ abstract class Module extends \LORIS\Router\PrefixRouter
     public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
     {
         return [];
+    }
+
+    public function getQueryEngine() : \LORIS\Data\Query\QueryEngine {
+        return new \LORIS\Data\Query\NullQueryEngine();
     }
 }
