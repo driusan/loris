@@ -206,11 +206,24 @@ class Module extends \Module
                 throw new \DomainException("Field for unknown instrument");
             }
 
-            $data = $DB->pselect("SELECT c.CandID, f.CommentID
+            $query = "SELECT c.CandID, f.CommentID
                 FROM flag f 
                     JOIN session s ON (s.ID=f.SessionID AND s.Active='Y')
                     JOIN candidate c ON (s.CandID=c.CandID AND c.Active='Y')
-                WHERE Test_name=:tn AND f.CommentID NOT LIKE 'DDE%'", ['tn' => $testname]);
+                WHERE Test_name=:tn AND f.CommentID NOT LIKE 'DDE%'";
+            $queryparams = ['tn' => $testname];
+            if ($visitlist !== null) {
+                $query .= ' AND s.Visit_label IN (';
+                foreach ($visitlist as $vnum => $visit) {
+                    if ($vnum !== 0) {
+                        $query .=', ';
+                    }
+                    $query .= ":visit$vnum";
+                    $queryparams["visit$vnum"] = $visit;
+                }
+                $query .= ')';
+            }
+            $data = $DB->pselect($query, $queryparams);
             $inst = \NDB_BVL_Instrument::factory($testname);
             $values = $inst->bulkLoadInstanceData(array_map(function($row) {
                 return $row['CommentID'];
