@@ -84,11 +84,12 @@ class Search extends \NDB_Page
     public function doSearch(array $crit, array $fields) : ResponseInterface {
         $results = [];
         foreach($crit as $modulename => $crit) {
+            $lastvisitlist = null;
             $criteria = [];
             $module = \Module::factory($modulename);
             $dict = $this->getFlattenedDictionary($module);
 
-            foreach ($crit as $query) {
+            foreach ($crit as $fieldnum => $query) {
                 $dictitem = $dict[$query['field']];
                 switch ($query['op']) {
                 case 'lt':
@@ -130,14 +131,25 @@ class Search extends \NDB_Page
                 default:
                     throw new \Exception("Unhandled operator");
                 }
+
+                $visitlist = null;
+                if (isset($query['visits'])) {
+                    $visitlist = $query['visits'];
+                }
+
+                $matches = $module->getCandidateMatches($criteria, $visitlist);
+                if (is_array($matches)) {
+                    $results[] = $matches;
+                } else {
+                    $results[] = iterator_to_array($matches);
+                }
+
+                // FIXME: This only needs to be reset if the visitlist or module
+                // changed, not re-settting it lets modules build more efficient
+                // queries
+                $criteria = [];
             }
 
-            $matches = $module->getCandidateMatches($criteria, null);
-            if (is_array($matches)) {
-                $results[] = $matches;
-            } else {
-                $results[] = iterator_to_array($matches);
-            }
         }
 
         $combinedresult = [];
@@ -163,7 +175,11 @@ class Search extends \NDB_Page
                 $fielddict[] = $flatdict[$fieldname];
             }
 
-            $vals = array_merge($vals, iterator_to_array($module->getCandidateData($fielddict, $candidates, null)));
+            $asarray = $module->getCandidateData($fielddict, $candidates, null);
+            if (!is_array($asarray)) {
+                $asarray = iterator_to_array($asarray);
+            }
+            $vals = array_merge($vals, $asarray);
         }
 
         return new \LORIS\Http\Response\JSON\OK(
