@@ -16,7 +16,7 @@ use \Psr\Http\Message\ResponseInterface;
 
 use LORIS\StudyEntities\Candidate\CandID;
 
-use \LORIS\Data\Query\CandidateQuery;
+use \LORIS\Data\Query\QueryTerm;
 use \LORIS\Data\Query\Criteria\Equal;
 use \LORIS\Data\Query\Criteria\NotEqual;
 use \LORIS\Data\Query\Criteria\In;
@@ -84,49 +84,48 @@ class Search extends \NDB_Page
     public function doSearch(array $crit, array $fields) : ResponseInterface {
         $results = [];
         foreach($crit as $modulename => $crit) {
-            $lastvisitlist = null;
-            $criteria = [];
-            $module = \Module::factory($modulename);
-            $dict = $this->getFlattenedDictionary($module);
+            $engine = \Module::factoryWithInstance($modulename, $this->loris)->getQueryEngine();
+            $dict = $this->getFlattenedDictionary($engine);
 
             foreach ($crit as $fieldnum => $query) {
+                // Get a new engine for each term to reset the internal state
                 $dictitem = $dict[$query['field']];
                 switch ($query['op']) {
                 case 'lt':
-                    $criteria[] = new CandidateQuery($dictitem, new LessThan($query['value']));
+                    $criteria = new QueryTerm($dictitem, new LessThan($query['value']));
                     break;
                 case 'lte':
-                    $criteria[] = new CandidateQuery($dictitem, new LessThanOrEqual($query['value']));
+                    $criteria = new QueryTerm($dictitem, new LessThanOrEqual($query['value']));
                     break;
                 case 'eq':
-                    $criteria[] = new CandidateQuery($dictitem, new Equal($query['value']));
+                    $criteria = new QueryTerm($dictitem, new Equal($query['value']));
                     break;
                 case 'neq':
-                    $criteria[] = new CandidateQuery($dictitem, new NotEqual($query['value']));
+                    $criteria = new QueryTerm($dictitem, new NotEqual($query['value']));
                     break;
                 case 'gte':
-                    $criteria[] = new CandidateQuery($dictitem, new GreaterThanOrEqual($query['value']));
+                    $criteria = new QueryTerm($dictitem, new GreaterThanOrEqual($query['value']));
                     break;
                 case 'gt':
-                    $criteria[] = new CandidateQuery($dictitem, new GreaterThan($query['value']));
+                    $criteria = new QueryTerm($dictitem, new GreaterThan($query['value']));
                     break;
                 case 'startsWith':
-                    $criteria[] = new CandidateQuery($dictitem, new StartsWith($query['value']));
+                    $criteria = new QueryTerm($dictitem, new StartsWith($query['value']));
                     break;
                 case 'endsWith':
-                    $criteria[] = new CandidateQuery($dictitem, new EndsWith($query['value']));
+                    $criteria = new QueryTerm($dictitem, new EndsWith($query['value']));
                     break;
                 case 'contains':
-                    $criteria[] = new CandidateQuery($dictitem, new Substring($query['value']));
+                    $criteria = new QueryTerm($dictitem, new Substring($query['value']));
                     break;
                 case 'isnotnull':
-                    $criteria[] = new CandidateQuery($dictitem, new NotNull());
+                    $criteria = new QueryTerm($dictitem, new NotNull());
                     break;
                 case 'isnull':
-                    $criteria[] = new CandidateQuery($dictitem, new IsNull());
+                    $criteria = new QueryTerm($dictitem, new IsNull());
                     break;
                 case 'in':
-                    $criteria[] = new CandidateQuery($dictitem, new In(...$query['value']));
+                    $criteria = new QueryTerm($dictitem, new In(...$query['value']));
                     break;
                 default:
                     throw new \Exception("Unhandled operator");
@@ -137,19 +136,13 @@ class Search extends \NDB_Page
                     $visitlist = $query['visits'];
                 }
 
-                $matches = $module->getCandidateMatches($criteria, $visitlist);
+                $matches = $engine->getCandidateMatches($criteria, $visitlist);
                 if (is_array($matches)) {
                     $results[] = $matches;
                 } else {
                     $results[] = iterator_to_array($matches);
                 }
-
-                // FIXME: This only needs to be reset if the visitlist or module
-                // changed, not re-settting it lets modules build more efficient
-                // queries
-                $criteria = [];
             }
-
         }
 
         $combinedresult = [];
@@ -165,9 +158,9 @@ class Search extends \NDB_Page
         $vals = [];
 
         foreach ($fields as $modulename => $mfields) {
-            $module = \Module::factory($modulename);
+            $engine = \Module::factoryWithInstance($modulename, $this->loris)->getQueryEngine();
 
-            $flatdict = $this->getFlattenedDictionary($module);
+            $flatdict = $this->getFlattenedDictionary($engine);
 
             $fielddict = [];
 
@@ -175,7 +168,7 @@ class Search extends \NDB_Page
                 $fielddict[] = $flatdict[$fieldname];
             }
 
-            $asarray = $module->getCandidateData($fielddict, $candidates, null);
+            $asarray = $engine->getCandidateData($fielddict, $candidates, null);
             if (!is_array($asarray)) {
                 $asarray = iterator_to_array($asarray);
             }
@@ -187,8 +180,8 @@ class Search extends \NDB_Page
         );
     }
 
-    public function getFlattenedDictionary(\Module $module) {
-        $rawdict = $module->getDataDictionary($this->loris);
+    public function getFlattenedDictionary(\LORIS\Data\Query\QueryEngine $engine) {
+        $rawdict = $engine->getDataDictionary();
 
         // Flattened dictionary without categories
         $dict = [];

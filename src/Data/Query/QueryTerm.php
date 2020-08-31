@@ -1,8 +1,8 @@
 <?php
 namespace LORIS\Data\Query;
 
-class CandidateQuery {
-    function __construct($dictionary, $criteria) {
+class QueryTerm {
+    function __construct(\LORIS\Data\Dictionary\DictionaryItem $dictionary, Criteria $criteria) {
         $this->dictionary = $dictionary;
         $this->criteria= $criteria;
     }
