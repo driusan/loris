@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 namespace LORIS\Data\Query;
+use LORIS\Data\Query\Criteria;
+
 use LORIS\Data\Query\Criteria\Equal;
 use LORIS\Data\Query\Criteria\NotEqual;
 use LORIS\Data\Query\Criteria\LessThan;
@@ -169,7 +171,7 @@ abstract class SQLQueryEngine implements QueryEngine {
     }
 
     private $where;
-    protected function addWhereCriteria(string $fieldname, $criteria, array &$prepbindings) {
+    protected function addWhereCriteria(string $fieldname, Criteria $criteria, array &$prepbindings) {
         $this->where[] = $fieldname . ' ' 
             . $this->sqlOperator($criteria) . ' ' 
             . $this->sqlValue($criteria, $prepbindings);

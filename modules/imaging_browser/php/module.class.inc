@@ -135,7 +135,7 @@ class Module extends \Module
      *
      * @return \LORIS\Data\Dictionary\Category[]
      */
-    public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
+    public function getQueryEngine() : \LORIS\Data\Query\QueryEngine
     {
         $scope  = new Scope(Scope::SESSION);
         $images = new \LORIS\Data\Dictionary\Category(
