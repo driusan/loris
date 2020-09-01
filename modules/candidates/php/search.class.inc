@@ -128,7 +128,7 @@ class Search extends \NDB_Page
                     $criteria = new QueryTerm($dictitem, new In(...$query['value']));
                     break;
                 default:
-                    throw new \Exception("Unhandled operator");
+                    throw new \Exception("Unhandled operator: " . $query['op']);
                 }
 
                 $visitlist = null;
