@@ -198,7 +198,7 @@ function EditField(props) {
                 'in': 'in',
             };
         } else if (dict.type == 'string' ||
-            dict.type == 'uri') {
+            dict.type == 'URI') {
             // We might be looking for a substring.
             options = {
                 'eq': '=',
