@@ -836,6 +836,9 @@ function CandidatesIndex(props) {
                     'Sex',
                     'Project',
                 ],
+                'imaging_browser': [
+                    'ScanDone',
+                ],
             },
         };
 
