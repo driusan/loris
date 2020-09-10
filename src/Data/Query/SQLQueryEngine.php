@@ -189,4 +189,5 @@ abstract class SQLQueryEngine implements QueryEngine {
         $this->where = [];
         $this->tables = [];
     }
+
 }
