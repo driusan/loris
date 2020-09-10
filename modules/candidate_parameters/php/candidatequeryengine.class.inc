@@ -136,6 +136,7 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
     public function getCandidateMatches(\LORIS\Data\Query\QueryTerm $term, ?array $visitlist=null) : iterable {
         $this->resetEngineState();
         $this->addTable('candidate c');
+        $this->addWhereClause("c.Active='Y'");
         $prepbindings = [];
 
         $this->buildQueryFromCriteria($term, $prepbindings);
@@ -261,6 +262,7 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         case 'Site':
             $this->addTable('LEFT JOIN session s ON (s.CandID=c.CandID)');
             $this->addTable('LEFT JOIN psc site ON (s.CenterID=site.CenterID)');
+            $this->addWhereClause("s.Active='Y'");
             return 'site.Name';
         case 'Sex':
             return 'c.Sex';
@@ -271,15 +273,18 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         case 'Project':
             $this->addTable('LEFT JOIN session s ON (s.CandID=c.CandID)');
             $this->addTable('LEFT JOIN project proj ON (s.ProjectID=proj.ProjectID)');
+            $this->addWhereClause("s.Active='Y'");
 
             return 'proj.Name';
         case 'Subproject':
             $this->addTable('LEFT JOIN session s ON (s.CandID=c.CandID)');
             $this->addTable('LEFT JOIN subproject subproj ON (s.SubprojectID=subproj.SubProjectID)');
+            $this->addWhereClause("s.Active='Y'");
 
             return 'subproj.title';
         case 'VisitLabel':
             $this->addTable('LEFT JOIN session s ON (s.CandID=c.CandID)');
+            $this->addWhereClause("s.Active='Y'");
             return 's.Visit_label';
         case 'EntityType':
             return 'c.Entity_type';
@@ -294,6 +299,7 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
 
         if ($visitlist != null) {
             $this->addTable('LEFT JOIN session s ON (s.CandID=c.CandID)');
+            $this->addWhereClause("s.Active='Y'");
             $inset = [];
             $i = count($prepbindings);
             foreach($visitlist as $vl) {

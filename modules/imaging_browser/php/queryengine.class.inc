@@ -3,7 +3,7 @@ namespace LORIS\imaging_browser;
 
 use LORIS\StudyEntities\Candidate\CandID;
 
-// use \LORIS\Data\Dictionary\DictionaryItem;
+use \LORIS\Data\Dictionary\DictionaryItem;
 use \LORIS\Data\Scope;
 use \LORIS\Data\Cardinality;
 use \LORIS\Data\Query\QueryTerm;
@@ -31,7 +31,15 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             "Images",
             "Image Acquisitions",
         );
-        $items  = [];
+        $items  = [
+            new DictionaryItem(
+                "ScanDone",
+                "Does the candidate have any scans done?",
+                new Scope(Scope::CANDIDATE),
+                new \LORIS\Data\Types\BooleanType(),
+                new Cardinality(Cardinality::SINGLE),
+            ),
+        ];
 
         $scantypes = \Utility::getScanTypeList();
         foreach ($scantypes as $ScanType) {
@@ -90,6 +98,7 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
 
     public function getCandidateMatches(QueryTerm $term, ?array $visitlist=null) : iterable {
         $this->resetEngineState();
+
         $this->addTable('candidate c');
         $this->addTable('JOIN session s ON (s.CandID=c.CandID)');
         $this->addTable('JOIN files f ON (s.ID=f.SessionID)');
@@ -100,16 +109,16 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         $prepbindings = [];
         $dict = $term->getDictionaryItem();
 
-        $this->addTable("JOIN mri_scan_type mst ON (f.AcquisitionProtocolID=mst.ID)");
-        $this->addWhereClause('mst.Scan_type=:mstval');
         $prepbindings['mstval'] = $dict->getModality();
         if ($dict instanceof LocationDictionaryItem) {
+            $this->addTable("JOIN mri_scan_type mst ON (f.AcquisitionProtocolID=mst.ID)");
+            $this->addWhereClause('mst.Scan_type=:mstval');
             $this->addWhereCriteria('f.File', $term->getCriteria(), $prepbindings);
         } else if ($dict instanceof QCDictionaryItem) {
+            $this->addTable("JOIN mri_scan_type mst ON (f.AcquisitionProtocolID=mst.ID)");
+            $this->addWhereClause('mst.Scan_type=:mstval');
             $this->addTable('JOIN files_qcstatus fqc ON (fqc.FileID=f.FileID)');
             $this->addWhereCriteria('fqc.QCStatus', $term->getCriteria(), $prepbindings);
-        } else {
-            throw new \Exception("Unknown dictionary type");
         }
 
         $query = 'SELECT DISTINCT c.CandID FROM';
@@ -121,43 +130,24 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         $DB = \Database::singleton();
         $rows = $DB->pselectCol($query, $prepbindings);
 
-        /*
-        var_dump($query);
-        var_dump($prepbindings);
-        var_dump($rows);
-        exit;
-         */
         return array_map(function($cid) {
             return new CandID($cid);
         }, $rows);
 
-        /*
-        "SELECT DISTINCT c.CandID FROM candidate c
-            WHERE
-                s.Active='Y' AND c.Active='Y'
-        "
-*/
-        // (modality) acquisition location
-        //      =
-        //      !=
-        //      contains/starts/ends missing??
-        //         Add Table:
-        //            JOIN mri_scan_type mst ON (f.AcquisitionProtocolID=mst.ID) 
-        //         Add WHERE: AND f.File OP val
-        //             AND mst.Scan_type=typefromdict
-        //
-        //      exists
-        //      does not exist
-        //      number of
-        //
-        //
-        // (modality) qc status
-        //      =
-        //      !=
-        //      in
-        //      exists
-        //      does not exist
-        //      number of
         return [];
+    }
+
+    public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
+        if (count($candidates) == 0) {
+            return [];
+        }
+        $this->resetEngineState();
+
+        $this->addTable('candidate c');
+        $this->addTable('JOIN session s ON (s.CandID=c.CandID)');
+        $this->addTable('JOIN files f ON (s.ID=f.SessionID)');
+
+        $this->addWhereClause("s.Active='Y'");
+        $this->addWhereClause("c.Active='Y'");
     }
 }
