@@ -34,8 +34,8 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         $items  = [
             new DictionaryItem(
                 "ScanDone",
-                "Does the candidate have any scans done?",
-                new Scope(Scope::CANDIDATE),
+                "Does the candidate have a scan done?",
+                $scope,
                 new \LORIS\Data\Types\BooleanType(),
                 new Cardinality(Cardinality::SINGLE),
             ),
@@ -109,14 +109,15 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         $prepbindings = [];
         $dict = $term->getDictionaryItem();
 
-        $prepbindings['mstval'] = $dict->getModality();
         if ($dict instanceof LocationDictionaryItem) {
             $this->addTable("JOIN mri_scan_type mst ON (f.AcquisitionProtocolID=mst.ID)");
             $this->addWhereClause('mst.Scan_type=:mstval');
+            $prepbindings['mstval'] = $dict->getModality();
             $this->addWhereCriteria('f.File', $term->getCriteria(), $prepbindings);
         } else if ($dict instanceof QCDictionaryItem) {
             $this->addTable("JOIN mri_scan_type mst ON (f.AcquisitionProtocolID=mst.ID)");
             $this->addWhereClause('mst.Scan_type=:mstval');
+            $prepbindings['mstval'] = $dict->getModality();
             $this->addTable('JOIN files_qcstatus fqc ON (fqc.FileID=f.FileID)');
             $this->addWhereCriteria('fqc.QCStatus', $term->getCriteria(), $prepbindings);
         }
@@ -127,6 +128,17 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         $query .= ' WHERE ';
         $query .= $this->getWhereConditions();
 
+        if ($visitlist != null) {
+            $inset = [];
+            $i = count($prepbindings);
+            foreach($visitlist as $vl) {
+                $prepname = ':val' . $i++;
+                $inset[] = $prepname;
+                $prepbindings[$prepname] = $vl;
+            }
+            $query .= 'AND s.Visit_label IN (' . join(",", $inset) . ')';
+        }
+
         $DB = \Database::singleton();
         $rows = $DB->pselectCol($query, $prepbindings);
 
@@ -134,7 +146,6 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             return new CandID($cid);
         }, $rows);
 
-        return [];
     }
 
     public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
@@ -149,5 +160,53 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
 
         $this->addWhereClause("s.Active='Y'");
         $this->addWhereClause("c.Active='Y'");
+
+        // CandID needed for candidateCombine.
+        $fields = ['c.CandID'];
+        foreach ($items as $dict) {
+            $fields[] = $this->getFieldNameFromDict($dict) . ' as ' . $dict->getName();
+        }
+
+        $query = 'SELECT DISTINCT ' . join(', ', $fields) . ' FROM';
+        $query .= ' ' . $this->getTableJoins();
+
+        $prepbindings = [];
+        $query .= ' WHERE c.CandID IN (';
+        $i = count($prepbindings);
+        $inset = [];
+        foreach($candidates as $candid) {
+            $prepname = ':cand' . $i++;
+            $inset[] = $prepname;
+            $prepbindings[$prepname] = $candid;
+        }
+        $query .= join(',', $inset);
+        $query .= ')';
+
+        if ($visitlist != null) {
+            $inset = [];
+            $i = count($prepbindings);
+            foreach($visitlist as $vl) {
+                $prepname = ':val' . $i++;
+                $inset[] = $prepname;
+                $prepbindings[$prepname] = $vl;
+            }
+            $query .= 'AND s.Visit_label IN (' . join(",", $inset) . ')';
+        }
+
+        $DB = \Database::singleton();
+
+        $rows = $DB->pselect($query, $prepbindings);
+        return $this->candidateCombine($items, $rows);
+
     }
+
+    private function getFieldNameFromDict(\LORIS\Data\Dictionary\DictionaryItem $item) : string {
+        switch($item->getName()) {
+        case 'ScanDone':
+            return 's.Scan_Done';
+        default:
+            throw new \DomainException("Invalid field " . $dict->getName());
+        }
+    }
+
 }

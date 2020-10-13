@@ -86,9 +86,22 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
                 new \LORIS\Data\Types\Enumeration('Male', 'Female', 'Other'),
                 new Cardinality(Cardinality::SINGLE),
             ),
+            new DictionaryItem(
+                "EDC",
+                "Expected Data of Confinement",
+                $candscope,
+                new \LORIS\Data\Types\DateType(),
+                new Cardinality(Cardinality::OPTIONAL),
+            ),
         ]);
         
         $meta = new \LORIS\Data\Dictionary\Category("Meta", "Other parameters");
+
+        $db = $this->loris->getDatabaseConnection();
+        $participantstatus_options = $db->pselectCol(
+            "SELECT Description FROM participant_status_options",
+            []
+        );
         $meta = $meta->withItems([
             new DictionaryItem(
                 "VisitLabel",
@@ -125,6 +138,13 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
                 new \LORIS\Data\Types\Enumeration('Human', 'Scanner'),
                 new Cardinality(Cardinality::SINGLE),
             ),
+            new DictionaryItem(
+                "ParticipantStatus",
+                "The status of the participant within the study",
+                $candscope,
+                new \LORIS\Data\Types\Enumeration(...$participantstatus_options),
+                new Cardinality(Cardinality::SINGLE),
+            ),
         ]);
         return [$ids, $demographics, $meta];
     }
@@ -148,7 +168,7 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         $query .= ' WHERE ';
         $query .= $this->getWhereConditions();
 
-        $DB = \Database::singleton();
+        $DB = $this->loris->getDatabaseConnection();
         $rows = $DB->pselectCol($query, $prepbindings);
 
         return array_map(function($cid) {
@@ -215,43 +235,12 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         }
         $query .= ' ORDER BY c.CandID';
 
-        $DB = \Database::singleton();
+        $DB = $this->loris->getDatabaseConnection();
 
         $rows = $DB->pselect($query, $prepbindings);
         return $this->candidateCombine($items, $rows);
     }
 
-    private function candidateCombine(array $dict, array $rows) {
-        $lastcandid = null;
-        $candval = [];
-
-        foreach ($rows as $row) {
-            if($lastcandid !== null && $row['CandID'] !== $lastcandid) {
-                yield $candval;
-                $candval = [];
-            }
-            $lastcandid = $row['CandID'];
-            foreach($dict as $field) {
-                $fname = $field->getName();
-                if ($field->getScope() == 'session') {
-
-                    if (!isset($candval[$fname])) {
-                        $candval[$fname] = [];
-                    }
-                    if (!in_array($row[$fname], $candval[$fname])
-                        && $row[$fname] !== null
-                    ) {
-                        $candval[$fname][] = $row[$fname];
-                    }
-                } else {
-                    $candval[$fname] = $row[$fname];
-                }
-            }
-        }
-        if (!empty($candval)) {
-            yield $candval;
-        }
-    }
 
     private function getFieldNameFromDict(\LORIS\Data\Dictionary\DictionaryItem $item) : string {
         switch($item->getName()) {
@@ -270,6 +259,8 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             return 'c.DoB';
         case 'DoD':
             return 'c.DoD';
+        case 'EDC':
+            return 'c.EDC';
         case 'Project':
             $this->addTable('LEFT JOIN session s ON (s.CandID=c.CandID)');
             $this->addTable('LEFT JOIN project proj ON (s.ProjectID=proj.ProjectID)');
@@ -288,6 +279,10 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             return 's.Visit_label';
         case 'EntityType':
             return 'c.Entity_type';
+        case 'ParticipantStatus':
+            $this->addTable('LEFT JOIN participant_status ps ON (ps.CandID=c.CandID)');
+            $this->addTable('LEFT JOIN participant_status_options pso ON (ps.participant_status=pso.ID)');
+            return 'pso.Description';
         default:
             throw new \DomainException("Invalid field " . $dict->getName());
         }
