@@ -707,6 +707,14 @@ function Results(props) {
             'show': true,
         },
         {
+            'label': 'Scan Done',
+            'show': true,
+        },
+        {
+            'label': 'Participant Status',
+            'show': true,
+        },
+        {
             'label': 'DoB',
             'show': true,
         },
@@ -715,21 +723,57 @@ function Results(props) {
             'show': true,
         },
         {
+            'label': 'Visit Count',
+            'show': true,
+        },
+        {
+            'label': 'Feedback',
+            'show': true,
+        },
+        {
+            'label': 'Latest Visit Status',
+            'show': true,
+        },
+        {
             'label': 'Project',
+            'show': true,
+        },
+        {
+            'label': 'EDC',
             'show': true,
         },
     ];
 
+    if (!props.data.map) {
+        console.log(props.data);
+    }
     const datarows = props.data.map((row) => {
+        if (!row.Site) {
+            console.log(row);
+        }
+        let scandone = 'N';
+        for (let i = 0; row.ScanDone && i < row.ScanDone.length; i++) {
+            if (row.ScanDone[i] == 'Y') {
+                scandone = 'Y';
+            }
+        }
+
+
         return [
             row.PSCID,
             row.CandID,
             row.Site.join(', '),
             row.Subproject.join(', '),
             row.EntityType,
+            scandone,
+            row.ParticipantStatus,
             row.DoB,
             row.Sex,
+            row.VisitLabel.length ? row.VisitLabel.length : 0,
+            '', // feedback
+            '', // Latest visit status
             row.Project.join(', '),
+            row.EDC, // EDC
         ];
     });
 
@@ -832,9 +876,12 @@ function CandidatesIndex(props) {
                     'Site',
                     'Subproject',
                     'EntityType',
+                    'ParticipantStatus',
                     'DoB',
                     'Sex',
                     'Project',
+                    'VisitLabel',
+                    'EDC',
                 ],
                 'imaging_browser': [
                     'ScanDone',
