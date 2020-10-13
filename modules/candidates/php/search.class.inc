@@ -172,11 +172,24 @@ class Search extends \NDB_Page
             if (!is_array($asarray)) {
                 $asarray = iterator_to_array($asarray);
             }
-            $vals = array_merge($vals, $asarray);
+
+            // var_dump("Module: $modulename");
+            // var_dump($asarray);
+            foreach ($asarray as $candid => $val) {
+                $vals[$candid] = array_merge($vals[$candid] ?? [], $val);
+            }
+            // $vals = array_merge($vals, $asarray);
         }
 
+
+        /*
+        var_dump("FINAL VALUES");
+        var_dump($vals);
+            exit;
+         */
+
         return new \LORIS\Http\Response\JSON\OK(
-            ['data' => $vals],
+            ['data' => array_values($vals)],
         );
     }
 
