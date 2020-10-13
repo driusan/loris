@@ -190,4 +190,36 @@ abstract class SQLQueryEngine implements QueryEngine {
         $this->tables = [];
     }
 
+    protected function candidateCombine(iterable $dict, iterable $rows) {
+        $lastcandid = null;
+        $candval = [];
+
+        foreach ($rows as $row) {
+            if($lastcandid !== null && $row['CandID'] !== $lastcandid) {
+                yield $lastcandid => $candval;
+                $candval = [];
+            }
+            $lastcandid = $row['CandID'];
+            foreach($dict as $field) {
+                $fname = $field->getName();
+                if ($field->getScope() == 'session') {
+
+                    if (!isset($candval[$fname])) {
+                        $candval[$fname] = [];
+                    }
+                    if (!in_array($row[$fname], $candval[$fname])
+                        && $row[$fname] !== null
+                    ) {
+                        $candval[$fname][] = $row[$fname];
+                    }
+                } else {
+                    $candval[$fname] = $row[$fname];
+                }
+            }
+        }
+        if (!empty($candval)) {
+            yield $lastcandid => $candval;
+        }
+    }
+
 }
