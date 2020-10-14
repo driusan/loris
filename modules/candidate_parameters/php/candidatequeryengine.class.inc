@@ -114,7 +114,7 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
                 "Project",
                 "The LORIS project to categorize this session",
                 $sesscope,
-                new \LORIS\Data\Types\StringType(255),
+                new \LORIS\Data\Types\StringType(255), // FIXME: Make an enum
                 new Cardinality(Cardinality::SINGLE),
             ),
             new DictionaryItem(
@@ -143,6 +143,20 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
                 "The status of the participant within the study",
                 $candscope,
                 new \LORIS\Data\Types\Enumeration(...$participantstatus_options),
+                new Cardinality(Cardinality::SINGLE),
+            ),
+            new DictionaryItem(
+                "RegistrationSite",
+                "The site at which this candidate was initially registered",
+                $candscope,
+                new \LORIS\Data\Types\Enumeration(...\Utility::getSiteList()),
+                new Cardinality(Cardinality::SINGLE),
+            ),
+            new DictionaryItem(
+                "RegistrationProject",
+                "The project for which this candidate was initially registered",
+                $candscope,
+                new \LORIS\Data\Types\StringType(255), // FIXME: Make an enum
                 new Cardinality(Cardinality::SINGLE),
             ),
         ]);
@@ -253,6 +267,9 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             $this->addTable('LEFT JOIN psc site ON (s.CenterID=site.CenterID)');
             $this->addWhereClause("s.Active='Y'");
             return 'site.Name';
+        case 'RegistrationSite':
+            $this->addTable('LEFT JOIN psc rsite ON (c.RegistrationCenterID=rsite.CenterID)');
+            return 'rsite.Name';
         case 'Sex':
             return 'c.Sex';
         case 'DoB':
@@ -267,6 +284,9 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             $this->addWhereClause("s.Active='Y'");
 
             return 'proj.Name';
+        case 'RegistrationProject':
+            $this->addTable('LEFT JOIN project rproj ON (c.RegistrationProjectID=rproj.ProjectID)');
+            return 'rproj.Name';
         case 'Subproject':
             $this->addTable('LEFT JOIN session s ON (s.CandID=c.CandID)');
             $this->addTable('LEFT JOIN subproject subproj ON (s.SubprojectID=subproj.SubProjectID)');
