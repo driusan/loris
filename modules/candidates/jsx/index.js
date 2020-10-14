@@ -731,10 +731,6 @@ function Results(props) {
             'show': true,
         },
         {
-            'label': 'Latest Visit Status',
-            'show': true,
-        },
-        {
             'label': 'Project',
             'show': true,
         },
@@ -758,11 +754,10 @@ function Results(props) {
             }
         }
 
-
         return [
             row.PSCID,
             row.CandID,
-            row.Site.join(', '),
+            row.Site.length == 0 ? row.RegistrationSite : row.Site.join(', '),
             row.Subproject.join(', '),
             row.EntityType,
             scandone,
@@ -771,8 +766,7 @@ function Results(props) {
             row.Sex,
             row.VisitLabel.length ? row.VisitLabel.length : 0,
             '', // feedback
-            '', // Latest visit status
-            row.Project.join(', '),
+            row.Project.length == 0 ? row.RegistrationProject : row.Project.join(', '),
             row.EDC, // EDC
         ];
     });
@@ -882,6 +876,10 @@ function CandidatesIndex(props) {
                     'Project',
                     'VisitLabel',
                     'EDC',
+                    // Fallbacks for site/project column if no visits
+                    // started
+                    'RegistrationProject',
+                    'RegistrationSite',
                 ],
                 'imaging_browser': [
                     'ScanDone',
