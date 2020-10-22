@@ -754,6 +754,48 @@ function Results(props) {
             }
         }
 
+        const minFeedbackStatus = (cand, sess) => {
+            // The candidate_list shows the min of the enum
+            // enum('opened','answered','closed','comment')
+            // We need to emulate that
+            //
+            const strtoint = (s) => {
+                switch(s) {
+                    case 'opened': return 1;
+                    case 'answered': return 2;
+                    case 'closed': return 3;
+                    case 'comment': return 4;
+                    default:
+                        console.error('Invalid value' + s);
+                        return 999;
+                }
+            }
+
+            let min = 999;
+            for (let val of cand) {
+                const sval = strtoint(val)
+                if (sval < min) {
+                    min = sval;
+                }
+
+            }
+            for (let val of sess) {
+                const sval = strtoint(val)
+                if (sval < min) {
+                    min = sval;
+                }
+
+            }
+
+            // Convert back to a string
+            switch (min) {
+                case 1: return 'opened';
+                case 2: return 'answered';
+                case 3: return 'closed';
+                case 4: return 'comment';
+                default: return 'None';
+            }
+        }
         return [
             row.PSCID,
             row.CandID,
@@ -765,7 +807,7 @@ function Results(props) {
             row.DoB,
             row.Sex,
             row.VisitLabel.length ? row.VisitLabel.length : 0,
-            '', // feedback
+            minFeedbackStatus(row.CandidateThreadStatus || [], row.SessionThreadStatus || []),
             row.Project.length == 0 ? row.RegistrationProject : row.Project.join(', '),
             row.EDC, // EDC
         ];
@@ -884,6 +926,10 @@ function CandidatesIndex(props) {
                 'imaging_browser': [
                     'ScanDone',
                 ],
+                'bvl_feedback': [
+                    'CandidateThreadStatus',
+                    'SessionThreadStatus',
+                ]
             },
         };
 
