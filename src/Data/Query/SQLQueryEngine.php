@@ -202,7 +202,8 @@ abstract class SQLQueryEngine implements QueryEngine {
             $lastcandid = $row['CandID'];
             foreach($dict as $field) {
                 $fname = $field->getName();
-                if ($field->getScope() == 'session') {
+                if ($field->getScope() == 'session'
+                    || $field->getCardinality()->__toString() == 'many') {
 
                     if (!isset($candval[$fname])) {
                         $candval[$fname] = [];

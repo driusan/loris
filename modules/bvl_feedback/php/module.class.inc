@@ -131,4 +131,19 @@ class Module extends \Module
         }
         return [];
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param \LORIS\LorisInstance $loris The Loris instance from which the
+     *                                    data dictionary for this module
+     *                                    should be retrieved.
+     *
+     * @return \LORIS\Data\Dictionary\Category[]
+     */
+    public function getQueryEngine() : \LORIS\Data\Query\QueryEngine
+    {
+        return new QueryEngine($this->lorisinstance);
+    }
+
 }
