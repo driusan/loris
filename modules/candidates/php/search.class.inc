@@ -73,15 +73,18 @@ class Search extends \NDB_Page
                 return new \LORIS\Http\Response\JSON\BadRequest('Invalid search type');
             }
 
+            $candIDs = [];
             if (!isset($requestdata['criteria']) || count($requestdata['criteria']) === 0) {
-                return $this->allCandidates();
+                $candIDs = $this->allCandidates();
+            } else {
+                $candIDs = $this->candidateMatches($requestdata['criteria']);
             }
 
-            return $this->doSearch($requestdata['criteria'], $requestdata['fields']);
+            return $this->resultsForCandidates($candIDs, $requestdata['fields']);
         }
     }
 
-    public function doSearch(array $crit, array $fields) : ResponseInterface {
+    public function candidateMatches(array $crit) : array {
         $results = [];
         foreach($crit as $modulename => $crit) {
             $engine = \Module::factoryWithInstance($modulename, $this->loris)->getQueryEngine();
@@ -154,6 +157,32 @@ class Search extends \NDB_Page
 
         $candidates = array_values(array_unique($combinedresult));
 
+        return $candidates;
+    }
+
+    public function getFlattenedDictionary(\LORIS\Data\Query\QueryEngine $engine) {
+        $rawdict = $engine->getDataDictionary();
+
+        // Flattened dictionary without categories
+        $dict = [];
+
+        foreach ($rawdict as $cat) {
+            foreach ($cat->getItems() as $item) {
+                $dict[$item->getName()] = $item;
+            }
+        }
+        return $dict;
+    }
+
+    public function allCandidates() : array {
+        $db = \NDB_Factory::singleton()->database();
+        $results = $db->pselectCol("SELECT CandID FROM candidate WHERE Active='Y'", []);
+        return array_map(function($row) {
+            return new CandID($row);
+        }, $results);
+    }
+
+    public function resultsForCandidates(array $candidates, array $fields) : ResponseInterface {
         $fielddict = [];
         $vals = [];
 
@@ -173,51 +202,13 @@ class Search extends \NDB_Page
                 $asarray = iterator_to_array($asarray);
             }
 
-            // var_dump("Module: $modulename");
-            // var_dump($asarray);
             foreach ($asarray as $candid => $val) {
                 $vals[$candid] = array_merge($vals[$candid] ?? [], $val);
             }
-            // $vals = array_merge($vals, $asarray);
         }
-
-
-        /*
-        var_dump("FINAL VALUES");
-        var_dump($vals);
-            exit;
-         */
 
         return new \LORIS\Http\Response\JSON\OK(
             ['data' => array_values($vals)],
         );
-    }
-
-    public function getFlattenedDictionary(\LORIS\Data\Query\QueryEngine $engine) {
-        $rawdict = $engine->getDataDictionary();
-
-        // Flattened dictionary without categories
-        $dict = [];
-
-        foreach ($rawdict as $cat) {
-            foreach ($cat->getItems() as $item) {
-                $dict[$item->getName()] = $item;
-            }
-        }
-        return $dict;
-    }
-
-    public function allCandidates() : ResponseInterface {
-        $db = \NDB_Factory::singleton()->database();
-        $results = $db->pselectCol("SELECT CandID FROM candidate WHERE Active='Y'", []);
-        $candIDs = array_map(function($row) {
-            return new CandID($row);
-        }, $results);
-
-        return new \LORIS\Http\Response\JSON\OK(
-            ['candidates' => $results]
-        );
-
-
     }
 }
