@@ -741,12 +741,9 @@ function Results(props) {
     ];
 
     if (!props.data.map) {
-        console.log(props.data);
+        // console.log(props.data);
     }
     const datarows = props.data.map((row) => {
-        if (!row.Site) {
-            console.log(row);
-        }
         let scandone = 'N';
         for (let i = 0; row.ScanDone && i < row.ScanDone.length; i++) {
             if (row.ScanDone[i] == 'Y') {
@@ -809,7 +806,7 @@ function Results(props) {
             row.VisitLabel.length ? row.VisitLabel.length : 0,
             minFeedbackStatus(row.CandidateThreadStatus || [], row.SessionThreadStatus || []),
             row.Project.length == 0 ? row.RegistrationProject : row.Project.join(', '),
-            row.EDC, // EDC
+            row.EDC,
         ];
     });
 
@@ -917,7 +914,7 @@ function CandidatesIndex(props) {
                     'Sex',
                     'Project',
                     'VisitLabel',
-                    'EDC',
+                     'EDC',
                     // Fallbacks for site/project column if no visits
                     // started
                     'RegistrationProject',
