@@ -30,8 +30,8 @@ class ExceptionHandlingMiddleware implements MiddlewareInterface
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
     ) : ResponseInterface {
+        return $handler->handle($request);
         try {
-            return $handler->handle($request);
         } catch (\NotFound $e) {
             error_log($e->getMessage() . $e->getTraceAsString());
             $status = 404;

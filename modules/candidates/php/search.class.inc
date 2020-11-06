@@ -73,6 +73,8 @@ class Search extends \NDB_Page
                 return new \LORIS\Http\Response\JSON\BadRequest('Invalid search type');
             }
 
+
+            error_log('Peak memory usage before getting candidates ' . memory_get_peak_usage() . ' bytes');
             $candIDs = [];
             if (!isset($requestdata['criteria']) || count($requestdata['criteria']) === 0) {
                 $candIDs = $this->allCandidates();
@@ -80,13 +82,20 @@ class Search extends \NDB_Page
                 $candIDs = $this->candidateMatches($requestdata['criteria']);
             }
 
-            return $this->resultsForCandidates($candIDs, $requestdata['fields']);
+            error_log('Peak memory usage after candidates ' . memory_get_peak_usage() . ' bytes');
+            $x = $this->resultsForCandidates($candIDs, $requestdata['fields']);
+            error_log('Peak memory usage after results ' . memory_get_peak_usage() . ' bytes');
+            return $x;
         }
     }
 
     public function candidateMatches(array $crit) : array {
         $results = [];
+
+        $startMemory = memory_get_usage();
         foreach($crit as $modulename => $crit) {
+            $mStartMemory = memory_get_usage();
+            $now = time();
             $engine = \Module::factoryWithInstance($modulename, $this->loris)->getQueryEngine();
             $dict = $this->getFlattenedDictionary($engine);
 
@@ -146,8 +155,11 @@ class Search extends \NDB_Page
                     $results[] = iterator_to_array($matches);
                 }
             }
+            error_log("Finding candidates for module $modulename took " . (time() - $now) . "s");
+            error_log("Memory used for $modulename was " . (memory_get_usage() - $mStartMemory) . " bytes of memory");
         }
 
+        error_log("Before intersection used " . (memory_get_usage() - $startMemory) . " bytes of memory");
         $combinedresult = [];
         if (count($results) == 1) {
             $combinedresult = $results[0];
@@ -157,6 +169,7 @@ class Search extends \NDB_Page
 
         $candidates = array_values(array_unique($combinedresult));
 
+        error_log("Candidate matches used " . (memory_get_usage() - $startMemory) . " bytes of memory");
         return $candidates;
     }
 
@@ -176,17 +189,25 @@ class Search extends \NDB_Page
 
     public function allCandidates() : array {
         $db = \NDB_Factory::singleton()->database();
-        $results = $db->pselectCol("SELECT CandID FROM candidate WHERE Active='Y'", []);
+        $results = $db->pselectCol("SELECT CandID FROM candidate WHERE Active='Y' ORDER BY CandID ", []);
+
         return array_map(function($row) {
             return new CandID($row);
         }, $results);
     }
 
     public function resultsForCandidates(array $candidates, array $fields) : ResponseInterface {
+        error_log("!!!!!!!!!Results for candidates");
         $fielddict = [];
         $vals = [];
 
+        $startMemory = memory_get_usage();
+        $dataiterators = [];
+        var_dump($fields);
         foreach ($fields as $modulename => $mfields) {
+            error_log("Module: $modulename");
+            $mStartMemory = memory_get_usage();
+            $now = time();
             $engine = \Module::factoryWithInstance($modulename, $this->loris)->getQueryEngine();
 
             $flatdict = $this->getFlattenedDictionary($engine);
@@ -197,18 +218,93 @@ class Search extends \NDB_Page
                 $fielddict[] = $flatdict[$fieldname];
             }
 
-            $asarray = $engine->getCandidateData($fielddict, $candidates, null);
-            if (!is_array($asarray)) {
-                $asarray = iterator_to_array($asarray);
-            }
+            $n1 = time();
+            $dataiterators[$modulename] = $engine->getCandidateData($fielddict, $candidates, null);
+            error_log("Iterator for $modulename took " . (memory_get_usage() - $mStartMemory) ." bytes");
+            /*
+            $asarray = $dataiterators[$modulename];
+            error_log("Getting data for module $modulename took " . (time() - $n1) . "s");
 
+            $n2 = time();
             foreach ($asarray as $candid => $val) {
                 $vals[$candid] = array_merge($vals[$candid] ?? [], $val);
             }
+            error_log("Merging data for $modulename took " . (time() - $n2) ."s");
+             */
         }
 
+
+        $response = (new \LORIS\Http\Response())
+            //->withHeader("Content-Type", "application/octet-stream")
+            ->withHeader("Content-Type", "text/plain")
+            //->withBody(new \LORIS\Http\DataIteratorBinaryStream($this->mergeIterators([], $dataiterators)));
+            ->withBody(new \LORIS\Http\DataIteratorBinaryStream($this->mergeIterators($candidates, $dataiterators)));
+        error_log("Results matches used " . (memory_get_usage() - $startMemory) . " bytes of memory");
+        return $response;
+        /*
         return new \LORIS\Http\Response\JSON\OK(
             ['data' => array_values($vals)],
         );
+         */
+    }
+
+    private function mergeIterators(array $candidates, array $iterators) {
+        foreach($candidates as $candID) {
+            $val = [];
+            foreach($iterators as $moduledata) {
+                if(is_array($moduledata)) {
+                    continue;
+                }
+                if(!$moduledata->valid()) {
+                    continue;
+                }
+                $modcandidate = $moduledata->key();
+                // coerce to string for the comparison so that <=
+                // works
+                assert("$candID" <= "$modcandidate");
+
+                if($modcandidate == $candID) {
+                    $val = array_merge($val, $moduledata->current());
+                    $moduledata->next();
+                }
+            }
+            yield $candID => $val;
+        }
+    }
+
+    // Xavier's work. Stolen from https://github.com/xlecours/Loris/blob/DQT_couchprovisioner/modules/dqt/php/querygroup.class.inc
+    private static function _intersect(\Traversable $iter1, \Traversable $iter2): \Traversable {
+        foreach($iter1 as $value1) {
+            if (!$iter2->valid()) {
+                return;
+            }
+            switch($value1 <=> $iter2->current()) {
+                case -1:
+                    // iter1 is smaller than iter2.
+                    // Move to next foreach.
+                    break;
+                case 0:
+                    // Both iter1 and iter2 are equal.
+                    // Move iter2 and yield $value before moving to next foreach.
+                    $iter2->next();
+                    yield $value1;
+                    break;
+                case 1:
+                    // iter1 is greater than iter2.
+                    // Advance iter2 until it is greater or equal to iter1.
+                    while ($iter2->current() < $value1) {
+                        $iter2->next();
+                        if (!$iter2->valid()) {
+                            return;
+                        }
+                    }
+                    if ($value1 == $iter2->current()) {
+                        // Both iter1 and iter2 are equal.
+                        // Yield $value before moving to next foreach.
+                        yield $value1;
+                    }
+                    break;
+            }
+        }
     }
 }
