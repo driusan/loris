@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import DataTable from 'jsx/DataTable';
 import Panel from 'jsx/Panel';
+import fetchDataStreamPost from 'jslib/fetchDataStreamPost';
 
 /**
  * Return a JSX component denoting the filter state
@@ -793,6 +794,7 @@ function Results(props) {
                 default: return 'None';
             }
         }
+        return row;
         return [
             row.PSCID,
             row.CandID,
@@ -930,6 +932,35 @@ function CandidatesIndex(props) {
             },
         };
 
+        let resultbuffer = [];
+        fetchDataStreamPost(props.SearchURL,
+            payload,
+            (row) => {
+                resultbuffer.push(row);
+            },
+            () => {
+                if(resultbuffer.length % 1000 == 0) {
+                    setResultData([...resultbuffer]);
+                }
+                /*
+                if (resultdata == null) {
+                    console.log('Rerendering because null');
+                    setResultData([...resultbuffer]);
+                } else if((resultbuffer.length - resultdata.length)> 1000) {
+                    console.log('Rerendering because there are ' +
+                        (resultbuffer.length - resultdata.length) +
+                        ' unrendered rows. ' + resultbuffer.length +
+                        ' total.');
+                    setResultData([...resultbuffer]);
+                }
+                */
+            },
+            () => {
+                setResultData([...resultbuffer]);
+            },
+        );
+
+        /*
         fetch(props.SearchURL,
             {
                 method: 'POST',
@@ -941,6 +972,7 @@ function CandidatesIndex(props) {
         .then((result) => {
             setResultData(result.data);
         });
+        */
     };
 
     return (<Panel title="Candidate List">
