@@ -34,7 +34,7 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         $items  = [
             new DictionaryItem(
                 "ScanDone",
-                "Does the candidate have a scan done?",
+                "Does the candidate have any imaging scan done?",
                 $scope,
                 new \LORIS\Data\Types\BooleanType(),
                 new Cardinality(Cardinality::SINGLE),
@@ -145,7 +145,6 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         return array_map(function($cid) {
             return new CandID($cid);
         }, $rows);
-
     }
 
     public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
@@ -167,20 +166,15 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             $fields[] = $this->getFieldNameFromDict($dict) . ' as ' . $dict->getName();
         }
 
+        $DB = $this->loris->getDatabaseConnection();
+        $this->createTemporaryCandIDTable($DB, "searchcandidates", $candidates);
+
+
         $query = 'SELECT DISTINCT ' . join(', ', $fields) . ' FROM';
         $query .= ' ' . $this->getTableJoins();
 
         $prepbindings = [];
-        $query .= ' WHERE c.CandID IN (';
-        $i = count($prepbindings);
-        $inset = [];
-        foreach($candidates as $candid) {
-            $prepname = ':cand' . $i++;
-            $inset[] = $prepname;
-            $prepbindings[$prepname] = $candid;
-        }
-        $query .= join(',', $inset);
-        $query .= ')';
+        $query .= ' WHERE c.CandID IN (SELECT CandID from searchcandidates)';
 
         if ($visitlist != null) {
             $inset = [];
@@ -193,11 +187,9 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             $query .= 'AND s.Visit_label IN (' . join(",", $inset) . ')';
         }
 
-        $DB = \Database::singleton();
-
+        $query .= ' ORDER BY c.CandID';
         $rows = $DB->pselect($query, $prepbindings);
         return $this->candidateCombine($items, $rows);
-
     }
 
     private function getFieldNameFromDict(\LORIS\Data\Dictionary\DictionaryItem $item) : string {
@@ -208,5 +200,4 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             throw new \DomainException("Invalid field " . $dict->getName());
         }
     }
-
 }

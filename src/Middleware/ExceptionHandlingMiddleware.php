@@ -34,22 +34,7 @@ class ExceptionHandlingMiddleware implements MiddlewareInterface, LoggerAwareInt
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
     ) : ResponseInterface {
-        // Catch PHP Fatal errors that aren't exceptions such as type errors
-        // or out of memory errors
-        register_shutdown_function(
-            function () {
-                $error = error_get_last();
-
-                if (isset($error['type']) && $error['type'] === E_ERROR) {
-                    $location = $error['file'] ?? 'unknown';
-                    if (isset($error['line'])) {
-                        $location .= ":" . $error['line'];
-                    }
-                    $this->logger->critical($location . ": " . $error['message']);
-                }
-            }
-        );
-
+        return $handler->handle($request);
         try {
             return $handler->handle($request);
             /* The order of these catch statements matter and should go from

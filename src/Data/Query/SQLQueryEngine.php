@@ -223,4 +223,44 @@ abstract class SQLQueryEngine implements QueryEngine {
         }
     }
 
+    protected function createTemporaryCandIDTable($DB, string $tablename, array $candidates) {
+        // Put candidates into a temporary table so that it can be used in a join
+        // clause. Directly using "c.CandID IN (candid1, candid2, candid3, etc)" is
+        // too slow.
+        $DB->run("DROP TEMPORARY TABLE IF EXISTS $tablename");
+        $DB->run("CREATE TEMPORARY TABLE $tablename (
+            CandID int(6)
+        );");
+        $insertstmt = "INSERT INTO $tablename VALUES (" . join('),(', $candidates) . ')';
+        $q = $DB->prepare($insertstmt);
+        $q->execute([]);
+    }
+
+    protected function createTemporaryCandIDTablePDO($PDO, string $tablename, array $candidates) {
+        $query = "DROP TEMPORARY TABLE IF EXISTS $tablename";
+        $result = $PDO->exec($query);
+
+        if ($result === false) {
+            throw new DatabaseException(
+                "Could not run query $query"
+                . $this->_createPDOErrorString()
+            );
+        }
+
+        $query = "CREATE TEMPORARY TABLE $tablename (
+            CandID int(6)
+        );";
+        $result = $PDO->exec($query);
+
+        if ($result === false) {
+            throw new DatabaseException(
+                "Could not run query $query"
+                . $this->_createPDOErrorString()
+            );
+        }
+
+        $insertstmt = "INSERT INTO $tablename VALUES (" . join('),(', $candidates) . ')';
+        $q = $PDO->prepare($insertstmt);
+        $q->execute([]);
+    }
 }

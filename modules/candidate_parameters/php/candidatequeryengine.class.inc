@@ -213,10 +213,25 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         }
         $this->resetEngineState();
 
-
         $this->addTable('candidate c');
 
-        $fields = [];
+        // Always required for candidateCombine
+        $fields = ['c.CandID'];
+
+        $now = time();
+
+        $DBSettings = $this->loris->getConfiguration()->getSetting("database");
+
+        $DB = new \PDO(
+                "mysql:host=$DBSettings[host];dbname=$DBSettings[database];charset=UTF8",
+                $DBSettings['username'],
+                $DBSettings['password'],
+        );
+        if ($DB->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false) == false) {
+            throw new \DatabaseException("Could not use unbuffered queries");
+        };
+
+        $this->createTemporaryCandIDTablePDO($DB, "searchcandidates", $candidates);
 
         foreach ($items as $dict) {
             $fields[] = $this->getFieldNameFromDict($dict) . ' as ' . $dict->getName();
@@ -226,16 +241,7 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         $query .= ' ' . $this->getTableJoins();
 
         $prepbindings = [];
-        $query .= ' WHERE c.CandID IN (';
-        $i = count($prepbindings);
-        $inset = [];
-        foreach($candidates as $candid) {
-            $prepname = ':cand' . $i++;
-            $inset[] = $prepname;
-            $prepbindings[$prepname] = $candid;
-        }
-        $query .= join(',', $inset);
-        $query .= ')';
+        $query .= ' WHERE c.CandID IN (SELECT CandID from searchcandidates)';
 
         if ($visitlist != null) {
             $inset = [];
@@ -249,10 +255,25 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         }
         $query .= ' ORDER BY c.CandID';
 
-        $DB = $this->loris->getDatabaseConnection();
+        $now = time();
+        error_log("Running query $query");
+        $rows = $DB->prepare($query);
 
-        $rows = $DB->pselect($query, $prepbindings);
+        error_log("Preparing took " . (time() - $now) . "s");
+        $now = time();
+        $result= $rows->execute($prepbindings);
+        error_log("Executing took" . (time() - $now) . "s");
+
+        error_log("Executing query");
+        if($result === false) {
+            throw new Exception("Invalid query $query");
+        }
+
+        error_log("Combining candidates");
         return $this->candidateCombine($items, $rows);
+        $val = $this->candidateCombine($items, $rows);
+        error_log("Combined candidates");
+        return $val;
     }
 
 
