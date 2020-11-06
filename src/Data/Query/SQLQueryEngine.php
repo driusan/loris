@@ -194,6 +194,8 @@ abstract class SQLQueryEngine implements QueryEngine {
         $lastcandid = null;
         $candval = [];
 
+        error_log("1");
+        // foreach ($rows as $row) {
         foreach ($rows as $row) {
             if($lastcandid !== null && $row['CandID'] !== $lastcandid) {
                 yield $lastcandid => $candval;
@@ -218,6 +220,7 @@ abstract class SQLQueryEngine implements QueryEngine {
                 }
             }
         }
+        // $rows->close();
         if (!empty($candval)) {
             yield $lastcandid => $candval;
         }

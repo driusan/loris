@@ -45,7 +45,9 @@ $entrypoint = new \LORIS\Router\BaseRouter(
 );
 
 // Now handle the request.
+error_log('Peak memory usage before process ' . memory_get_peak_usage() . ' bytes');
 $response = $middlewarechain->process($serverrequest, $entrypoint);
+error_log('Peak memory after process ' . memory_get_peak_usage() . ' bytes');
 
 // Add the HTTP header line.
 header(
@@ -60,6 +62,21 @@ foreach ($headers as $name => $values) {
     header($name . ': ' . implode(', ', $values));
 }
 
+$bodystream = $response->getBody();
+
+error_log('Peak memory usage before sending output ' . memory_get_peak_usage() . ' bytes');
+// First we need to disable any output buffering so that
+// it streams to the output instead of into the buffer
+// and uses up all the memory for large chunks of data.
+for ($i = ob_get_level(); $i != 0; $i = ob_get_level()) {
+    ob_end_clean();
+}
+ob_implicit_flush();
+
+while ($bodystream->eof() == false) {
+    // 64k oughta be enough for anybody.
+    print $bodystream->read(1024*64);
+}
 // Include the body.
 $bodystream = $response->getBody();
 
