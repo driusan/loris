@@ -30,6 +30,7 @@ class ExceptionHandlingMiddleware implements MiddlewareInterface
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
     ) : ResponseInterface {
+        return $handler->handle($request);
         try {
             $status = 200;
             return $handler->handle($request);
