@@ -82,6 +82,7 @@ class Search extends \NDB_Page
                 $candIDs = $this->candidateMatches($requestdata['criteria']);
             }
 
+            $candIDs = $this->filterInaccessibleCandidates($candIDs);
             error_log('Peak memory usage after candidates ' . memory_get_peak_usage() . ' bytes');
             $x = $this->resultsForCandidates($candIDs, $requestdata['fields']);
             error_log('Peak memory usage after results ' . memory_get_peak_usage() . ' bytes');
@@ -196,14 +197,29 @@ class Search extends \NDB_Page
         }, $results);
     }
 
-    public function resultsForCandidates(array $candidates, array $fields) : ResponseInterface {
+    public function resultsForCandidates(array $candidates, array $fieldsarray) : ResponseInterface {
         error_log("!!!!!!!!!Results for candidates");
         $fielddict = [];
         $vals = [];
 
         $startMemory = memory_get_usage();
         $dataiterators = [];
-        var_dump($fields);
+        $fields = [];
+
+        // Convert from an array of fieldnames to an array of
+        // fieldnames per module, to minimize the number of roundtrips
+        // to the module
+        foreach ($fieldsarray as $field) {
+            $mname = $field['module'];
+            $fname = $field['field'];
+            if(!isset($fields[$mname])) {
+                $fields[$mname] = [];
+            }
+            $fields[$mname][] = $fname;
+        }
+
+        // Run the query against each module and store the resulting
+        // iterators in the $dataiterators array.
         foreach ($fields as $modulename => $mfields) {
             error_log("Module: $modulename");
             $mStartMemory = memory_get_usage();
@@ -238,20 +254,23 @@ class Search extends \NDB_Page
             //->withHeader("Content-Type", "application/octet-stream")
             ->withHeader("Content-Type", "text/plain")
             //->withBody(new \LORIS\Http\DataIteratorBinaryStream($this->mergeIterators([], $dataiterators)));
-            ->withBody(new \LORIS\Http\DataIteratorBinaryStream($this->mergeIterators($candidates, $dataiterators)));
+            ->withBody(new \LORIS\Http\DataIteratorBinaryStream($this->mergeIterators($candidates, $dataiterators, $fieldsarray)));
         error_log("Results matches used " . (memory_get_usage() - $startMemory) . " bytes of memory");
         return $response;
-        /*
-        return new \LORIS\Http\Response\JSON\OK(
-            ['data' => array_values($vals)],
-        );
-         */
     }
 
-    private function mergeIterators(array $candidates, array $iterators) {
+    private function mergeIterators(array $candidates, array $iterators, array $fields) {
         foreach($candidates as $candID) {
             $val = [];
-            foreach($iterators as $moduledata) {
+            // Initialize the row to ensure there's no unset indexes for
+            // the DataIteratorBinaryStream when it does array_join.
+            for($i = 0; $i < count($fields); $i++) {
+                $val[$i] = '';
+            }
+            
+            // Go through each module, if it has data for this candidate
+            // put it in the appropriate columns.
+            foreach($iterators as $modulename => $moduledata) {
                 if(is_array($moduledata)) {
                     continue;
                 }
@@ -259,15 +278,39 @@ class Search extends \NDB_Page
                     continue;
                 }
                 $modcandidate = $moduledata->key();
-                // coerce to string for the comparison so that <=
-                // works
+                // The candidate data must have been sorted by 
+                // CandID for our logic to work.
+                // Coerce to string for the comparison so that <=
+                // works. (We can't do a <= comparison on a CandID
+                // object)
                 assert("$candID" <= "$modcandidate");
 
+                // If the module has data for this candID, populate it,
+                // if not, don't advance the iterator.
                 if($modcandidate == $candID) {
-                    $val = array_merge($val, $moduledata->current());
+                    // Go through each field and put the data in the right
+                    // index if applicable.
+                    $data = $moduledata->current();
+                    foreach ($fields as $idx => $field) {
+                        if ($field['module'] != $modulename) {
+                            continue;
+                        }
+                        $fname = $field['field'];
+                        if (!isset($data[$fname])) {
+                            continue;
+                        }
+                        $val[$idx] = $data[$fname];
+                    }
+
+                    // Advance this iterator to the next row
+                    // now that we've dealt with this CandID for
+                    // this module.
                     $moduledata->next();
                 }
             }
+
+            // We've went through all the module iterators and can
+            // now yield the value for this row.
             yield $candID => $val;
         }
     }
@@ -306,5 +349,65 @@ class Search extends \NDB_Page
                     break;
             }
         }
+    }
+
+    public function filterInaccessibleCandidates(array $candIDs) : array {
+        $DB = \NDB_Factory::singleton()->database();
+
+        // Put candidates into a temporary table so that it can be used in a join
+        // clause. Directly using "c.CandID IN (candid1, candid2, candid3, etc)" is
+        // too slow.
+        $DB->run("DROP TEMPORARY TABLE IF EXISTS accesscandidates");
+        $DB->run("CREATE TEMPORARY TABLE accesscandidates(
+            CandID int(6)
+        );");
+        $insertstmt = "INSERT INTO accesscandidates VALUES (" . join('),(', $candIDs) . ')';
+        $q = $DB->prepare($insertstmt);
+        $q->execute([]);
+
+        $rows = $DB->pselect(
+            "SELECT c.CandID, c.RegistrationProjectID, c.RegistrationCenterID,
+                s.ProjectID as SProjectID, s.CenterID as SCenterID
+            FROM candidate c LEFT JOIN session s ON (s.CandID=c.CandID)
+            WHERE c.Active='Y' AND COALESCE(s.Active, 'Y')='Y'
+                AND c.CandID IN (SELECT CandID FROM accesscandidates)
+            ORDER BY c.CandID",
+            []
+        );
+        $organized = [];
+        foreach ($rows as $row) {
+            $candid = $row['CandID'];
+            if(!isset($organized[$candid])) {
+                $organized[$candid] = [
+                    'CandID' => new CandID($row['CandID']),
+                    'RegistrationProject' => $row['RegistrationProjectID'],
+                    'RegistrationCenter' => $row['RegistrationCenterID'],
+                    'Timepoints' => [],
+                ];
+            }
+            if ($row['SProjectID'] !== null || $row['SCenterID'] !== null) {
+                $organized[$candid]['Timepoints'][] = new \TimePointData(
+                    intval($row['SProjectID']),
+                    intval($row['SCenterID']),
+                );
+            }
+        }
+
+        $results = [];
+        $user = \User::singleton();
+        foreach($organized as $vals) {
+            $canddata = new \CandidateData(
+                $vals['RegistrationProject'],
+                $vals['RegistrationCenter'],
+                $vals['Timepoints']
+            );
+            $candidate = new \Candidate($canddata);
+
+            if (!$candidate->isAccessibleBy($user)) {
+                continue;
+            }
+            $results[] = $vals['CandID'];
+        }
+        return $results;
     }
 }
