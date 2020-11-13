@@ -904,32 +904,71 @@ function CandidatesIndex(props) {
         const payload = {
             type: searchType,
             criteria: payloadcriteria,
-            fields: {
-                'candidate_parameters': [
-                    'PSCID',
-                    'CandID',
-                    'Site',
-                    'Subproject',
-                    'EntityType',
-                    'ParticipantStatus',
-                    'DoB',
-                    'Sex',
-                    'Project',
-                    'VisitLabel',
-                     'EDC',
-                    // Fallbacks for site/project column if no visits
-                    // started
-                    'RegistrationProject',
-                    'RegistrationSite',
-                ],
-                'imaging_browser': [
-                    'ScanDone',
-                ],
-                'bvl_feedback': [
-                    'CandidateThreadStatus',
-                    'SessionThreadStatus',
+            fields: [{
+                        module: 'candidate_parameters',
+                        field: 'PSCID',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'CandID',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'Site',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'Subproject',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'EntityType',
+                    },
+                    {
+                        module: 'imaging_browser',
+                        field: 'ScanDone',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'ParticipantStatus',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'DoB',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'Sex',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'VisitLabel',
+                    },
+                    {
+                        module: 'bvl_feedback',
+                        field: 'CandidateThreadStatus',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'Project',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'EDC',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'RegistrationProject',
+                    },
+                    {
+                        module: 'candidate_parameters',
+                        field: 'RegistrationSite',
+                    },
+                    {
+                        module: 'bvl_feedback',
+                        field: 'SessionThreadStatus',
+                    },
                 ]
-            },
         };
 
         let resultbuffer = [];
@@ -942,18 +981,6 @@ function CandidatesIndex(props) {
                 if(resultbuffer.length % 1000 == 0) {
                     setResultData([...resultbuffer]);
                 }
-                /*
-                if (resultdata == null) {
-                    console.log('Rerendering because null');
-                    setResultData([...resultbuffer]);
-                } else if((resultbuffer.length - resultdata.length)> 1000) {
-                    console.log('Rerendering because there are ' +
-                        (resultbuffer.length - resultdata.length) +
-                        ' unrendered rows. ' + resultbuffer.length +
-                        ' total.');
-                    setResultData([...resultbuffer]);
-                }
-                */
             },
             () => {
                 setResultData([...resultbuffer]);
