@@ -37,6 +37,11 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
     var $candidateInfo;
     var $listOfTimePoints;
 
+    protected $data;
+
+    public function __construct(?CandidateData $data=null) {
+        $this->data = $data;
+    }
     /**
      * This returns a single Candidate object for the given
      * candID, and will only ever instantiate one object in
@@ -99,9 +104,17 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
             );
         }
 
+        $this->data = new CandidateData(
+            $row['RegistrationProjectID'],
+            $row['RegistrationCenterID']
+        );
+
         // store user data in object property
         foreach ($row as $key=>$value) {
-            switch ($key) {
+            switch ($key){
+            case 'RegistrationProjectID':
+            case 'RegistrationCenterID':
+                break;
             case 'Sex':
                 $this->candidateInfo[$key] = empty($value) ? null : new Sex($value);
                 break;
@@ -505,7 +518,7 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
      */
     function getCenterID(): CenterID
     {
-        return $this->candidateInfo["RegistrationCenterID"];
+        return $this->data->getCenterID();
     }
 
     /**
