@@ -34,7 +34,6 @@ define('DOB_NOT_SPECIFIED', 6);
 class Candidate implements \LORIS\StudyEntities\AccessibleResource
 {
     var $candidateInfo;
-    var $listOfTimePoints;
 
     protected $data;
 
@@ -103,10 +102,11 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource
             );
         }
 
-        $this->data = new CandidateData(
-            $row['RegistrationProjectID'],
-            $row['RegistrationCenterID']
-        );
+        // We need to refer to these when instantiating the CandidateData
+        // object after Timepoints have been selected, but by then $row
+        // will have been overwritten, so put them in other variables..
+        $registrationProjectID = $row['RegistrationProjectID'];
+        $registrationCenterID = $row['RegistrationCenterID'];
 
         // store user data in object property
         foreach ($row as $key=>$value) {
@@ -189,9 +189,16 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource
         $row   = $db->pselect($query, $CandArray);
 
         // store user data in object property
+        $timepoints = [];
         foreach ($row as $value) {
-            $this->listOfTimePoints[] = intval($value["ID"]);
+            $timepoints[] = new TimePointData(intval($value["ID"]), null, null);
         }
+
+        $this->data = new CandidateData(
+            $registrationProjectID,
+            $registrationCenterID,
+            $timepoints;
+        );
     }
 
     /**
@@ -378,7 +385,11 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource
      */
     function getListOfTimePoints(): ?array
     {
-        return $this->listOfTimePoints;
+        return array_map($this->data->getTimePoints()
+            function($timepoint) {
+                return $timepoint->getSessionID();
+            }
+        );
     }
 
     /**
