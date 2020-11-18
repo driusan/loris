@@ -15,6 +15,9 @@ jobs:
             - static
             - unit
             - integration
+            php:
+            - 7.3
+            - 7.4
 
     steps:
     - uses: actions/checkout@v2
@@ -30,6 +33,9 @@ jobs:
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
+
+    - name: Change PHP Version in Dockerfile
+      run: sed -i "s/7.3/${{ matrix.php }}/g" Dockerfile.test.php7
 
     - name: Printing PHP Version
       run: php --version
