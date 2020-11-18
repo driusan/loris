@@ -923,8 +923,84 @@ class CandidateQueryEngineTest
         $this->DB->run("DROP TEMPORARY TABLE IF EXISTS participant_status_options");
     }
 
+    function testGetCandidateData() {
+        // By default the SQLQueryEngine uses an unbuffered query. However,
+        // this creates a new database connection which doesn't have access
+        // to our temporary tables. Since for this test we're only dealing
+        // with 1 module and don't need to run multiple queries in parallel,
+        // we can turn on buffered query access to re-use the same DB connection. 
+        $this->engine->useQueryBuffering(true);
+        // Test getting some candidate scoped data 
+        $results = iterator_to_array($this->engine->getCandidateData(
+            [$this->getDictItem("CandID")],
+            [new CandID("123456")],
+            null
+        ));
+        $results = iterator_to_array($this->engine->getCandidateData(
+            [$this->getDictItem("PSCID")],
+            [new CandID("123456")],
+            null
+        ));
+        $this->assertEquals(count($results), 1);
+        $this->assertEquals($results, [ '123456' => ["PSCID" => "test1" ]]);
 
-    // Other: ParticipantStatus
+        // Get all candidate variables that don't require setup at once.
+        // There are no sessions setup, so session scoped variables
+        // should be an empty array.
+        $results = iterator_to_array($this->engine->getCandidateData(
+            [
+                $this->getDictItem("CandID"),
+                $this->getDictItem("PSCID"),
+                $this->getDictItem("DoB"),
+                $this->getDictItem("DoD"),
+                $this->getDictItem("Sex"),
+                $this->getDictItem("EDC"),
+                $this->getDictItem("EntityType"),
+                $this->getDictItem("VisitLabel"),
+                $this->getDictItem("Project"),
+                $this->getDictItem("Subproject"),
+                $this->getDictItem("Site"),
+            ],
+            [new CandID("123456")],
+            null
+        ));
+        $this->assertEquals(count($results), 1);
+        $this->assertEquals($results, [ '123456' => [
+            "CandID" => "123456",
+            "PSCID" => "test1",
+            'DoB' => '1920-01-30',
+            'DoD' => '1950-11-16',
+            'Sex' => 'Male',
+            'EDC' => null,
+            'EntityType' => 'Human',
+            'VisitLabel' => [],
+            'Project' => [],
+            'Subproject' => [],
+            'Site' => [],
+        ]
+        ]);
+
+        // FIXME: Add sessions, registrationproject, registrationsite, participantstatus
+        // FIXME: ADD THINGS NOT DIRECTLY ON CANDIDATE TABLE
+        //    public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
+        /*
+                "CandID",
+                "PSCID",
+                "DoB",
+                "DoD",
+                "Sex",
+                "EDC",
+                "VisitLabel",
+                "Project",
+                "Subproject",
+                "Site",
+                "EntityType",
+                "ParticipantStatus",
+                "RegistrationSite",
+                "RegistrationProject",
+         */
+    }
+
     private function assertMatchNone($result) {
         $this->assertTrue(is_array($result));
         $this->assertEquals(0, count($result));
