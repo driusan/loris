@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
         matrix:
-            tools:
-            - phan
-            - lintjs
-            - lintphp
+            testsuite:
+            - static
+            - unit
+            - integration
 
     steps:
     - uses: actions/checkout@v2
@@ -45,14 +45,5 @@ jobs:
     - name: Build LORIS
       run: make dev
 
-    - name: Phan
-      if: matrix.tools == 'phan'
-      run: vendor/bin/phan
-
-    - name: Lint JS
-      if: matrix.tools == 'lintjs'
-      run: npm run lint:javascript
-
-    - name: Lint PHP
-      if: matrix.tools == 'lintphp'
-      run: npm run lint:php
+    - name: Test Suite
+      run: npm run test:${{ matrix.testsuite }}
