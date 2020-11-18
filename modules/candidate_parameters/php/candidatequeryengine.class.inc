@@ -22,6 +22,7 @@ use LORIS\Data\Query\Criteria\IsNull;
 use LORIS\Data\Query\Criteria\StartsWith;
 use LORIS\Data\Query\Criteria\Substring;
 use LORIS\Data\Query\Criteria\EndsWith;
+
 /**
  * {@inheritDoc}
  *
@@ -181,6 +182,7 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
 
         $query .= ' WHERE ';
         $query .= $this->getWhereConditions();
+        $query .= ' ORDER BY c.CandID';
 
         $DB = $this->loris->getDatabaseConnection();
         $rows = $DB->pselectCol($query, $prepbindings);
@@ -222,16 +224,21 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
 
         $DBSettings = $this->loris->getConfiguration()->getSetting("database");
 
-        $DB = new \PDO(
+        if (!$this->useBufferedQuery) {
+            $DB = new \PDO(
                 "mysql:host=$DBSettings[host];dbname=$DBSettings[database];charset=UTF8",
                 $DBSettings['username'],
                 $DBSettings['password'],
-        );
-        if ($DB->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false) == false) {
-            throw new \DatabaseException("Could not use unbuffered queries");
-        };
+            );
+            if ($DB->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false) == false) {
+                throw new \DatabaseException("Could not use unbuffered queries");
+            };
 
-        $this->createTemporaryCandIDTablePDO($DB, "searchcandidates", $candidates);
+            $this->createTemporaryCandIDTablePDO($DB, "searchcandidates", $candidates);
+        } else {
+            $DB = \Database::singleton();
+            $this->createTemporaryCandIDTable($DB, "searchcandidates", $candidates);
+        }
 
         foreach ($items as $dict) {
             $fields[] = $this->getFieldNameFromDict($dict) . ' as ' . $dict->getName();
