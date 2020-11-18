@@ -36,7 +36,7 @@ class Smarty_NeuroDB extends Smarty
      *
      * @param ?string $moduleName The name of the module to search through
      */
-    function __construct(?string $moduleName = null)
+    function __construct(?\Module $module= null)
     {
         parent::__construct();
 
@@ -51,17 +51,17 @@ class Smarty_NeuroDB extends Smarty
         // multiple template directories
         //$this->addPluginsDir($paths['base']."php/libraries/smarty/plugins");
 
-        $this->loristemplate_dir    = $basePath . "smarty/templates/";
-        $this->project_template_dir = $basePath . "project/templates/";
-
-        $this->modules_dir = is_dir($basePath . "project/modules/$moduleName")
-            ? $basePath . "project/modules/$moduleName"
-            : $basePath . "modules/$moduleName" ;
+        $this->loristemplate_dir    = $basePath . "/smarty/templates/";
+        $this->project_template_dir = $basePath . "/project/templates/";
 
         // These are probably not needed anymore and can use the smarty
         // defaults, but keep them for now to ensure that Loris doesn't
         // change..
-        $this->setCompileDir($paths['base']."smarty/templates_c/");
+        if (is_writable($paths['base']."smarty/templates_c/")) {
+            $this->setCompileDir($paths['base']."smarty/templates_c/");
+        } else {
+            $this->setCompileDir("/tmp/loris_templates_c");
+        };
 
         $this->setConfigDir($paths['base']."smarty/configs/");
         $this->setCacheDir($paths['base']."smarty/cache/");
@@ -82,7 +82,9 @@ class Smarty_NeuroDB extends Smarty
         // Set the template directories. First check for project overrides,
         // then check for modules, then check for old Loris jumbled together
         // templates
-        $this->setTemplateDir($this->modules_dir . "/templates");
+        if($module !== null) {
+            $this->setTemplateDir($module->getDirectory() . "/templates");
+        }
         $this->addTemplateDir($this->project_template_dir);
         $this->addTemplateDir($this->loristemplate_dir);
 

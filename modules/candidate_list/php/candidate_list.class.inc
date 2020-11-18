@@ -11,6 +11,8 @@
  * @link     https://www.github.com/aces/Loris/
  */
 namespace LORIS\candidate_list;
+use \Psr\Http\Message\ServerRequestInterface;
+use \Psr\Http\Message\ResponseInterface;
 /**
  * Implements the candidate_list menu
  *
@@ -71,7 +73,7 @@ class Candidate_List extends \DataFrameworkMenu
     {
         // Relying on a side-effect of the the server process module to autoload
         // its namespace.
-        \Module::factory('candidate_parameters');
+        $this->lorisinstance->getModule("candidate_parameters");
 
         // create user object
         $factory = \NDB_Factory::singleton();
@@ -164,5 +166,13 @@ class Candidate_List extends \DataFrameworkMenu
     {
         return new CandidateListRowProvisioner();
     }
+
+    public function handle(ServerRequestInterface $request) : ResponseInterface
+    {
+        $loris = $request->getAttribute("loris");
+        $this->lorisinstance = $loris;
+        return parent::handle($request);
+    }
 }
+
 

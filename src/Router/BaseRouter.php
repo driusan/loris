@@ -44,13 +44,18 @@ class BaseRouter extends PrefixRouter implements RequestHandlerInterface
     public function __construct(\User $user, string $projectdir, string $moduledir)
     {
         $this->user          = $user;
+        $moduledirs = [];
+        if(file_exists($moduledir)) {
+            $moduledirs[] = $moduledir;
+        }
+        if(file_exists($projectdir . "/modules")) {
+            $moduledirs[] = $projectdir . "/modules";
+        }
+
         $this->lorisinstance = new \LORIS\LorisInstance(
             \NDB_Factory::singleton()->database(),
             \NDB_Factory::singleton()->config(),
-            [
-             $projectdir . "/modules",
-             $moduledir,
-            ]
+            $moduledirs
         );
     }
 
@@ -106,7 +111,7 @@ class BaseRouter extends PrefixRouter implements RequestHandlerInterface
 
             $factory->setBaseURL($baseurl);
 
-            $module  = \Module::factory($modulename);
+            $module  = $this->lorisinstance->getModule($modulename);
             $mr      = new ModuleRouter($module);
             $request = $request->withURI($suburi);
             return $ehandler->process($request, $mr);

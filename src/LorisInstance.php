@@ -76,7 +76,7 @@ class LorisInstance
         $modules = [];
         foreach ($mnames as $name) {
             try {
-                $modules[] = \Module::factory($name);
+                $modules[] = \Module::factory($name, $this->getModulesDirs());
             } catch (\LorisModuleMissingException $e) {
                 error_log($e->getMessage() . " " . $e->getTraceAsString());
             }
@@ -114,6 +114,9 @@ class LorisInstance
             }
         }
         return false;
+    }
+    public function getModule(string $name) : \Module {
+        return \Module::factory($name, $this->getModulesDirs());
     }
 
     /**

@@ -102,20 +102,29 @@ abstract class Module extends \LORIS\Router\PrefixRouter
      *
      * @return \Module object
      */
-    static public function factory(string $name): \Module
+    static public function factory(string $name, ?array $modulepaths=null): \Module
     {
         $factory = NDB_Factory::singleton();
         $config  = $factory->config();
         $base    = $config->getSetting("base");
 
         $mpath = "";
-        // TODO: Module search path should be a config option.
-        if (is_dir($base . "project/modules/$name")) {
-            $mpath = $base . "project/modules/$name";
-        } else if (is_dir($base . "modules/$name")) {
-            $mpath = $base . "modules/$name";
-        } else {
+        if($modulepaths === null) {
+            // This should be removed 
+            if (is_dir($base . "project/modules/$name")) {
+                $mpath = $base . "project/modules/$name";
+            } else if (is_dir($base . "modules/$name")) {
+                $mpath = $base . "modules/$name";
+            } else {
                 throw new LorisNoSuchModuleException("No such module: $name");
+            }
+        } else {
+            foreach($modulepaths as $path) {
+                if (is_dir("$path/$name")) {
+                    $mpath = "$path/$name";
+                    break;
+                }
+            }
         }
 
         if (!file_exists($mpath . "/php/module.class.inc")) {
@@ -526,5 +535,9 @@ abstract class Module extends \LORIS\Router\PrefixRouter
         $renderer = new \Smarty_NeuroDB($this->getName());
         $renderer->assign($tpl_data);
         return $renderer->fetch($template);
+    }
+
+    public function getDirectory() : string {
+        return $this->dir;
     }
 }

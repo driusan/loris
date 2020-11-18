@@ -128,6 +128,10 @@ class Settings
      */
     private function _getDatabaseSetting(string $settingName): string
     {
+        $envvar = getenv("LORIS_DB_" . strtoupper($settingName));
+        if($envvar !== "") {
+            return $envvar;
+        }
         if (empty($this->_database)) {
             $this->_database = $this->_config->getSetting('database');
         }

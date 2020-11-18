@@ -67,7 +67,8 @@ class NDB_Config
             }
 
             // Load the file
-            $config->load($configFile);
+            if(file_exists($configFile)) 
+                $config->load($configFile);
 
             if (!empty($config->_settings['include'])) {
                 // Load all includes found in the config
