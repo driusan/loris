@@ -30,11 +30,11 @@ jobs:
       if: steps.composer-cache.outputs.cache-hit != 'true'
       run: composer install --prefer-dist --no-progress --no-suggest
 
-   - name: Install AST extension
-     run: pecl install -f ast-1.0.3
+    - name: Install AST extension
+      run: pecl install -f ast-1.0.3
 
-   - name: Build LORIS
-     run: make dev
+    - name: Build LORIS
+      run: make dev
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
