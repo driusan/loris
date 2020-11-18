@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -40,11 +39,14 @@ jobs:
     - name: Build LORIS
       run: make dev
 
-    - name: Static analysis tests
-      run: make checkstatic
+  checkstatic:
+    needs: build
+    runs-on: ubuntu-latest
 
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
+    steps:
+    - name: Lint PHP
+      run: npm run lint:php
+    - name: Phan
+      run: vendor/bin/phan
+    - name: Lint Javascript
+      run: npm run lint:javascript
