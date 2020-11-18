@@ -9,9 +9,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            tools:
+            - phan
+            - lintjs
+            - lintphp
 
-    outputs:
-        vendor: vendor
     steps:
     - uses: actions/checkout@v2
 
@@ -41,25 +45,14 @@ jobs:
     - name: Build LORIS
       run: make dev
 
-  lintphp:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Lint PHP
-      run: npm run lint:php
-  phan:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
     - name: Phan
+      if: matrix.tools == 'phan'
       run: vendor/bin/phan
 
-  lintjs:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Lint Javascript
+    - name: Lint JS
+      if: matrix.tools == 'lintjs'
       run: npm run lint:javascript
+
+    - name: Lint PHP
+      if: matrix.tools == 'lintphp'
+      run: npm run lint:php
