@@ -39,14 +39,25 @@ jobs:
     - name: Build LORIS
       run: make dev
 
-  checkstatic:
+  lintphp:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
     - name: Lint PHP
       run: npm run lint:php
+  phan:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Phan
       run: vendor/bin/phan
+
+  lintjs:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Lint Javascript
       run: npm run lint:javascript
