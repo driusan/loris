@@ -10,6 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    outputs:
+        vendor: vendor
     steps:
     - uses: actions/checkout@v2
 
