@@ -266,4 +266,9 @@ abstract class SQLQueryEngine implements QueryEngine {
         $q = $PDO->prepare($insertstmt);
         $q->execute([]);
     }
+
+    protected $useBufferedQuery = false;
+    public function useQueryBuffering(bool $buffered) {
+        $this->useBufferedQuery = $buffered;
+    }
 }
