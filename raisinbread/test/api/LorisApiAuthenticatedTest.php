@@ -162,17 +162,17 @@ class LorisApiAuthenticatedTest extends LorisIntegrationTest
             ],
         );
         $this->DB->insert(
-            "user_psc_rel",
+            'user_psc_rel',
             [
-                "CenterID" => 3,
-                "UserID" => 999990,
+                'CenterID' => '3',
+                'UserID' => '999990',
             ],
         );
         $this->DB->insert(
-            "user_psc_rel",
+            'user_psc_rel',
             [
-                "CenterID" => 4,
-                "UserID" => 999990,
+                'CenterID' => 4,
+                'UserID' => 999990,
             ],
         );
 
