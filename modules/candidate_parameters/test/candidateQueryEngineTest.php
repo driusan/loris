@@ -35,12 +35,12 @@ class CandidateQueryEngineTest
 
         $database = $this->config->getSetting('database');
 
-        $this->DB  = Database::singleton(
+        $this->DB  = \Database::singleton(
             $database['database'],
             $database['username'],
             $database['password'],
             $database['host'],
-            1
+            1,
         );
 
         $this->DB = $this->factory->database();
@@ -928,8 +928,10 @@ class CandidateQueryEngineTest
         // this creates a new database connection which doesn't have access
         // to our temporary tables. Since for this test we're only dealing
         // with 1 module and don't need to run multiple queries in parallel,
-        // we can turn on buffered query access to re-use the same DB connection. 
+        // we can turn on buffered query access to re-use the same DB
+        // connection and maintain our temporary tables.
         $this->engine->useQueryBuffering(true);
+
         // Test getting some candidate scoped data 
         $results = iterator_to_array($this->engine->getCandidateData(
             [$this->getDictItem("CandID")],
@@ -980,25 +982,311 @@ class CandidateQueryEngineTest
         ]
         ]);
 
-        // FIXME: Add sessions, registrationproject, registrationsite, participantstatus
-        // FIXME: ADD THINGS NOT DIRECTLY ON CANDIDATE TABLE
-        //    public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
-        /*
-                "CandID",
-                "PSCID",
-                "DoB",
-                "DoD",
-                "Sex",
-                "EDC",
-                "VisitLabel",
-                "Project",
-                "Subproject",
-                "Site",
-                "EntityType",
-                "ParticipantStatus",
-                "RegistrationSite",
-                "RegistrationProject",
-         */
+        // Test things that are Candidate scoped but need
+        // data from tables RegistrationProject, RegistrationSite,
+        // ParticipantStatus
+        $this->DB->setFakeTableData(
+            "psc",
+            [
+                [
+                    'CenterID' => 1,
+                    'Name' => 'TestSite',
+                    'Alias' => 'TST',
+                    'MRI_alias' => 'TSTO',
+                    'Study_site' => 'Y',
+                ],
+                [
+                    'CenterID' => 2,
+                    'Name' => 'Test Site 2',
+                    'Alias' => 'T2',
+                    'MRI_alias' => 'TSTY',
+                    'Study_site' => 'N',
+                ]
+            ]
+        );
+
+        $this->DB->setFakeTableData("participant_status_options",
+            [
+                [
+                    'ID' => 1,
+                    'Description' => "Withdrawn",
+                ],
+                [
+                    'ID' => 2,
+                    'Description' => "Active",
+                ],
+            ]
+        );
+        $this->DB->setFakeTableData("participant_status",
+            [
+                [
+                    'ID' => 1,
+                    'CandID' => "123457",
+                    'participant_status' => '1',
+                ],
+                [
+                    'ID' => 2,
+                    'CandID' => "123456",
+                    'participant_status' => '2',
+                ],
+            ]
+        );
+        $this->DB->setFakeTableData(
+            "project",
+            [
+                [
+                    'ProjectID' => 1,
+                    'Name' => 'TestProject',
+                    'Alias' => 'TST',
+                    'recruitmentTarget' => 3
+                ],
+                [
+                    'ProjectID' => 2,
+                    'Name' => 'TestProject2',
+                    'Alias' => 'T2',
+                    'recruitmentTarget' => 3
+                ]
+            ]
+        );
+
+        $results = iterator_to_array($this->engine->getCandidateData(
+            [
+                $this->getDictItem("ParticipantStatus"),
+                $this->getDictItem("RegistrationProject"),
+                $this->getDictItem("RegistrationSite"),
+                //$this->getDictItem("Project"),
+                $this->getDictItem("Subproject"),
+                //$this->getDictItem("Site"),
+            ],
+            [new CandID("123456")],
+            null
+        ));
+
+        $this->assertEquals(count($results), 1);
+        $this->assertEquals($results, [ '123456' => [
+                'ParticipantStatus' => 'Active',
+                'RegistrationProject' => 'TestProject',
+                'RegistrationSite' => 'TestSite',
+                // Project, Subproject, and Site are
+                // still empty because there are no
+                // sessions created
+                //'Project' => [],
+                'Subproject' => [],
+                //'Site' => [],
+        ]
+        ]);
+        $this->DB->setFakeTableData("session",
+            [
+                [
+                    'ID' => 1,
+                    'CandID' => "123456",
+                    'CenterID' => '1',
+                    'ProjectID' => '2',
+                    'SubprojectID' => '1',
+                    'Active' => 'Y',
+                    'Visit_label' => 'V1',
+                ],
+                [
+                    'ID' => 2,
+                    'CandID' => "123456",
+                    'CenterID' => '2',
+                    'ProjectID' => '2',
+                    'SubprojectID' => '1',
+                    'Active' => 'Y',
+                    'Visit_label' => 'V2',
+                ],
+                [
+                    'ID' => 3,
+                    'CandID' => "123457",
+                    'CenterID' => '2',
+                    'ProjectID' => '2',
+                    'SubprojectID' => '2',
+                    'Active' => 'Y',
+                    'Visit_label' => 'V1',
+                ],
+            ]
+        );
+
+        $this->DB->setFakeTableData(
+            "subproject",
+            [
+                [
+                    'SubprojectID' => 1,
+                    'title' => 'Subproject1',
+                    'useEDC' => '0',
+                    'Windowdifference' => 'battery',
+                    'RecruitmentTarget' => 3,
+                ],
+                [
+                    'SubprojectID' => 2,
+                    'title' => 'Battery 2',
+                    'useEDC' => '0',
+                    'Windowdifference' => 'battery',
+                    'RecruitmentTarget' => 3,
+                ],
+            ]
+        );
+
+        $results = iterator_to_array($this->engine->getCandidateData(
+            [
+                $this->getDictItem("VisitLabel"),
+                $this->getDictItem("Site"),
+                $this->getDictItem("Project"),
+                $this->getDictItem("Subproject"),
+
+            ],
+            [new CandID("123456")],
+            null
+        ));
+        $this->assertEquals(count($results), 1);
+        $this->assertEquals($results, [
+            '123456' => [
+                'VisitLabel' => ['V1', 'V2'],
+                'Site' => ['TestSite', 'Test Site 2'],
+                'Project' => ['TestProject2'],
+                'Subproject' => ['Subproject1'],
+            ],
+        ]);
+
+
+
+        $results = iterator_to_array($this->engine->getCandidateData(
+            [
+                $this->getDictItem("VisitLabel"),
+                $this->getDictItem("Subproject"),
+                $this->getDictItem("Project"),
+                $this->getDictItem("RegistrationSite"),
+            ],
+            // Note: results should be ordered when returning
+            // them
+            [new CandID("123457"), new CandID("123456")],
+            null
+        ));
+
+        $this->assertEquals(count($results), 2);
+        $this->assertEquals($results, [
+            '123456' => [
+                'VisitLabel' => ['V1', 'V2'],
+                'Subproject' => ['Subproject1'],
+                'Project' => ['TestProject2'],
+                'RegistrationSite' => 'TestSite',
+            ],
+            '123457' => [
+                'VisitLabel' => ['V1'],
+                'Subproject' => ['Battery 2'],
+                'Project' => ['TestProject2'],
+                'RegistrationSite' => 'Test Site 2',
+            ]
+        ]);
+
+        $this->DB->run("DROP TEMPORARY TABLE IF EXISTS psc");
+        $this->DB->run("DROP TEMPORARY TABLE IF EXISTS project");
+        $this->DB->run("DROP TEMPORARY TABLE IF EXISTS participant_status");
+        $this->DB->run("DROP TEMPORARY TABLE IF EXISTS participant_status_options");
+        $this->DB->run("DROP TEMPORARY TABLE IF EXISTS subproject");
+        $this->DB->run("DROP TEMPORARY TABLE IF EXISTS session");
+    }
+
+    function testGetCandidateDataMemory() {
+        $this->engine->useQueryBuffering(false);
+        $fakecandidates = [];
+        $insert = $this->DB->prepare("INSERT INTO candidate 
+            (ID, CandID, PSCID, RegistrationProjectID, RegistrationCenterID,
+                Active, DoB, DoD, Sex, EDC, Entity_type)
+            VALUES (?, ?, ?, '1', '1', 'Y', '1933-03-23', '1950-03-23',
+                'Female', null, 'Human')");
+
+
+        $this->DB->run("DROP TEMPORARY TABLE IF EXISTS candidate");
+        $this->DB->setFakeTableData("candidate", []);
+        for($i = 100000; $i < 100010; $i++) {
+            $insert->execute([$i, $i, "Test$i"]);
+        }
+
+
+        $memory10 = memory_get_peak_usage();
+
+        $fakecandidates = [];
+        for($i = 100010; $i < 100200; $i++) {
+            $insert->execute([$i, $i, "Test$i"]);
+        }
+
+
+        $memory200 = memory_get_peak_usage();
+
+        // Ensure that the memory used by php didn't change whether
+        // a prepared statement was executed 10 or 200 times. Any
+        // additional memory should have been used by the SQL server,
+        // not by PHP.
+        $this->assertTrue($memory10 == $memory200);
+
+        $cand10 = [];
+        $cand200 = [];
+
+        // Allocate the CandID array for both tests upfront to
+        // ensure we're measuring memory used by getCandidateData
+        // and not the size of the arrays passed as arguments.
+        for($i = 100000; $i < 100010; $i++) {
+            $cand10[] = new CandID("$i");
+            $cand200[] = new CandID("$i");
+        }
+        for($i = 100010; $i < 102000; $i++) {
+            $cand200[] = new CandID("$i");
+        }
+
+        $this->assertEquals(count($cand10), 10);
+        $this->assertEquals(count($cand200), 2000);
+
+        $results10 = $this->engine->getCandidateData(
+            [$this->getDictItem("PSCID")],
+            $cand10,
+            null,
+        );
+
+        $memory10data = memory_get_usage();
+        // There should have been some overhead for the
+        // generator
+        $this->assertTrue($memory10data > $memory200);
+
+
+        // Go through all the data returned and measure
+        // memory usage after.
+        $i = 100000;
+        foreach($results10 as $candid => $data) {
+            $this->assertEquals($candid, $i);
+            // $this->assertEquals($data['PSCID'], "Test$i");
+            $i++;
+        }
+
+        $memory10dataAfter = memory_get_usage();
+        $memory10peak = memory_get_peak_usage();
+
+        $iterator10usage = $memory10dataAfter - $memory10data;
+
+        // Now see how much memory is used by iterating over
+        // 200 candidates
+        $results200 = $this->engine->getCandidateData(
+            [$this->getDictItem("PSCID")],
+            $cand200,
+            null,
+        );
+
+        $memory200data = memory_get_usage();
+
+        $i = 100000;
+        foreach($results200 as $candid => $data) {
+            $this->assertEquals($candid, $i);
+            // $this->assertEquals($data['PSCID'], "Test$i");
+            $i++;
+        }
+
+        $memory200dataAfter = memory_get_usage();
+        $iterator200usage = $memory200dataAfter - $memory200data;
+
+        $memory200peak = memory_get_peak_usage();
+        $this->assertTrue($iterator200usage == $iterator10usage);
+        $this->assertEquals($memory10peak, $memory200peak);
+        $this->DB->run("DROP TEMPORARY TABLE IF EXISTS candidate");
     }
 
     private function assertMatchNone($result) {
