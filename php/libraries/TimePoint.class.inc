@@ -73,6 +73,12 @@ class TimePoint implements \LORIS\StudyEntities\AccessibleResource,
     ];
 
 
+    protected $data;
+
+    public function __construct(?TimePointData $data=null) {
+        $this->data = $data;
+    }
+
     /**
      * Returns an object representing this Timepoint, and ensures that only
      * one is ever created per Session.
@@ -441,11 +447,7 @@ class TimePoint implements \LORIS\StudyEntities\AccessibleResource,
      */
     function getCenterID(): int
     {
-        /* _timePointInfo contains information that comes from the database
-         * which returns values in string format. Intval is used here to
-         * ensure we return a numerical ID instead of its string representation.
-         */
-        return intval($this->_timePointInfo['CenterID']);
+        return $this->data->getCenterID();
     }
 
     /**
