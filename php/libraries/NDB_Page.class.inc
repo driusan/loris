@@ -692,7 +692,7 @@ class NDB_Page implements RequestHandlerInterface
         // Format should be deprecated and getting the page in different formats
         // should be a different endpoint or use HTTP content negotiation headers.
         $get = $request->getQueryParams();
-        if (isset($get['format'])) {
+        if (isset($get['format']) && $get['format'] === 'json') {
             $this->format = $get['format'];
             return $handler->handle($request)
                 ->withHeader("Content-Type", "application/json");

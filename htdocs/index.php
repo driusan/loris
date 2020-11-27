@@ -80,3 +80,17 @@ while ($bodystream->eof() == false) {
 // Include the body.
 // print $response->getBody();
 error_log('Peak memory usage for request was ' . memory_get_peak_usage() . ' bytes');
+$bodystream = $response->getBody();
+
+// First we need to disable any output buffering so that
+// it streams to the output instead of into the buffer
+// and uses up all the memory for large chunks of data.
+for ($i = ob_get_level(); $i != 0; $i = ob_get_level()) {
+    ob_end_clean();
+}
+ob_implicit_flush();
+
+while ($bodystream->eof() == false) {
+    // 64k oughta be enough for anybody.
+    print $bodystream->read(1024*64);
+}
