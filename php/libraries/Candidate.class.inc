@@ -204,7 +204,7 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
         $this->data = new CandidateData(
             $registrationProjectID,
             $registrationCenterID,
-            $timepoints;
+            $timepoints,
         );
     }
 
