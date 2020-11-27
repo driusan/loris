@@ -10,5 +10,12 @@ class TimePointData {
         $this->projectID = $project;
         $this->centerID = $centerID;
     }
+
+    public function getSessionID() : SessionID {
+        if($this->sessionID === null) {
+            throw new \Exception("No session ID loaded into data model");
+        }
+        return $this->sessionID;
+    }
 }
 ?>

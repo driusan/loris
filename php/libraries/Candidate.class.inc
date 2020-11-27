@@ -197,7 +197,7 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource
         $this->data = new CandidateData(
             $registrationProjectID,
             $registrationCenterID,
-            $timepoints;
+            $timepoints,
         );
     }
 
@@ -385,10 +385,11 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource
      */
     function getListOfTimePoints(): ?array
     {
-        return array_map($this->data->getTimePoints()
+        return array_map(
             function($timepoint) {
                 return $timepoint->getSessionID();
-            }
+            },
+            $this->data->getTimePoints(),
         );
     }
 

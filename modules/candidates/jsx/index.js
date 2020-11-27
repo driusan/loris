@@ -831,6 +831,7 @@ function CandidatesIndex(props) {
     const [dictionary, setDictionary] = useState({});
     const [curmodule, setSelectedModule] = useState('');
     const [resultdata, setResultData] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -882,6 +883,7 @@ function CandidatesIndex(props) {
     };
 
     const performSearch = () => {
+        setLoading(true);
         let payloadcriteria = {};
 
         for (const value of criteria) {
@@ -984,25 +986,15 @@ function CandidatesIndex(props) {
             },
             () => {
                 setResultData([...resultbuffer]);
+                setLoading(false);
             },
         );
 
-        /*
-        fetch(props.SearchURL,
-            {
-                method: 'POST',
-                credentials: 'same-origin',
-                cache: 'no-cache',
-                body: JSON.stringify(payload),
-            }
-        ).then((resp) => resp.json())
-        .then((result) => {
-            setResultData(result.data);
-        });
-        */
     };
 
-    return (<Panel title="Candidate List">
+    const style={cursor: loading ? 'progress' : 'default'};
+    return (<div style={style}>
+              <Panel title="Candidate List">
                 <CandidateCriteria criteria={criteria}
                     onAddCriteria={addCriteria}
                     deleteCriteria={deleteCriteria}
@@ -1018,6 +1010,7 @@ function CandidatesIndex(props) {
                 />
             <Results data={resultdata} />
       </Panel>
+    </div>
     );
 }
 
