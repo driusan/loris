@@ -739,82 +739,102 @@ function Results(props) {
             'label': 'EDC',
             'show': true,
         },
+        {
+            'label': 'RegistrationProject',
+            'show': false
+        },
+        {
+            'label': 'RegistrationSite',
+            'show': false
+        },
+        {
+            'label': 'SessionThreadStatus',
+            'show': false,
+        },
     ];
 
     if (!props.data.map) {
         // console.log(props.data);
     }
-    const datarows = props.data.map((row) => {
-        let scandone = 'N';
-        for (let i = 0; row.ScanDone && i < row.ScanDone.length; i++) {
-            if (row.ScanDone[i] == 'Y') {
-                scandone = 'Y';
+    const datarows = props.data;
+
+    const minFeedbackStatus = (cand, sess) => {
+        // The candidate_list shows the min of the enum
+        // enum('opened','answered','closed','comment')
+        // We need to emulate that
+        //
+        const strtoint = (s) => {
+            switch(s) {
+                case 'opened': return 1;
+                case 'answered': return 2;
+                case 'closed': return 3;
+                case 'comment': return 4;
+                default:
+                    console.error('Invalid value' + s);
+                    return 999;
             }
         }
 
-        const minFeedbackStatus = (cand, sess) => {
-            // The candidate_list shows the min of the enum
-            // enum('opened','answered','closed','comment')
-            // We need to emulate that
-            //
-            const strtoint = (s) => {
-                switch(s) {
-                    case 'opened': return 1;
-                    case 'answered': return 2;
-                    case 'closed': return 3;
-                    case 'comment': return 4;
-                    default:
-                        console.error('Invalid value' + s);
-                        return 999;
-                }
+        let min = 999;
+        for (let val of cand) {
+            const sval = strtoint(val)
+            if (sval < min) {
+                min = sval;
             }
 
-            let min = 999;
-            for (let val of cand) {
-                const sval = strtoint(val)
-                if (sval < min) {
-                    min = sval;
-                }
-
-            }
-            for (let val of sess) {
-                const sval = strtoint(val)
-                if (sval < min) {
-                    min = sval;
-                }
-
-            }
-
-            // Convert back to a string
-            switch (min) {
-                case 1: return 'opened';
-                case 2: return 'answered';
-                case 3: return 'closed';
-                case 4: return 'comment';
-                default: return 'None';
-            }
         }
-        return row;
-        return [
-            row.PSCID,
-            row.CandID,
-            row.Site.length == 0 ? row.RegistrationSite : row.Site.join(', '),
-            row.Subproject.join(', '),
-            row.EntityType,
-            scandone,
-            row.ParticipantStatus,
-            row.DoB,
-            row.Sex,
-            row.VisitLabel.length ? row.VisitLabel.length : 0,
-            minFeedbackStatus(row.CandidateThreadStatus || [], row.SessionThreadStatus || []),
-            row.Project.length == 0 ? row.RegistrationProject : row.Project.join(', '),
-            row.EDC,
-        ];
-    });
+        for (let val of sess) {
+            const sval = strtoint(val)
+            if (sval < min) {
+                min = sval;
+            }
 
+        }
+
+        // Convert back to a string
+        switch (min) {
+            case 1: return 'opened';
+            case 2: return 'answered';
+            case 3: return 'closed';
+            case 4: return 'comment';
+            default: return 'None';
+        }
+    }
+    const formatCell = (label, cell, row) => {
+        if (label == 'Visit Count') {
+            if (!cell) {
+                return <td>0</td>;
+            }
+            return <td><span title={cell.join(', ')}>{cell.length}</span></td>
+        } else if (label == 'Feedback') {
+            var cellcolour;
+
+            const minstatus = minFeedbackStatus(
+                row.Feedback || [],
+                row.SessionThreadStatus || []
+            );
+            switch (minstatus) {
+                case 'opened':
+                    cellcolour = '#E4A09E';
+                    break;
+                case 'answered':
+                    cellcolour = '#EEEEAA';
+                    break;
+                case 'closed':
+                    cellcolour = '#99CC99';
+                    break;
+                case 'comment':
+                    cellcolour = '#99CCFF';
+                    break;
+            }
+            return <td style={{background: cellcolour}}>{minstatus}</td>
+        }
+        return <td>{cell}</td>
+    }
     return <DataTable
         data={datarows}
         fields={fields}
+        getFormattedCell={formatCell}
         />;
 }
 /**
@@ -989,7 +1009,6 @@ function CandidatesIndex(props) {
                 setLoading(false);
             },
         );
-
     };
 
     const style={cursor: loading ? 'progress' : 'default'};

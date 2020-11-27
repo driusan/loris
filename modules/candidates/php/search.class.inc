@@ -386,7 +386,8 @@ class Search extends \NDB_Page
                     'Timepoints' => [],
                 ];
             }
-            if ($row['SProjectID'] !== null || $row['SCenterID'] !== null) {
+
+            if ($row['sessionID'] !== null) {
                 $organized[$candid]['Timepoints'][] = new \TimePoint(new \TimePointData(
                     new \SessionID($row['sessionID']),
                     intval($row['SProjectID']),
