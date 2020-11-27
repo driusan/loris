@@ -367,7 +367,8 @@ class Search extends \NDB_Page
 
         $rows = $DB->pselect(
             "SELECT c.CandID, c.RegistrationProjectID, c.RegistrationCenterID,
-                s.ProjectID as SProjectID, s.CenterID as SCenterID
+                s.ProjectID as SProjectID, s.CenterID as SCenterID,
+                s.ID as sessionID
             FROM candidate c LEFT JOIN session s ON (s.CandID=c.CandID)
             WHERE c.Active='Y' AND COALESCE(s.Active, 'Y')='Y'
                 AND c.CandID IN (SELECT CandID FROM accesscandidates)
@@ -386,10 +387,11 @@ class Search extends \NDB_Page
                 ];
             }
             if ($row['SProjectID'] !== null || $row['SCenterID'] !== null) {
-                $organized[$candid]['Timepoints'][] = new \TimePointData(
+                $organized[$candid]['Timepoints'][] = new \TimePoint(new \TimePointData(
+                    new \SessionID($row['sessionID']),
                     intval($row['SProjectID']),
                     intval($row['SCenterID']),
-                );
+                ));
             }
         }
 
