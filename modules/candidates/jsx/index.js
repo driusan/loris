@@ -751,11 +751,12 @@ function Results(props) {
             'label': 'SessionThreadStatus',
             'show': false,
         },
+        {
+            'label': 'Actions',
+            'show': true,
+        },
     ];
 
-    if (!props.data.map) {
-        // console.log(props.data);
-    }
     const datarows = props.data;
 
     const minFeedbackStatus = (cand, sess) => {
@@ -800,36 +801,50 @@ function Results(props) {
             default: return 'None';
         }
     }
-    const formatCell = (label, cell, row) => {
-        if (label == 'Visit Count') {
-            if (!cell) {
-                return <td>0</td>;
-            }
-            return <td><span title={cell.join(', ')}>{cell.length}</span></td>
-        } else if (label == 'Feedback') {
-            var cellcolour;
 
-            const minstatus = minFeedbackStatus(
-                row.Feedback || [],
-                row.SessionThreadStatus || []
-            );
-            switch (minstatus) {
-                case 'opened':
-                    cellcolour = '#E4A09E';
-                    break;
-                case 'answered':
-                    cellcolour = '#EEEEAA';
-                    break;
-                case 'closed':
-                    cellcolour = '#99CC99';
-                    break;
-                case 'comment':
-                    cellcolour = '#99CCFF';
-                    break;
-            }
-            return <td style={{background: cellcolour}}>{minstatus}</td>
+    const formatCell = (label, cell, row) => {
+        switch(label) {
+            case 'Visit Count':
+                if (!cell) {
+                    return <td>0</td>;
+                }
+                return <td title={cell.join(', ')}>{cell.length}</td>
+            case 'Feedback':
+                var cellcolour;
+
+                const minstatus = minFeedbackStatus(
+                    row.Feedback || [],
+                    row.SessionThreadStatus || []
+                );
+                switch (minstatus) {
+                    case 'opened':
+                        cellcolour = '#E4A09E';
+                        break;
+                    case 'answered':
+                        cellcolour = '#EEEEAA';
+                        break;
+                    case 'closed':
+                        cellcolour = '#99CC99';
+                        break;
+                    case 'comment':
+                        cellcolour = '#99CCFF';
+                        break;
+                }
+                return <td style={{background: cellcolour}}>{minstatus}</td>;
+            case 'Site':
+            case 'Subproject':
+            case 'Project':
+                if (cell) {
+                    return <td>{cell.join(', ')}</td>;
+                }
+                return <td></td>;
+            case 'Actions':
+                const url = props.ProfileBaseURL + '/' + row['CandID'] + '/';
+
+                return <td><a href={url}>Access profile</a></td>
+            default:
+                return <td>{cell}</td>;
         }
-        return <td>{cell}</td>
     }
     return <DataTable
         data={datarows}
@@ -837,6 +852,7 @@ function Results(props) {
         getFormattedCell={formatCell}
         />;
 }
+
 /**
  * Return the main index page for the candidates module
  *
@@ -1027,7 +1043,7 @@ function CandidatesIndex(props) {
 
                     VisitListURL={props.VisitListURL}
                 />
-            <Results data={resultdata} />
+            <Results data={resultdata} ProfileBaseURL={props.ProfileBaseURL} />
       </Panel>
     </div>
     );
@@ -1040,6 +1056,7 @@ window.addEventListener('load', () => {
         ModuleDictURLBase={loris.BaseURL + '/dictionary/module/'}
         SearchURL={loris.BaseURL + '/candidates/search'}
         VisitListURL={loris.BaseURL + '/candidates/visitlist'}
+        ProfileBaseURL={loris.BaseURL + '/candidate_profile'}
       />,
       document.getElementById('lorisworkspace')
   );
