@@ -888,22 +888,20 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource
         $projMatch   = in_array($this->getProjectID(), $user->getProjectIDs(), true);
         $centerMatch = in_array($this->getCenterID(), $centers, true);
 
-        if ($centerMatch === false) {
-            // getCenterID is just the RegistrationCenterID, if a visit
-            // has a center in common, we should still allow access to
-            // the candidate.
-            $timepoints = $this->getListOfTimePoints();
-            foreach ($timepoints as $sessionID) {
-                $timepoint = \TimePoint::singleton(
-                    new \SessionID(strval($sessionID))
-                );
-                if (in_array($timepoint->getCenterID(), $centers, true)) {
-                    $centerMatch = true;
-                    break;
-                }
+        if ($projMatch && $centerMatch) {
+            return true;
+        }
+
+        // getCenterID/getProjectID is just the RegistrationCenterID, if the
+        // user has access to a visit they get access to the candidate in order
+        // to get that visit.
+        $timepoints = $this->data->getTimepoints();
+        foreach ($timepoints as $timepoint) {
+            if ($timepoint->isAccessibleBy($user)) {
+                return true;
             }
         }
-        return $projMatch && $centerMatch;
+        return false;
     }
 
     /**
