@@ -129,7 +129,6 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
             }
         }
 
-        $this->candidateInfo['ProjectTitle'] = $this->getProjectTitle();
 
         $headerSetting = $config->getSetting('HeaderTable');
         if (!empty($headerSetting)) {
@@ -195,14 +194,15 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
         // store user data in object property
         $timepoints = [];
         foreach ($row as $value) {
-            $timepoints[] = new TimePointData(intval($value["ID"]), null, null);
+            $timepoints[] = new TimePointData(new SessionID($value["ID"]), null, null);
         }
 
         $this->data = new CandidateData(
-            $registrationProjectID,
-            $registrationCenterID,
+            intval($registrationProjectID),
+            intval($registrationCenterID),
             $timepoints,
         );
+        $this->candidateInfo['ProjectTitle'] = $this->getProjectTitle();
     }
 
     /**
