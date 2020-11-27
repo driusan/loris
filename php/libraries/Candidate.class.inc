@@ -380,10 +380,10 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource
     /**
      * Get a list of timepoints that this Candidate has registered
      *
-     * @return array|null Non-associative array of SessionIDs 1st Time Point
+     * @return array Non-associative array of SessionIDs 1st Time Point
      *               indexed to 0
      */
-    function getListOfTimePoints(): ?array
+    function getListOfTimePoints(): array
     {
         return array_map(
             function($timepoint) {
@@ -875,7 +875,8 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource
 
     /**
      * Implements the AccessibleResource interface. A candidate can
-     * be accessed by a user if it has a project and a site in common.
+     * be accessed by a user if it shares the same registration project
+     * and site or it has access to any of the timepoints.
      *
      * @param \User $user The user whose access should be validated.
      *
@@ -888,13 +889,15 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource
         $projMatch   = in_array($this->getProjectID(), $user->getProjectIDs(), true);
         $centerMatch = in_array($this->getCenterID(), $centers, true);
 
+        // The candidate is accessible based on its registration
+        // project/center
         if ($projMatch && $centerMatch) {
             return true;
         }
 
-        // getCenterID/getProjectID is just the RegistrationCenterID, if the
-        // user has access to a visit they get access to the candidate in order
-        // to get that visit.
+        // If we can't access due the registration, check if we
+        // have access to any sites. If we have access to a site,
+        // we need to be able to access the candidate to get to it.
         $timepoints = $this->data->getTimepoints();
         foreach ($timepoints as $timepoint) {
             if ($timepoint->isAccessibleBy($user)) {
