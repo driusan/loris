@@ -610,7 +610,8 @@ function FieldList(props) {
             <h4>All {props.searchtype}</h4>
             <button className="btn btn-primary"
                     type="button"
-                    onClick={props.onAddCriteria}>
+                    onClick={props.onAddCriteria}
+                    style={{float: "left"}}>
                     Add Criteria
             </button>
         </div>);
@@ -662,13 +663,14 @@ function FieldList(props) {
     const addButton = canAddNew ?
             <button className="btn btn-primary"
                     type="button"
-                    onClick={props.onAddCriteria}>
+                    onClick={props.onAddCriteria}
+                    style={{float: "left"}}>
                     Add Criteria
             </button>
         : <button className="btn btn-primary disabled"
                 title="Must finish editing current criteria before adding more"
                 style={{cursor: 'not-allowed', pointerEvents: 'auto',
-                    color: 'white'}}
+                    color: 'white', float: 'left'}}
                     type="button">
                     Add Criteria
             </button>;
@@ -708,11 +710,10 @@ function CandidateCriteria(props) {
                 categories={props.categories}
                 loadModule={props.loadModule}
                 dictionary={props.dictionary}
-
                 VisitListURL={props.VisitListURL}
             />
             <button type="button" className="btn btn-primary"
-                onClick={props.search}>
+                onClick={props.search} style={{"float": "left"}}>
                 Search
             </button>
         </fieldset>
@@ -1077,7 +1078,7 @@ function CandidatesIndex(props) {
 
     const style={cursor: loading ? 'progress' : 'default'};
     return (<div style={style}>
-              <Panel title="Candidate List">
+              <Panel> 
                 <CandidateCriteria criteria={criteria}
                     onAddCriteria={addCriteria}
                     deleteCriteria={deleteCriteria}
