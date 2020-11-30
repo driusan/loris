@@ -115,10 +115,10 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             $prepbindings['mstval'] = $dict->getModality();
             $this->addWhereCriteria('f.File', $term->getCriteria(), $prepbindings);
         } else if ($dict instanceof QCDictionaryItem) {
-            $this->addTable("JOIN mri_scan_type mst ON (f.AcquisitionProtocolID=mst.ID)");
+            $this->addTable("LEFT JOIN mri_scan_type mst ON (f.AcquisitionProtocolID=mst.ID)");
             $this->addWhereClause('mst.Scan_type=:mstval');
             $prepbindings['mstval'] = $dict->getModality();
-            $this->addTable('JOIN files_qcstatus fqc ON (fqc.FileID=f.FileID)');
+            $this->addTable('LEFT JOIN files_qcstatus fqc ON (fqc.FileID=f.FileID)');
             $this->addWhereCriteria('fqc.QCStatus', $term->getCriteria(), $prepbindings);
         }
 
@@ -136,7 +136,7 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
                 $inset[] = $prepname;
                 $prepbindings[$prepname] = $vl;
             }
-            $query .= 'AND s.Visit_label IN (' . join(",", $inset) . ')';
+            $query .= ' AND s.Visit_label IN (' . join(",", $inset) . ')';
         }
 
         $DB = \Database::singleton();
