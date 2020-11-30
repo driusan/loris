@@ -147,6 +147,13 @@ class TimePoint implements \LORIS\StudyEntities\AccessibleResource,
             ['SID' => $sessionID]
         );
 
+
+        $this->data = new TimePointData(
+            $sessionID,
+            intval($row['ProjectID']),
+            intval($row['CenterID']),
+        );
+
         // store user data in object property
         if (is_array($row) && count($row) > 0) {
             $this->_timePointInfo = $row;
