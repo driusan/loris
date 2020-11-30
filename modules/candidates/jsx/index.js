@@ -56,6 +56,22 @@ function getFieldScope(dictionary, field) {
     const fdict = fcat[field.field];
     return fdict.scope;
 }
+
+function getFieldCardinality(dictionary, field) {
+    const fmod = dictionary[field.module];
+    const fcat = fmod[field.category];
+    const fdict = fcat[field.field];
+    return fdict.cardinality;
+
+}
+
+function getFieldDescription(dictionary, field) {
+    const fmod = dictionary[field.module];
+    const fcat = fmod[field.category];
+    const fdict = fcat[field.field];
+    return fdict.description;
+}
+
 /**
  * React
  *
@@ -526,10 +542,18 @@ function DisplayField(props) {
             </span>);
     };
 
+    const displayField = (dictionary, field) => {
+        const desc = getFieldCardinality(dictionary, field) === 'many' ?
+            'at least one ' : '';
+
+        return <span>{desc}<b title={getFieldDescription(dictionary, field)}>
+            {field.field}</b></span>
+    }
+
     return <div className="row">
-        <span className="col-sm-3">{props.field.field}</span>
-        <span className="col-sm-2">{displayOp(props.field.op)}</span>
-        <span className="col-sm-2">{props.field.value}</span>
+        <span className="col-sm-3">{displayField(props.dictionary, props.field)}</span>
+        <span className="col-sm-2"><b>{displayOp(props.field.op)}</b></span>
+        <span className="col-sm-2"><b>{props.field.value}</b></span>
         {visitlist()}
         <span className="col-sm-2">
             <i
