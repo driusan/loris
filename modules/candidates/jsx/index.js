@@ -93,7 +93,6 @@ function EditField(props) {
             }
 
             const result = await fetch(
-
                 props.VisitListURL
                     + '?module='
                     + field.module
@@ -280,6 +279,15 @@ function EditField(props) {
            return <input name="value" type="number" value={field.value || 0}
                 onChange={setValue}
            />;
+        case 'boolean':
+           return <SelectElement
+                        label=''
+                        name='value'
+                        options={{'true' : 'true', 'false' : 'false'}}
+                        onUserInput={setField}
+                        value={field.value}
+                        sortByValue={false}
+                    />;
         case 'enumeration':
            let opts = {};
            for (let i = 0; i < fielddict.options.length; i++) {
@@ -550,10 +558,26 @@ function DisplayField(props) {
             {field.field}</b></span>
     }
 
+    const displayValue = (value) => {
+        if (Array.isArray(value)) {
+            let display = [];
+            for(let i = 0; i < value.length; i++) {
+                display.push(<b>{value[i]}</b>);
+                if(i == value.length-2) {
+                    display.push(' or ');
+                } else if (i != value.length-1) {
+                    display.push(', ');
+                }
+
+            }
+            return display;
+        }
+        return <b>{value}</b>;
+    }
     return <div className="row">
         <span className="col-sm-3">{displayField(props.dictionary, props.field)}</span>
         <span className="col-sm-2"><b>{displayOp(props.field.op)}</b></span>
-        <span className="col-sm-2"><b>{props.field.value}</b></span>
+        <span className="col-sm-2">{displayValue(props.field.value)}</span>
         {visitlist()}
         <span className="col-sm-2">
             <i
