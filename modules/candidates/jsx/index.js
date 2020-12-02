@@ -554,7 +554,13 @@ function DisplayField(props) {
         const desc = getFieldCardinality(dictionary, field) === 'many' ?
             'at least one ' : '';
 
-        return <span>{desc}<b title={getFieldDescription(dictionary, field)}>
+        return <span>{desc}<b title={getFieldDescription(dictionary, field)}
+            style={
+                {
+                    textDecorationLine: "underline",
+                    textDecorationStyle: "dashed",
+                }
+            }>
             {field.field}</b></span>
     }
 
@@ -800,10 +806,6 @@ function Results(props) {
             'label': 'SessionThreadStatus',
             'show': false,
         },
-        {
-            'label': 'Actions',
-            'show': true,
-        },
     ];
 
     const datarows = props.data;
@@ -853,11 +855,26 @@ function Results(props) {
 
     const formatCell = (label, cell, row) => {
         switch(label) {
+            case 'PSCID':
+                const iconurl = props.ProfileBaseURL + '/' + row['CandID'] + '/';
+                const icon = <a href={iconurl}>
+                    {cell}&nbsp;
+                    <i class="far fa-id-card"></i>
+                </a>
+                return <td><nobr>{icon}</nobr></td>
             case 'Visit Count':
                 if (!cell) {
                     return <td>0</td>;
                 }
-                return <td title={cell.join(', ')}>{cell.length}</td>
+                return <td title={cell.join(', ')}><span style={
+                    {
+                        textDecorationLine: "underline",
+                        textDecorationStyle: "dashed",
+                    }
+                }>
+                        {cell.length}
+                    </span>
+                    </td>
             case 'Feedback':
                 var cellcolour;
 
@@ -887,10 +904,6 @@ function Results(props) {
                     return <td>{cell.join(', ')}</td>;
                 }
                 return <td></td>;
-            case 'Actions':
-                const url = props.ProfileBaseURL + '/' + row['CandID'] + '/';
-
-                return <td><a href={url}>Access profile</a></td>
             default:
                 return <td>{cell}</td>;
         }
