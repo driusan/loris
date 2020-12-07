@@ -34,7 +34,7 @@ class LorisApiAuthenticatedTest extends LorisIntegrationTest
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -215,7 +215,7 @@ class LorisApiAuthenticatedTest extends LorisIntegrationTest
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         // Only delete the ones we setup in setUp.
         $this->DB->delete(

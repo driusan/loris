@@ -8,15 +8,6 @@ namespace LORIS\Data\Types;
  */
 class BooleanType implements \LORIS\Data\Type
 {
-    private $size;
-
-    /**
-     * Construct a BooleanType object
-     */
-    public function __construct()
-    {
-    }
-
     /**
      * Convert this data type to a string.
      *

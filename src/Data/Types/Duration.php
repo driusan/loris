@@ -2,25 +2,22 @@
 namespace LORIS\Data\Types;
 
 /**
- * A DecimalType represents a data type which may have a fractional
- * part to its representation.
+ * An Duration data type represents an amount of time
  *
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
-class DecimalType implements \LORIS\Data\Type
+class Duration implements \LORIS\Data\Type
 {
     /**
      * Convert the type to a human readable string
-     *
-     * @return string
      */
     public function __toString()
     {
-        return "decimal";
+        return "duration";
     }
 
     /**
-     * Convert the type to JSON by converting to a string
+     * Serialize the type by converting to JSON
      *
      * @return string
      */
@@ -30,11 +27,13 @@ class DecimalType implements \LORIS\Data\Type
     }
 
     /**
-     * A DecimalType is represented by the SQL decimal column
-     * type
+     * Duration are represented as varchar(255) descriptions,
+     * since MySQL does not support an interval or duration type.
+     *
+     * @return string
      */
     public function asSQLType() : string
     {
-        return "decimal";
+        return "varchar(255)";
     }
 }
