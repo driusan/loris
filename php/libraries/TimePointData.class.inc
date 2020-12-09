@@ -6,7 +6,7 @@ class TimePointData {
     protected $sessionID;
 
     public function __construct(?SessionID $sessionID, ?int $projectID, ?int $centerID) {
-        $this->sessionID = $sid;
+        $this->sessionID = $sessionID;
         $this->projectID = $projectID;
         $this->centerID = $centerID;
     }
