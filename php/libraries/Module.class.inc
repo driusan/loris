@@ -532,7 +532,7 @@ abstract class Module extends \LORIS\Router\PrefixRouter
      */
     public function renderTemplate(string $template, array $tpl_data) : string
     {
-        $renderer = new \Smarty_NeuroDB($this->getName());
+        $renderer = new \Smarty_NeuroDB($this);
         $renderer->assign($tpl_data);
         return $renderer->fetch($template);
     }

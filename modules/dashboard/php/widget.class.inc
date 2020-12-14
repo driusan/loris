@@ -108,7 +108,7 @@ class Widget implements \LORIS\GUI\Widget
      */
     public function __toString()
     {
-        $renderer = new \Smarty_NeuroDB("dashboard");
+        $renderer = new \Smarty_NeuroDB(\Module::factory("dashboard"));
         $renderer->assign(
             [
                 'title'  => $this->content->getTitle(),

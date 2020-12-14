@@ -129,13 +129,12 @@ class Settings
     private function _getDatabaseSetting(string $settingName): string
     {
         $envvar = getenv("LORIS_DB_" . strtoupper($settingName));
-        if($envvar !== "") {
+        if($envvar !== false && $envvar !== "") {
             return $envvar;
         }
         if (empty($this->_database)) {
             $this->_database = $this->_config->getSetting('database');
         }
-
         if (!isset($this->_database[$settingName])) {
             throw new ConfigurationException(
                 "No database setting " . $settingName . " found."
