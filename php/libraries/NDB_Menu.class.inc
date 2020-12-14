@@ -113,7 +113,7 @@ class NDB_Menu extends NDB_Page
             return "";
         }
         // dump the html for the menu
-        $smarty = new Smarty_NeuroDB($this->Module->getName());
+        $smarty = new Smarty_NeuroDB($this->Module);
         $smarty->assign('mode', $this->mode);
         $smarty->assign($this->getTemplateData());
         $html = $smarty->fetch("menu_$this->menu.tpl");

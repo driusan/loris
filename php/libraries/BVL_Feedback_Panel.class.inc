@@ -108,7 +108,7 @@ class BVL_Feedback_Panel
 
         $this->tpl_data['FieldNames'] = json_encode($fields);
 
-        $smarty = new Smarty_NeuroDB("bvl_feedback_panel");
+        $smarty = new Smarty_NeuroDB(\Module::factory("bvl_feedback_panel"));
         $smarty->assign($this->tpl_data);
         $html = $smarty->fetch("bvl_feedback_panel.tpl");
         return $html;
