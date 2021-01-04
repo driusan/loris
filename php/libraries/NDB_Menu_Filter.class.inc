@@ -31,35 +31,35 @@ class NDB_Menu_Filter extends NDB_Menu
      *
      * @var array
      */
-    private $columns;
+    protected $columns;
 
     /**
      * The base select query, starts at FROM
      *
      * @var string
      */
-    private $query;
+    protected $query;
 
     /**
      * The default GROUP BY column
      *
      * @var string
      */
-    private $group_by;
+    protected $group_by;
 
     /**
      * The default ORDER BY column
      *
      * @var string
      */
-    private $order_by = '1';
+    protected $order_by = '1';
 
     /**
      * Items selected from the GUI selection form
      *
      * @var array
      */
-    private $filter;
+    protected $filter;
 
     /**
      * An array of all valid filters to use
@@ -74,19 +74,19 @@ class NDB_Menu_Filter extends NDB_Menu
      * if the filter is in the validHavingFilters array, and if so
      * appending it to $having instead of $filter
      */
-    public $having;
+    protected $having;
 
     /**
      * Filters with a "having" that may be used by the form.
      */
-    public $validHavingFilters = [];
+    protected $validHavingFilters = [];
 
     /**
      * Associates the form element to the appropriate filter
      *
      * @var array
      */
-    private $formToFilter = [];
+    protected $formToFilter = [];
 
     /**
      * An array of all the table headers (optional)
@@ -95,14 +95,14 @@ class NDB_Menu_Filter extends NDB_Menu
      *
      * @var array
      */
-    private $headers = [];
+    protected $headers = [];
 
     /**
      * The list of candidates, users, etc
      *
      * @var array
      */
-    private $list;
+    protected $list;
 
     /**
      * List of filters which are checkboxes so that

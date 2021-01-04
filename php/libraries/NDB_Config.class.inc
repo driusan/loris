@@ -33,10 +33,8 @@ class NDB_Config
 {
     /**
      * The raw array of settings
-     *
-     * @access private
      */
-    private $_settings = [];
+    public $_settings = [];
 
     /**
      * An optional override for the location of the config file.

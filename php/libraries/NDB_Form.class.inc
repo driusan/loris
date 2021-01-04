@@ -28,14 +28,14 @@ class NDB_Form extends NDB_Page
      *
      * @var string
      */
-    protected $template;
+    public $template;
 
     /**
      * Redirect URL
      *
      * @var string
      */
-    private $redirect;
+    public $redirect;
 
     /**
      * Separates the group elements

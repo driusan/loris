@@ -40,7 +40,7 @@ class SinglePointLogin
     /**
      * To carry the error messages
      */
-    protected $_lastError = null;
+    public $_lastError = null;
 
     /**
      * Defines whether a user's password has expired

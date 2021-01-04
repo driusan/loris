@@ -37,13 +37,13 @@ class TimePoint implements \LORIS\StudyEntities\AccessibleResource
         'Recycling Bin',
     ];
 
-    private $_dynamicStageOptions = [
+    public $_dynamicStageOptions = [
         'Screening',
         'Visit',
         'Approval',
     ];
 
-    private $_statusOptions = [
+    public $_statusOptions = [
         null,
         'Pass',
         'Failure',
@@ -51,13 +51,13 @@ class TimePoint implements \LORIS\StudyEntities\AccessibleResource
         'In Progress',
     ];
 
-    private $bvlQcTypes = [
+    public $bvlQcTypes = [
         null,
         'Visual',
         'Hardcopy',
     ];
 
-    private $bvlQcStatuses = [
+    public $bvlQcStatuses = [
         null,
         'Complete',
     ];

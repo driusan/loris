@@ -43,7 +43,7 @@ class NDB_Page implements RequestHandlerInterface
      *
      * @var \LorisForm
      */
-    protected $form;
+    public $form;
 
     /**
      * The identifier for the item to edit

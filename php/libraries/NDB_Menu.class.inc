@@ -28,14 +28,14 @@ class NDB_Menu extends NDB_Page
      *
      * @var string
      */
-    private $menu;
+    protected $menu;
 
     /**
      * The menu's mode
      *
      * @var string
      */
-    private $mode;
+    protected $mode;
 
     /**
      * Create a new NDB_Menu page
