@@ -26,10 +26,11 @@ namespace LORIS\statistics;
 class Statistics_Site extends \NDB_Menu
 {
 
-    var $instruments    = [];
-    var $issues         = [];
-    var $query_criteria = '';
-    var $query_vars     = [];
+    public $instruments    = [];
+    public $issues         = [];
+    public $query_criteria = '';
+    public $query_publics  = [];
+    public $query_vars     = [];
 
     /**
      * Checking user's permission

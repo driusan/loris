@@ -27,20 +27,20 @@ require_once __DIR__
 class DicomArchiveTestIntegrationTest extends LorisIntegrationTest
 {
     //$location: css selector for react items
-    static $patientID   = "#dicom_filter_filter".
+    private static $patientID   = "#dicom_filter_filter".
                             ">div>div>fieldset>div:nth-child(2)>div>div>input";
-    static $patientName = "#dicom_filter_filter".
+    private static $patientName = "#dicom_filter_filter".
                             ">div>div>fieldset>div:nth-child(3)>div>div>input";
-    static $site        = "#dicom_filter_filter".
+    private static $site        = "#dicom_filter_filter".
                             ">div>div>fieldset>div:nth-child(9)>div>div>select";
-    static $sex         = "#dicom_filter_filter".
+    private static $sex         = "#dicom_filter_filter".
                             ">div>div>fieldset>div:nth-child(4)>div>div>input";
-    static $dateOfBirth = "#dicom_filter_filter".
+    private static $dateOfBirth = "#dicom_filter_filter".
                             ">div>div>fieldset>div:nth-child(5)>div>div>input";
-    static $clearFilter = ".col-sm-9 > .btn";
+    private static $clearFilter = ".col-sm-9 > .btn";
     // first row of react table
-    static $table   = "#dynamictable > tbody > tr:nth-child(1)";
-    static $display = ".table-header > div > div > div:nth-child(1)";
+    private static $table   = "#dynamictable > tbody > tr:nth-child(1)";
+    private static $display = ".table-header > div > div > div:nth-child(1)";
     /**
      * Insert testing data into the database
      *

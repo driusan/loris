@@ -27,24 +27,26 @@ class EEGBrowserIntegrationTest extends LorisIntegrationTestWithCandidate
 {
 
     //Filter options
-    static $site       = 'select[name="site"]';
-    static $PSCID      = 'input[name="PSCID"]';
-    static $DCCID      = 'input[name="DCCID"]';
-    static $project    = 'select[name="project"]';
-    static $visitLabel = 'input[name="visitLabel"]';
+    private static $site       = 'select[name="site"]';
+    private static $PSCID      = 'input[name="PSCID"]';
+    private static $DCCID      = 'input[name="DCCID"]';
+    private static $project    = 'select[name="project"]';
+    private static $visitLabel = 'input[name="visitLabel"]';
 
-    static $display      = ".table-header > div > div > div:nth-child(1)";
-    static $clearFilter  = ".nav-tabs a";
-    static $PSCIDHeader  = "#dynamictable > thead > tr > th:nth-child(3)";
-    static $DCCIDHeader  = "#dynamictable > thead > tr > th:nth-child(4)";
-    static $firstElement = "#dynamictable > tbody > tr:nth-child(1)";
+    private static $display      = ".table-header > div > div > div:nth-child(1)";
+    private static $clearFilter  = ".nav-tabs a";
+    private static $PSCIDHeader  = "#dynamictable > thead > tr > th:nth-child(3)";
+    private static $DCCIDHeader  = "#dynamictable > thead > tr > th:nth-child(4)";
+    private static $firstElement = "#dynamictable > tbody > tr:nth-child(1)";
 
-    static $allLink = "tbody > tr:nth-child(1) > td:nth-child(9) > a:nth-child(2)";
-    static $rawLink = "tbody > tr:nth-child(1) > td:nth-child(9) > a:nth-child(1)";
+    private static $allLink = "tbody > tr:nth-child(1) " .
+                              " > td:nth-child(9) > a:nth-child(2)";
+    private static $rawLink = "tbody > tr:nth-child(1) " .
+                              " > td:nth-child(9) > a:nth-child(1)";
 
-    static $prevLink       = "#nav_previous";
-    static $nextLink       = "#nav_next";
-    static $breadcrumbLink = "#bc2 > a:nth-child(2)";
+    private static $prevLink       = "#nav_previous";
+    private static $nextLink       = "#nav_next";
+    private static $breadcrumbLink = "#bc2 > a:nth-child(2)";
 
     /**
      * Setup and insert testing data

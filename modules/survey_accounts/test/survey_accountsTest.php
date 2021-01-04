@@ -28,15 +28,15 @@ require_once __DIR__ .
 class Survey_AccountsTestIntegrationTest extends LorisIntegrationTest
 {
     // UI location on the page
-    static $pscid      = 'input[name="pscid"]';
-    static $visit      = 'select[name="visit"]';
-    static $email      = 'input[name="email"]';
-    static $instrument = 'select[name="instrument"]';
+    private static $pscid      = 'input[name="pscid"]';
+    private static $visit      = 'select[name="visit"]';
+    private static $email      = 'input[name="email"]';
+    private static $instrument = 'select[name="instrument"]';
     // clear filter button
-    static $clearFilter = ".nav-tabs a";
-    static $add         = "div:nth-child(2) > .btn:nth-child(1)";
+    private static $clearFilter = ".nav-tabs a";
+    private static $add         = "div:nth-child(2) > .btn:nth-child(1)";
     // header of the table
-    static $table = ".table-header > .row > div > div:nth-child(1)";
+    private static $table = ".table-header > .row > div > div:nth-child(1)";
     /**
      * Insert testing data
      *

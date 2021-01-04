@@ -25,9 +25,6 @@ namespace LORIS\statistics;
  */
 class Statistics_Mri_Site extends Statistics_Site
 {
-    var $query_criteria = '';
-    var $query_vars     = [];
-
     /**
      * CheckCriteria function
      *

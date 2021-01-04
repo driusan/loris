@@ -25,7 +25,7 @@ namespace LORIS\mri_violations;
  */
 class Resolved_Violations extends \NDB_Menu_Filter_Form
 {
-    var $AjaxModule = true;
+    public $AjaxModule = true;
 
     /**
      * Check if user should be allowed to see this page.

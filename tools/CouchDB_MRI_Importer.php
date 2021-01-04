@@ -25,17 +25,17 @@ require_once 'generic_includes.php';
  */
 class CouchDBMRIImporter
 {
-    var $SQLDB; // reference to the database handler, store here instead
+    public $SQLDB; // reference to the database handler, store here instead
     // of using Database::singleton in case it's a mock.
-    var $CouchDB; // reference to the CouchDB database handler
+    public $CouchDB; // reference to the CouchDB database handler
 
 
     // this is just in an instance variable to make
     // the code a little more readable.
     private $_Dictionary = [];
-    var $FeedbackMRICommentTypes;
+    public $FeedbackMRICommentTypes;
 
-    var $mri_header_fields;// reference to list of mri header fields
+    public $mri_header_fields;// reference to list of mri header fields
 
     /**
      * Constructor for CouchDBMRIImporter

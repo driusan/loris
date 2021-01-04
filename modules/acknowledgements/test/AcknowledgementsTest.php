@@ -26,17 +26,17 @@ use Facebook\WebDriver\WebDriverSelect;
 class AcknowledgementsIntegrationTest extends LorisIntegrationTest
 {
     //filter location
-    static $fullname     = 'input[name="fullName"]';
-    static $citationName = 'input[name="citationName"]';
-    static $startDate    = 'input[name="startDate"]';
-    static $endDate      = 'input[name="endDate"]';
-    static $present      = 'select[name="present"]';
-    static $display      = '.table-header > .row > div > div:nth-child(1)';
-    static $clearFilter  = 'a[name="reset"]';
+    private static $fullname     = 'input[name="fullName"]';
+    private static $citationName = 'input[name="citationName"]';
+    private static $startDate    = 'input[name="startDate"]';
+    private static $endDate      = 'input[name="endDate"]';
+    private static $present      = 'select[name="present"]';
+    private static $display      = '.table-header > .row > div > div:nth-child(1)';
+    private static $clearFilter  = 'a[name="reset"]';
 
     // Initial array data
 
-    static $testData = [
+    private static $testData = [
         'ID'            => '999',
         'ordering'      => '999',
         'full_name'     => 'Demo Test',
@@ -48,7 +48,7 @@ class AcknowledgementsIntegrationTest extends LorisIntegrationTest
         'end_date'      => '2016-01-01',
         'present'       => 'Yes',
     ];
-    static $newData  = [
+    private static $newData  = [
         'ordering'      => '9999',
         'full_name'     => 'Test Test',
         'citation_name' => "Test's Citation",

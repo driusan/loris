@@ -29,10 +29,9 @@ Class TimePoint_List_ControlPanel extends \Candidate
     /**
      * The template data for Smarty
      *
-     * @var    array
-     * @access private
+     * @var array
      */
-    var $tpl_data;
+    private $tpl_data;
 
     /**
      * Fill the candidateInfo and listOfTimePoints variables using the

@@ -32,11 +32,12 @@ class ViewSession extends \NDB_Form
      * Var to store the scanner information.
      * Will be used from the last file.
      */
-    var $scanner;
+    public $scanner;
+
     /**
      * Var to store the sessionID.
      */
-    var $sessionID;
+    public $sessionID;
 
     /**
      * Determine whether the user has permission to view the

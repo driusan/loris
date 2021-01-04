@@ -30,7 +30,7 @@ class Imaging_Session_ControlPanel
     /**
      * Var to store the sessionID.
      */
-    var $sessionID;
+    public $sessionID;
 
     /**
      * Sets up the sessionID

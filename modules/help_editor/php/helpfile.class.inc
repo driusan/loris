@@ -30,18 +30,16 @@ class HelpFile
     /**
      * Identifies the help file
      *
-     * @var    array
-     * @access private
+     * @var array
      */
-    var $helpID;
+    private $helpID;
 
     /**
      * The help file's data
      *
-     * @var    array
-     * @access private
+     * @var array
      */
-    var $data;
+    private $data;
 
     /**
      * Constructor

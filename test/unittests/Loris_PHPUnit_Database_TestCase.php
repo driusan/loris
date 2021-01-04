@@ -32,7 +32,7 @@ abstract class Loris_PHPUnit_Database_TestCase extends TestCase
      *
      * @var \PDO
      */
-    static private $_pdo = null;
+    private static $_pdo = null;
 
 
     /**

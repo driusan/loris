@@ -28,17 +28,17 @@ require_once __DIR__ .
 class MediaTest extends LorisIntegrationTest
 {
     //$location: css selector for react items
-    static $FileName    = 'input[name="fileName"]';
-    static $PSCID       = 'input[name="pscid"]';
-    static $VisitLabel  = 'select[name="visitLabel"]';
-    static $Instrument  = 'select[name="instrument"]';
-    static $Language    = 'select[name="language"]';
-    static $Site        = 'select[name="site"]';
-    static $clearFilter = ".navbar-right:nth-child(1) a";
+    private static $FileName    = 'input[name="fileName"]';
+    private static $PSCID       = 'input[name="pscid"]';
+    private static $VisitLabel  = 'select[name="visitLabel"]';
+    private static $Instrument  = 'select[name="instrument"]';
+    private static $Language    = 'select[name="language"]';
+    private static $Site        = 'select[name="site"]';
+    private static $clearFilter = ".navbar-right:nth-child(1) a";
     // first row of react table
-    static $table = "#dynamictable > tbody > tr:nth-child(1)";
+    private static $table = "#dynamictable > tbody > tr:nth-child(1)";
     // rows displayed of
-    static $display = ".table-header > .row > div > div:nth-child(1)";
+    private static $display = ".table-header > .row > div > div:nth-child(1)";
     /**
      * Tests that the page does not load if the user does not have correct
      * permissions

@@ -27,7 +27,7 @@ namespace LORIS\imaging_browser;
  */
 class Imaging_Browser extends \DataFrameworkMenu
 {
-    var $AjaxModule      = true;
+    public $AjaxModule   = true;
     public $skipTemplate = true;
     public $fieldOptions;
     /**

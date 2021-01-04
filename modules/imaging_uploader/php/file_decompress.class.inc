@@ -41,8 +41,8 @@ namespace LORIS\imaging_uploader;
  */
 class File_Decompress
 {
-    var $dest_path;
-    var $file_name;
+    public $dest_path;
+    public $file_name;
 
     /**
      * Constructor

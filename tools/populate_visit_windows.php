@@ -36,9 +36,9 @@ require_once 'Utility.class.inc';
  */
 class VisitWindowPopulator
 {
-    var $SQLDB; // reference to the database handler, store here instead
-                // of using Database::singleton in case it's a mock.
-    var $Config;
+    public $SQLDB; // reference to the database handler, store here instead
+                   // of using Database::singleton in case it's a mock.
+    public $Config;
 
     /**
      * Constructor function. Instantiates references to database and

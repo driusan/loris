@@ -36,9 +36,9 @@ require_once 'Database.class.inc';
  */
 class CouchDBIntegrityChecker
 {
-    var $SQLDB; // reference to the database handler, store here instead
-                // of using Database::singleton in case it's a mock.
-    var $CouchDB; // reference to the CouchDB database handler
+    public $SQLDB; // reference to the database handler, store here instead
+                   // of using Database::singleton in case it's a mock.
+    public $CouchDB; // reference to the CouchDB database handler
 
 
     /**

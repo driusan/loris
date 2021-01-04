@@ -25,10 +25,6 @@ namespace LORIS\statistics;
  */
 class Statistics_DD_Site extends statistics_site
 {
-
-    var $query_criteria = '';
-    var $query_vars     = [];
-
     /**
      * Notexcluded function
      *

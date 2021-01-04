@@ -33,7 +33,7 @@ class ViewDetails extends \NDB_Form
     /**
      * Keeps array of protocols from mri_protocol
      */
-    var $protocols;
+    public $protocols;
 
     /**
      * Determine whether the user has permission to view this page

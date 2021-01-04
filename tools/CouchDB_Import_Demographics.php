@@ -26,13 +26,13 @@ require_once 'Database.class.inc';
  */
 class CouchDBDemographicsImporter
 {
-    var $SQLDB; // reference to the database handler, store here instead
+    public $SQLDB; // reference to the database handler, store here instead
                 // of using Database::singleton in case it's a mock.
-    var $CouchDB; // reference to the CouchDB database handler
+    public $CouchDB; // reference to the CouchDB database handler
 
     // this is just in an instance variable to make
     // the code a little more readable.
-    var $Dictionary = [
+    private $Dictionary = [
         'DoB'              => [
             'Description' => 'Date of Birth',
             'Type'        => 'date'
@@ -110,7 +110,7 @@ class CouchDBDemographicsImporter
         ],
     ];
 
-    var $Config = [
+    private $Config = [
         'Meta'   => ['DocType' => 'ServerConfig'],
         'Config' => [
             'GroupString'  => 'How to arrange data: ',

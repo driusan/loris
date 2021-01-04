@@ -34,23 +34,23 @@ require_once 'NDB_BVL_Instrument.class.inc';
  */
 class DirectDataEntryMainPage
 {
-    var $key;
+    public $key;
 
-    var $TestName;
+    public $TestName;
 
     /**
      * The instrument subpage being accessed
      *
      * @var mixed
      */
-    var $Subtest;
+    public $Subtest;
 
-    var $NumPages;
-    var $NextPageNum;
-    var $PrevPageNum;
+    public $NumPages;
+    public $NextPageNum;
+    public $PrevPageNum;
 
-    var $tpl_data;
-    var $caller;
+    public $tpl_data;
+    public $caller;
 
     /**
      * Initialize all of the class variables and things required from the

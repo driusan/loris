@@ -23,8 +23,8 @@
  */
 class DatabaseException extends LorisException
 {
-    var $query;
-    var $params;
+    protected $query;
+    protected $params;
 
     /**
      * Constructs a database exception. Optionally may specify the

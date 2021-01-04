@@ -28,9 +28,9 @@ require_once 'Utility.class.inc';
  */
 class CouchDBInstrumentImporter
 {
-    var $SQLDB; // reference to the database handler, store here instead
-                // of using Database::singleton in case it's a mock.
-    var $CouchDB; // reference to the CouchDB database handler
+    public $SQLDB; // reference to the database handler, store here instead
+                   // of using Database::singleton in case it's a mock.
+    public $CouchDB; // reference to the CouchDB database handler
 
     /**
      * Create new instance.

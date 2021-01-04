@@ -26,8 +26,8 @@ namespace LORIS\examiner;
 
 class Examiner extends \NDB_Menu_Filter_Form
 {
-    public $skipTemplate  = true;
-    var $useCertification = false;
+    public $skipTemplate     = true;
+    public $useCertification = false;
 
     /**
      * Checks if the user has access to examiner menu filter

@@ -24,20 +24,21 @@ use LORIS\server_processes_manager as SP;
  */
 class Imaging_Uploader extends \NDB_Menu_Filter_Form
 {
-    var $show_queries    = true;
-    var $temp_path       = null;
-    var $AjaxModule      = true;
+    public $show_queries = true;
+    public $temp_path    = null;
+
+    public $AjaxModule   = true;
     public $skipTemplate = true;
     /**
      * ID of the uploaded file in mri_upload table (if upload successful).
      * If the file is a reupload of an existing file, then it will be set to
      * the ID of the original upload.
      */
-    var $mri_upload_id;
+    public $mri_upload_id;
     /**
      * Path to the uploaded file (value of SourceLocation in mri_upload table).
      */
-    var $uploaded_file_path;
+    public $uploaded_file_path;
     /**
      * The hasAccess function ensures that the user has the imaging_uploader
      * permission.

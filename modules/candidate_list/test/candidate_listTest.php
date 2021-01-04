@@ -25,32 +25,32 @@ require_once __DIR__
 class CandidateListTestIntegrationTest extends LorisIntegrationTestWithCandidate
 {
     //filter location
-    static $PSCID          = 'input[name="pscid"]';
-    static $DCCID          = 'input[name="dccid"]';
-    static $visitLabel     = 'select[name="visitLabel"]';
-    static $site           = 'select[name="site"]';
-    static $entityType     = 'select[name="entityType"]';
-    static $sex            = 'select[name="sex"]';
-    static $project        = 'select[name="project"]';
-    static $advancedFilter = "div:nth-child(2) > .btn:nth-child(1)";
+    private static $PSCID          = 'input[name="pscid"]';
+    private static $DCCID          = 'input[name="dccid"]';
+    private static $visitLabel     = 'select[name="visitLabel"]';
+    private static $site           = 'select[name="site"]';
+    private static $entityType     = 'select[name="entityType"]';
+    private static $sex            = 'select[name="sex"]';
+    private static $project        = 'select[name="project"]';
+    private static $advancedFilter = "div:nth-child(2) > .btn:nth-child(1)";
     // advanced filter
-    static $scanDone    = 'select[name="scanDone"]';
-    static $Participant = 'select[name="participantStatus"]';
-    static $dob         = 'input[name="DoB"]';
-    static $visitCount  = 'input[name="visitCount"]';
-    static $feedback    = 'select[name="feedback"]';
-    static $lastVisit   = 'select[name="latestVisitStatus"]';
-    static $edc         = 'input[name="edc"]';
+    private static $scanDone    = 'select[name="scanDone"]';
+    private static $Participant = 'select[name="participantStatus"]';
+    private static $dob         = 'input[name="DoB"]';
+    private static $visitCount  = 'input[name="visitCount"]';
+    private static $feedback    = 'select[name="feedback"]';
+    private static $lastVisit   = 'select[name="latestVisitStatus"]';
+    private static $edc         = 'input[name="edc"]';
 
 
 
 
 
 
-    static $openProfile = "div:nth-child(2) > .btn:nth-child(2)";
-    static $clearFilter = ".nav-tabs a";
-    static $display     = ".table-header > div > div > div:nth-child(1)";
-    static $pscidLink   = "tr:nth-child(1) a";
+    private static $openProfile = "div:nth-child(2) > .btn:nth-child(2)";
+    private static $clearFilter = ".nav-tabs a";
+    private static $display     = ".table-header > div > div > div:nth-child(1)";
+    private static $pscidLink   = "tr:nth-child(1) a";
 
     /**
      * Backs up the useEDC config value and sets the value to a known
