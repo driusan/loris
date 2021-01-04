@@ -74,4 +74,11 @@
 
      <!-- Force short array syntax -->
      <rule ref="Generic.Arrays.DisallowLongArraySyntax.Found"/>
+
+     <rule ref="PSR2.Classes.PropertyDeclaration">
+         <!-- This should eventually be removed, but there's a significant
+             amount of code that needs to be updated and it's easier
+             to do this in 2 phases -->
+         <exclude name="PSR2.Classes.PropertyDeclaration.Underscore" />
+    </rule>
 </ruleset>

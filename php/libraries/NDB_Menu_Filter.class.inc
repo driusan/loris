@@ -24,55 +24,49 @@
  */
 class NDB_Menu_Filter extends NDB_Menu
 {
-    var $AjaxModule = false;
+    protected $AjaxModule = false;
 
     /**
      * The columns to SELECT
      *
-     * @var    array
-     * @access private
+     * @var array
      */
-    var $columns;
+    private $columns;
 
     /**
      * The base select query, starts at FROM
      *
-     * @var    string
-     * @access private
+     * @var string
      */
-    var $query;
+    private $query;
 
     /**
      * The default GROUP BY column
      *
-     * @var    string
-     * @access private
+     * @var string
      */
-    var $group_by;
+    private $group_by;
 
     /**
      * The default ORDER BY column
      *
-     * @var    string
-     * @access private
+     * @var string
      */
-    var $order_by = '1';
+    private $order_by = '1';
 
     /**
      * Items selected from the GUI selection form
      *
-     * @var    array
-     * @access private
+     * @var array
      */
-    var $filter;
+    private $filter;
 
     /**
      * An array of all valid filters to use
      *
-     * @var    array
-     * @access private
+     * @var array
      */
-    var $validFilters = [];
+    protected $validFilters = [];
 
     /**
      * Items selected from the GUI to filter, where the underlying
@@ -80,36 +74,35 @@ class NDB_Menu_Filter extends NDB_Menu
      * if the filter is in the validHavingFilters array, and if so
      * appending it to $having instead of $filter
      */
-    var $having;
+    public $having;
+
     /**
-     * Filters that the
+     * Filters with a "having" that may be used by the form.
      */
-    var $validHavingFilters = [];
+    public $validHavingFilters = [];
+
     /**
      * Associates the form element to the appropriate filter
      *
-     * @var    array
-     * @access private
+     * @var array
      */
-    var $formToFilter = [];
+    private $formToFilter = [];
 
     /**
      * An array of all the table headers (optional)
      *
      * The array will automatically be built based on the column array
      *
-     * @var    array
-     * @access private
+     * @var array
      */
-    var $headers = [];
+    private $headers = [];
 
     /**
      * The list of candidates, users, etc
      *
-     * @var    array
-     * @access private
+     * @var array
      */
-    var $list;
+    private $list;
 
     /**
      * List of filters which are checkboxes so that
@@ -117,13 +110,13 @@ class NDB_Menu_Filter extends NDB_Menu
      * (Note that HTTP sends nothing if a checkbox is
      * unchecked.)
      */
-    var $CheckboxFilters = [];
+    public $CheckboxFilters = [];
 
     /**
      * A list of fields which are to be searched if the
      * search keyword is used.
      */
-    var $searchKey = [];
+    public $searchKey = [];
 
     /**
      * Calls other member functions to do all the work necessary to create the menu

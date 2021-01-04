@@ -31,44 +31,44 @@ class NDB_Page implements RequestHandlerInterface
     /**
      * The name of the test_name being accessed
      */
-    var $name;
+    public $name;
 
     /**
      * The name of the page (subtest) being accessed
      */
-    var $page;
+    public $page;
 
     /**
      * Reference to the HTML QuickForm
      *
      * @var \LorisForm
      */
-    var $form;
+    protected $form;
 
     /**
      * The identifier for the item to edit
      * (ie. the CommentID)
      */
-    var $identifier;
-    var $commentID;
+    public $identifier;
+    public $commentID;
 
     /**
      * Form defaults
      */
-    var $defaults = [];
+    protected $defaults = [];
 
     /**
      * If true, the default display function will not try to load any template.
      * This is intended to be used with, for instance, pages that completely
      * construct the DOM from javascript.
      */
-    var $skipTemplate = false;
+    public $skipTemplate = false;
 
     /**
      * A list of arrays to be used as field options on
      * front-end forms and menu filters.
      */
-    var $fieldOptions = [];
+    public $fieldOptions = [];
 
     public $Module;
     public $template;

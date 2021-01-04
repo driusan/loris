@@ -25,12 +25,9 @@ use \LORIS\Data\Filters\HasAnyPermissionOrUserSiteMatch;
  */
 class TimePoint implements \LORIS\StudyEntities\AccessibleResource
 {
-    /* NOTE If these are private variables then they should probably be
-     * declared and scoped as such. var is equivalent to public.
-     */
-    var $_timePointInfo;
+    protected $_timePointInfo;
 
-    var $_stageOptions = [
+    private $_stageOptions = [
         null,
         'Not Started',
         'Screening',
@@ -40,13 +37,13 @@ class TimePoint implements \LORIS\StudyEntities\AccessibleResource
         'Recycling Bin',
     ];
 
-    var $_dynamicStageOptions = [
+    private $_dynamicStageOptions = [
         'Screening',
         'Visit',
         'Approval',
     ];
 
-    var $_statusOptions = [
+    private $_statusOptions = [
         null,
         'Pass',
         'Failure',
@@ -54,18 +51,18 @@ class TimePoint implements \LORIS\StudyEntities\AccessibleResource
         'In Progress',
     ];
 
-    var $bvlQcTypes = [
+    private $bvlQcTypes = [
         null,
         'Visual',
         'Hardcopy',
     ];
 
-    var $bvlQcStatuses = [
+    private $bvlQcStatuses = [
         null,
         'Complete',
     ];
 
-    var $bvlQcExclusionStatuses = [
+    private $bvlQcExclusionStatuses = [
         null,
         'Excluded',
         'Not Excluded',

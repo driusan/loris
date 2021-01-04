@@ -25,10 +25,10 @@
  */
 class Smarty_NeuroDB extends Smarty
 {
-    var $loristemplate_dir;
-    var $project_template_dir;
-    var $modules_dir;
-    var $ModuleName;
+    public $loristemplate_dir;
+    public $project_template_dir;
+    public $modules_dir;
+    public $ModuleName;
 
     /**
      * Constructor for the NeuroDB Smarty hook class.

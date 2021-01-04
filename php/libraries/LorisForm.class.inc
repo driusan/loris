@@ -31,16 +31,16 @@
 class LorisForm
 {
 
-    var $form          = [];
-    var $defaultValues = [];
-    var $formRules     = [];
-    var $errors        = [];
-    var $filters       = [];
-    var $frozen        = false;
-    var $enctype       = '';
-    var $groupMapping  = [];
-    var $action        = '';
-    var $allowedRules  = [
+    public $form          = [];
+    public $defaultValues = [];
+    public $formRules     = [];
+    public $errors        = [];
+    public $filters       = [];
+    public $frozen        = false;
+    public $enctype       = '';
+    public $groupMapping  = [];
+    public $action        = '';
+    public $allowedRules  = [
         'compare',
         'requiredIf',
         'required',
@@ -2317,8 +2317,8 @@ class LorisFormElement
  */
 class LorisFormFileElement extends LorisFormElement
 {
-    var $el;
-    var $file;
+    public $el;
+    public $file;
 
     /**
      * Constructor.

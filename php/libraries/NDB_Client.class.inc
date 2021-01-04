@@ -27,7 +27,7 @@ class NDB_Client
     /**
      * Defines whether session management and user authentication is performed
      */
-    var $_isWebClient = true;
+    protected $_isWebClient = true;
 
     /**
      * Defines that the client is a command line client

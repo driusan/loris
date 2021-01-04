@@ -25,17 +25,17 @@ class FeedbackMRI
     /**
      * FileID from files table
      */
-    var $fileID;
+    public $fileID;
 
     /**
      * ID from session table
      */
-    var $sessionID;
+    public $sessionID;
 
     /**
      * CommentType from feedback_mri_comment_types table (enum('visit','volume'))
      */
-    var $objectType;
+    public $objectType;
 
     /**
      * Constructor sets object parameters

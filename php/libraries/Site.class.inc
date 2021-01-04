@@ -23,7 +23,7 @@
  */
 class Site
 {
-    var $_siteInfo;
+    protected $_siteInfo;
 
     /**
      * Gets an instance of this Site

@@ -43,7 +43,7 @@ class NDB_Factory
     private static $_timepoints = [];
 
     private $_baseURL = "";
-    var $Testing; // Whether or not Mock objects should be returned instead of
+    public $Testing; // Whether or not Mock objects should be returned instead of
                   // real ones
     //
 

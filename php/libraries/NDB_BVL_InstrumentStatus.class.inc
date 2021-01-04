@@ -28,17 +28,17 @@ class NDB_BVL_InstrumentStatus
     /**
      * Instrument instance CommentID
      */
-    var $_commentID;
+    public $_commentID;
 
     /**
      * Status array
      */
-    var $_status;
+    public $_status;
 
     /**
      * The set of valid options for the data entry flag
      */
-    var $_dataEntryOptions = [
+    public $_dataEntryOptions = [
         null,
         'In Progress',
         'Complete',
@@ -47,7 +47,7 @@ class NDB_BVL_InstrumentStatus
     /**
      * The set of valid options for the administration flag
      */
-    var $_administrationOptions = [
+    public $_administrationOptions = [
         null,
         'None',
         'Partial',
@@ -57,7 +57,7 @@ class NDB_BVL_InstrumentStatus
     /**
      * The set of valid options for the validity flag
      */
-    var $_validityOptions = [
+    public $_validityOptions = [
         null,
         'Valid',
         'Questionable',
@@ -67,7 +67,7 @@ class NDB_BVL_InstrumentStatus
     /**
      * The set of valid options for the exclusion flag
      */
-    var $_exclusionOptions = [
+    public $_exclusionOptions = [
         null,
         'Fail',
         'Pass',

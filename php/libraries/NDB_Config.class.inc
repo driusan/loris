@@ -36,15 +36,13 @@ class NDB_Config
      *
      * @access private
      */
-    var $_settings = [];
+    private $_settings = [];
 
     /**
      * An optional override for the location of the config file.
      * (default is ../project/config.xml)
-     *
-     * @access public
      */
-    var $configFilePath;
+    public $configFilePath;
 
     /**
      * The singleton design pattern - autoloads config file

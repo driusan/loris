@@ -80,7 +80,7 @@ abstract class NDB_BVL_Instrument extends NDB_Page
     /**
      * String to separate the group elements
      */
-    var $_GUIDelimiter = "</td>\n<td>";
+    protected $_GUIDelimiter = "</td>\n<td>";
 
     /**
      * Commonly used level of indentation
@@ -91,10 +91,8 @@ abstract class NDB_BVL_Instrument extends NDB_Page
 
     /**
      * Array of required fields to check
-     *
-     * @access public
      */
-    var $_requiredElements = [];
+    public $_requiredElements = [];
 
     /**
      * Array of date fields to be processed into QuickForm dates
@@ -111,13 +109,12 @@ abstract class NDB_BVL_Instrument extends NDB_Page
      * a static value for the date
      */
     public $monthYearFields = [];
+
     /**
      * Array of column names to be ignored by the double data entry conflict
      * detector.
-     *
-     * @access public
      */
-    var $_doubleDataEntryDiffIgnoreColumns
+    public $_doubleDataEntryDiffIgnoreColumns
         = [
             'CommentID',
             'UserID',

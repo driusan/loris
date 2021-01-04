@@ -26,18 +26,16 @@ class NDB_Menu extends NDB_Page
     /**
      * The menu's name
      *
-     * @var    string
-     * @access private
+     * @var string
      */
-    var $menu;
+    private $menu;
 
     /**
      * The menu's mode
      *
-     * @var    string
-     * @access private
+     * @var string
      */
-    var $mode;
+    private $mode;
 
     /**
      * Create a new NDB_Menu page

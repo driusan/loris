@@ -33,8 +33,8 @@ define('DOB_NOT_SPECIFIED', 6);
  */
 class Candidate implements \LORIS\StudyEntities\AccessibleResource
 {
-    var $candidateInfo;
-    var $listOfTimePoints;
+    protected $candidateInfo;
+    protected $listOfTimePoints;
 
     /**
      * This returns a single Candidate object for the given

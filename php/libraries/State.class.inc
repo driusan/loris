@@ -24,12 +24,12 @@ class State
     /**
      * The array that contains all the data owned by a State object
      */
-    var $_privateStateData;
+    private $_privateStateData;
 
     /**
      * The array that contains all the data set with setProperty
      */
-    var $_stateData;
+    private $_stateData;
 
     /**
      * The singleton model factory method

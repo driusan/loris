@@ -26,26 +26,23 @@ class NDB_Form extends NDB_Page
     /**
      * Stores the template
      *
-     * @var    string
-     * @access private
+     * @var string
      */
-    var $template;
+    protected $template;
 
     /**
      * Redirect URL
      *
-     * @var    string
-     * @access private
+     * @var string
      */
-    var $redirect;
+    private $redirect;
 
     /**
      * Separates the group elements
      *
-     * @var    string
-     * @access private
+     * @var string
      */
-    var $_GUIDelimiter = "&nbsp;\n";
+    protected $_GUIDelimiter = "&nbsp;\n";
 
     /**
      * Generates a new form instance and runs the appropriate method

@@ -30,22 +30,22 @@ class SinglePointLogin
     /**
      * Defines whether a user is currently logged in
      */
-    var $_isLoggedIn = false;
+    protected $_isLoggedIn = false;
 
     /**
      * Internally held copy of username
      */
-    var $_username = null;
+    protected $_username = null;
 
     /**
      * To carry the error messages
      */
-    var $_lastError = null;
+    protected $_lastError = null;
 
     /**
      * Defines whether a user's password has expired
      */
-    var $_passwordExpired = false;
+    protected $_passwordExpired = false;
 
     /**
      * Dumps the password expiry form

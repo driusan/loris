@@ -17,32 +17,29 @@ class Database
     /**
      * The database handle, created by the connect() method
      *
-     * @var    PDO
-     * @access private
+     * @var PDO
      */
-    var $_PDO = null;
+    private $_PDO = null;
 
     /**
      * The database handle for storing history information.
      * If missing, will be the same as $_PDO
      *
-     * @access private
+     * @var ?PDO
      */
-    var $_HistoryPDO = null;
+    private $_HistoryPDO = null;
 
     /**
      * The auto_increment ID value of the last insert statement,
      * as designated by LAST_INSERT_ID
-     *
-     * @access public
      */
-    var $lastInsertID;
+    public $lastInsertID;
 
-    var $_showQueries = false;
+    private $_showQueries = false;
 
-    var $_trackChanges = true;
+    private $_trackChanges = true;
 
-    var $_preparedStoreHistory;
+    private $_preparedStoreHistory;
 
     /**
      * The name of the database. Used internally for printing log messages.

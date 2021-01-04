@@ -42,12 +42,12 @@ class NDB_Caller
      *
      * @var string
      */
-    var $DataEntry;
+    public $DataEntry;
 
     /**
      * The NDB_BVL_Instrument instantiation of the instrument which was loaded.
      */
-    var $instrument;
+    public $instrument;
 
     /**
      * Singleton method

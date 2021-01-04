@@ -40,22 +40,22 @@ use \Loris\StudyEntities\Candidate\CandID;
 class NDB_BVL_Feedback
 {
     // contains info necessary to structure the object
-    var $_feedbackObjectInfo = [];
+    private $_feedbackObjectInfo = [];
 
     // contains full candidate profile/timepoint/instrument info
-    var $_feedbackCandidateProfileInfo = [];
+    private $_feedbackCandidateProfileInfo = [];
 
     // set of status options
-    var $_feedbackStatusOptions = [
+    private $_feedbackStatusOptions = [
         'opened',
         'answered',
         'closed',
         'comment',
     ];
 
-    var $_username ='';
+    private $_username ='';
 
-    var $_feedbackLevel ='';
+    private $_feedbackLevel ='';
 
     /**
      * Static function to return a feedback object. Only one will ever be
