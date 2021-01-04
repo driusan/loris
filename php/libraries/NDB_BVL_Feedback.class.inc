@@ -45,14 +45,6 @@ class NDB_BVL_Feedback
     // contains full candidate profile/timepoint/instrument info
     public $_feedbackCandidateProfileInfo = [];
 
-    // set of status options
-    private $_feedbackStatusOptions = [
-        'opened',
-        'answered',
-        'closed',
-        'comment',
-    ];
-
     private $_username ='';
 
     public $_feedbackLevel ='';

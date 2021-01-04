@@ -33,7 +33,6 @@ class MediaTest extends LorisIntegrationTest
     private static $VisitLabel  = 'select[name="visitLabel"]';
     private static $Instrument  = 'select[name="instrument"]';
     private static $Language    = 'select[name="language"]';
-    private static $Site        = 'select[name="site"]';
     private static $clearFilter = ".navbar-right:nth-child(1) a";
     // first row of react table
     private static $table = "#dynamictable > tbody > tr:nth-child(1)";

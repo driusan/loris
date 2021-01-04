@@ -28,10 +28,9 @@ require_once __DIR__ .
 class Survey_AccountsTestIntegrationTest extends LorisIntegrationTest
 {
     // UI location on the page
-    private static $pscid      = 'input[name="pscid"]';
-    private static $visit      = 'select[name="visit"]';
-    private static $email      = 'input[name="email"]';
-    private static $instrument = 'select[name="instrument"]';
+    private static $pscid = 'input[name="pscid"]';
+    private static $email = 'input[name="email"]';
+
     // clear filter button
     private static $clearFilter = ".nav-tabs a";
     private static $add         = "div:nth-child(2) > .btn:nth-child(1)";

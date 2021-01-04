@@ -31,7 +31,6 @@ class CandidateListTestIntegrationTest extends LorisIntegrationTestWithCandidate
     private static $site           = 'select[name="site"]';
     private static $entityType     = 'select[name="entityType"]';
     private static $sex            = 'select[name="sex"]';
-    private static $project        = 'select[name="project"]';
     private static $advancedFilter = "div:nth-child(2) > .btn:nth-child(1)";
     // advanced filter
     private static $scanDone    = 'select[name="scanDone"]';

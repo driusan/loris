@@ -27,7 +27,6 @@ class ConflictResolverTestIntegrationTest extends LorisIntegrationTest
 {
     //filter location on conflict_resolver page
     private static $ForSite    = ".col-xs-12:nth-child(1) .form-control, [select]";
-    private static $Instrument = ".col-xs-12:nth-child(2) .form-control, [select]";
     private static $VisitLabel = ".col-xs-12:nth-child(3) .form-control, [select]";
     private static $CandID     = ".col-xs-12:nth-child(4) .form-control";
     private static $PSCID      = ".col-xs-12:nth-child(5) .form-control";
@@ -35,14 +34,13 @@ class ConflictResolverTestIntegrationTest extends LorisIntegrationTest
     private static $Project    = ".col-xs-12:nth-child(7) .form-control, [select]";
 
     //filter location on resolved_conflicts page
-    private static $Timestamp  = ".col-xs-12:nth-child(7) .form-control";
-    private static $Project_RC = ".col-xs-12:nth-child(8) .form-control, [select]";
+    private static $Timestamp = ".col-xs-12:nth-child(7) .form-control";
 
     //public location for both pages
     private static $clearFilter = ".col-sm-9 > .btn";
     private static $display     = ".table-header .col-xs-12";
     private static $saveBtn     = ".btn-sm:nth-child(1)";
-    private static $resetBtn    = ".btn-sm:nth-child(2)";
+
     /**
      * Insert testing data into the database
      * author: Wang Shen

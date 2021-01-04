@@ -27,8 +27,6 @@ require_once __DIR__
 class DicomArchiveTestIntegrationTest extends LorisIntegrationTest
 {
     //$location: css selector for react items
-    private static $patientID   = "#dicom_filter_filter".
-                            ">div>div>fieldset>div:nth-child(2)>div>div>input";
     private static $patientName = "#dicom_filter_filter".
                             ">div>div>fieldset>div:nth-child(3)>div>div>input";
     private static $site        = "#dicom_filter_filter".
@@ -108,7 +106,6 @@ class DicomArchiveTestIntegrationTest extends LorisIntegrationTest
         );
         $this->safeGet($this->url . "/dicom_archive/");
         //testing data from RBdata.sql
-        //$this-> _testFilter(self::$patientID, self::$table, null, "ibis");
         $this-> _testFilter(
             self::$patientName,
             self::$table,
