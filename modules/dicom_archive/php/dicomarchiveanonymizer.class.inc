@@ -44,6 +44,8 @@ class DICOMArchiveAnonymizer implements Mapper
         \User $user,
         DataInstance $resource
     ) : DataInstance {
+        $res = $resource;
+        '@phan-var object $res';
 
         static $config = null;
         if ($config === null) {
