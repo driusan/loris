@@ -89,7 +89,6 @@ class NDB_BVL_Instrument_Test extends TestCase
         $spe = $this->getMockBuilder('SinglePointLogin')
             ->getMock();
 
-        
         $s->method("getProperty")
             ->willReturn($spe);
 

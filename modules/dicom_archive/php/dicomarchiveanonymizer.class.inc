@@ -62,7 +62,7 @@ class DICOMArchiveAnonymizer implements Mapper
             throw new \Exception("Error converting DataInstance to array");
         }
 
-        $cid    = $res->getCenterID();
+        $cid = $res->getCenterID();
 
         // escape any forward slashes
         $pNameRegex      = preg_replace(
