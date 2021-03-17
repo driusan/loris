@@ -28,7 +28,7 @@ final class Scope implements \JsonSerializable
      *
      * @param int $scope The scope
      */
-    public function __construct(int $scope)
+    private function __construct(int $scope)
     {
         switch ($scope) {
             case self::CANDIDATE: // fallthrough
@@ -38,6 +38,40 @@ final class Scope implements \JsonSerializable
             default:
                 throw new \DomainException("Invalid scope");
         }
+    }
+
+    /**
+     * Named constructor for a Session scope.
+     *
+     * Returns a singleton representing all Session
+     * types.
+     *
+     * @return Scope
+     */
+    static public function Session() : Scope
+    {
+        static $cached = null;
+        if ($cached === null) {
+            $cached = new Scope(self::SESSION);
+        }
+        return $cached;
+    }
+
+    /**
+     * Named constructor for a Candidate scope.
+     *
+     * Returns a singleton representing all Candidate
+     * types.
+     *
+     * @return Scope
+     */
+    static public function Candidate() : Scope
+    {
+        static $cached = null;
+        if ($cached === null) {
+            $cached = new Scope(self::CANDIDATE);
+        }
+        return $cached;
     }
 
     /**

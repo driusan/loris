@@ -137,7 +137,6 @@ class Module extends \Module
      */
     public function getDataDictionary(\LORIS\LorisInstance $loris) : iterable
     {
-        $scope  = new Scope(Scope::SESSION);
         $images = new \LORIS\Data\Dictionary\Category(
             "Images",
             "Image Acquisitions",
@@ -149,14 +148,14 @@ class Module extends \Module
             $items[] = new DictionaryItem(
                 $ScanType,
                 "$ScanType acquisition location",
-                $scope,
+                Scope::Session(),
                 new \LORIS\Data\Types\URI(),
                 new Cardinality(Cardinality::MANY),
             );
             $items[] = new DictionaryItem(
                 $ScanType  . "_QCStatus",
                 "Quality Control status for $ScanType acquisition",
-                $scope,
+                Scope::Session(),
                 new \LORIS\Data\Types\Enumeration("Pass", "Fail"),
                 new Cardinality(Cardinality::MANY),
             );
