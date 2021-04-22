@@ -57,14 +57,31 @@ function getFieldScope(dictionary, field) {
     return fdict.scope;
 }
 
+/**
+ * Extracts the cardinality for a field from the data dictionary
+ *
+ * @param {object} dictionary - The data dictionary
+ * @param {object} field - the field whose scope should
+ *      be extracted
+ *
+ * @return {string}
+ */
 function getFieldCardinality(dictionary, field) {
     const fmod = dictionary[field.module];
     const fcat = fmod[field.category];
     const fdict = fcat[field.field];
     return fdict.cardinality;
-
 }
 
+/**
+ * Extracts the description for a field from the data dictionary
+ *
+ * @param {object} dictionary - The data dictionary
+ * @param {object} field - the field whose scope should
+ *      be extracted
+ *
+ * @return {string}
+ */
 function getFieldDescription(dictionary, field) {
     const fmod = dictionary[field.module];
     const fcat = fmod[field.category];
@@ -283,7 +300,7 @@ function EditField(props) {
            return <SelectElement
                         label=''
                         name='value'
-                        options={{'true' : 'true', 'false' : 'false'}}
+                        options={{'true': 'true', 'false': 'false'}}
                         onUserInput={setField}
                         value={field.value}
                         sortByValue={false}
@@ -557,31 +574,33 @@ function DisplayField(props) {
         return <span>{desc}<b title={getFieldDescription(dictionary, field)}
             style={
                 {
-                    textDecorationLine: "underline",
-                    textDecorationStyle: "dashed",
+                    textDecorationLine: 'underline',
+                    textDecorationStyle: 'dashed',
                 }
             }>
-            {field.field}</b></span>
-    }
+            {field.field}</b></span>;
+    };
 
     const displayValue = (value) => {
         if (Array.isArray(value)) {
             let display = [];
-            for(let i = 0; i < value.length; i++) {
+            for (let i = 0; i < value.length; i++) {
                 display.push(<b>{value[i]}</b>);
-                if(i == value.length-2) {
+                if (i == value.length-2) {
                     display.push(' or ');
                 } else if (i != value.length-1) {
                     display.push(', ');
                 }
-
             }
             return display;
         }
         return <b>{value}</b>;
-    }
+    };
+
     return <div className="row">
-        <span className="col-sm-3">{displayField(props.dictionary, props.field)}</span>
+        <span className="col-sm-3">
+            {displayField(props.dictionary, props.field)}
+        </span>
         <span className="col-sm-2"><b>{displayOp(props.field.op)}</b></span>
         <span className="col-sm-2">{displayValue(props.field.value)}</span>
         {visitlist()}
@@ -617,7 +636,7 @@ function FieldList(props) {
             <button className="btn btn-primary"
                     type="button"
                     onClick={props.onAddCriteria}
-                    style={{float: "left"}}>
+                    style={{float: 'left'}}>
                     Add Criteria
             </button>
         </div>);
@@ -670,7 +689,7 @@ function FieldList(props) {
             <button className="btn btn-primary"
                     type="button"
                     onClick={props.onAddCriteria}
-                    style={{float: "left"}}>
+                    style={{float: 'left'}}>
                     Add Criteria
             </button>
         : <button className="btn btn-primary disabled"
@@ -719,7 +738,7 @@ function CandidateCriteria(props) {
                 VisitListURL={props.VisitListURL}
             />
             <button type="button" className="btn btn-primary"
-                onClick={props.search} style={{"float": "left"}}>
+                onClick={props.search} style={{'float': 'left'}}>
                 Search
             </button>
         </fieldset>
@@ -796,11 +815,11 @@ function Results(props) {
         },
         {
             'label': 'RegistrationProject',
-            'show': false
+            'show': false,
         },
         {
             'label': 'RegistrationSite',
-            'show': false
+            'show': false,
         },
         {
             'label': 'SessionThreadStatus',
@@ -816,7 +835,7 @@ function Results(props) {
         // We need to emulate that
         //
         const strtoint = (s) => {
-            switch(s) {
+            switch (s) {
                 case 'opened': return 1;
                 case 'answered': return 2;
                 case 'closed': return 3;
@@ -825,22 +844,21 @@ function Results(props) {
                     console.error('Invalid value' + s);
                     return 999;
             }
-        }
+        };
 
         let min = 999;
         for (let val of cand) {
-            const sval = strtoint(val)
+            const sval = strtoint(val);
             if (sval < min) {
                 min = sval;
             }
-
         }
+
         for (let val of sess) {
-            const sval = strtoint(val)
+            const sval = strtoint(val);
             if (sval < min) {
                 min = sval;
             }
-
         }
 
         // Convert back to a string
@@ -851,32 +869,33 @@ function Results(props) {
             case 4: return 'comment';
             default: return 'None';
         }
-    }
+    };
 
     const formatCell = (label, cell, row) => {
-        switch(label) {
+        switch (label) {
             case 'PSCID':
-                const iconurl = props.ProfileBaseURL + '/' + row['CandID'] + '/';
+                const iconurl = props.ProfileBaseURL
+                    + '/' + row['CandID'] + '/';
                 const icon = <a href={iconurl}>
                     {cell}&nbsp;
                     <i class="far fa-id-card"></i>
-                </a>
-                return <td><nobr>{icon}</nobr></td>
+                </a>;
+                return <td><nobr>{icon}</nobr></td>;
             case 'Visit Count':
                 if (!cell) {
                     return <td>0</td>;
                 }
                 return <td title={cell.join(', ')}><span style={
                     {
-                        textDecorationLine: "underline",
-                        textDecorationStyle: "dashed",
+                        textDecorationLine: 'underline',
+                        textDecorationStyle: 'dashed',
                     }
                 }>
                         {cell.length}
                     </span>
-                    </td>
+                    </td>;
             case 'Feedback':
-                var cellcolour;
+                let cellcolour;
 
                 const minstatus = minFeedbackStatus(
                     row.Feedback || [],
@@ -907,7 +926,7 @@ function Results(props) {
             default:
                 return <td>{cell}</td>;
         }
-    }
+    };
     return <DataTable
         data={datarows}
         fields={fields}
@@ -1068,7 +1087,7 @@ function CandidatesIndex(props) {
                         module: 'bvl_feedback',
                         field: 'SessionThreadStatus',
                     },
-                ]
+                ],
         };
 
         let resultbuffer = [];
@@ -1078,7 +1097,7 @@ function CandidatesIndex(props) {
                 resultbuffer.push(row);
             },
             () => {
-                if(resultbuffer.length % 1000 == 0) {
+                if (resultbuffer.length % 1000 == 0) {
                     setResultData([...resultbuffer]);
                 }
             },
@@ -1091,7 +1110,7 @@ function CandidatesIndex(props) {
 
     const style={cursor: loading ? 'progress' : 'default'};
     return (<div style={style}>
-              <Panel> 
+              <Panel>
                 <CandidateCriteria criteria={criteria}
                     onAddCriteria={addCriteria}
                     deleteCriteria={deleteCriteria}
