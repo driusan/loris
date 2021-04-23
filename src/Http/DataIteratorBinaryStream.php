@@ -14,8 +14,6 @@ class DataIteratorBinaryStream implements StreamInterface
     protected $eof;
     protected $rowgen;
 
-    protected \Traversable $rows;
-
     public function __construct(\Traversable $data)
     {
         $this->position = 0;
@@ -183,17 +181,23 @@ class DataIteratorBinaryStream implements StreamInterface
         if ($this->eof) {
             return "";
         }
+        $this->rowgen->next();
+        $row = $this->rowgen->current();
         if (!$this->rowgen->valid()) {
             $this->eof = true;
             return chr(0x04);
         }
-        $row = $this->rowgen->current();
-        $this->rowgen->next();
-
-        $rowArray        = array_values(json_decode(json_encode($row), true));
+        // $rowArray        = array_values(json_decode(json_encode($row), true));
+        $rowArray        = array_values($row);
+        foreach($rowArray as $i => $col) {
+            if(is_array($col)) {
+                // Separate entries with 0x1d, ensure there's also a 0x1d to terminate
+                // the last element so that empty arrays can be encoded 
+                $rowArray[$i] = join(chr(0x1d), $col) . chr(0x1d);
+            }
+        }
         $rowVal          = join(chr(0x1e), $rowArray) . chr(0x1f);
         $this->position += strlen($rowVal);
-
         return $rowVal;
     }
 
