@@ -5,7 +5,7 @@ namespace LORIS\Data\Types;
  *
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
-class Duration implements \LORIS\Data\Type
+class Interval implements \LORIS\Data\Type
 {
     /**
      * Convert the type to a human readable string

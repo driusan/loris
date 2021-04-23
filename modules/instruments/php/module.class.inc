@@ -159,6 +159,7 @@ class Module extends \Module
      */
     public function getQueryEngine() : \LORIS\Data\Query\QueryEngine
     {
+        /*
         $tests = array_keys(\Utility::getAllInstruments());
 
         $dict = [];
@@ -176,6 +177,8 @@ class Module extends \Module
             }
         }
         return $dict;
+        */
+        return new InstrumentQueryEngine($this->lorisinstance);
     }
 }
 

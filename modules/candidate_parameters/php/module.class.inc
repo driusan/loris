@@ -738,4 +738,9 @@ class Module extends \Module
             yield $candval;
         }
     }
+
+    public function getQueryEngine() : \LORIS\Data\Query\QueryEngine {
+        return new CandidateQueryEngine($this->lorisinstance);
+    }
+
 }

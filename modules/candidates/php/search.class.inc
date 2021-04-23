@@ -400,7 +400,7 @@ class Search extends \NDB_Page
         $user = \User::singleton();
         foreach($organized as $vals) {
             $canddata = new \CandidateData(
-                $vals['RegistrationProject'],
+                new \ProjectID($vals['RegistrationProject']),
                 $vals['RegistrationCenter'],
                 $vals['Timepoints']
             );
