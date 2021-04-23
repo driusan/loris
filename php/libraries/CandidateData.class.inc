@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
 class CandidateData {
-    protected $registrationProjectID;
+    protected ProjectID $registrationProjectID;
     protected $registrationCenterID;
     protected $timepoints;
 
-    public function __construct(?int $project, ?int $centerID, ?array $timepoints) {
+    public function __construct(\ProjectID $project, ?int $centerID, ?array $timepoints) {
         $this->registrationProjectID = $project;
         $this->registrationCenterID = $centerID;
         $this->timepoints = $timepoints;
@@ -18,7 +18,7 @@ class CandidateData {
         return $this->registrationCenterID;
     }
 
-    public function getProjectID() : int {
+    public function getProjectID() : \ProjectID {
         if ($this->registrationProjectID === null) {
             throw new LogicException("ProjectID not loaded in data");
         }

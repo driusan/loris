@@ -106,7 +106,7 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
         // We need to refer to these when instantiating the CandidateData
         // object after Timepoints have been selected, but by then $row
         // will have been overwritten, so put them in other variables..
-        $registrationProjectID = $row['RegistrationProjectID'];
+        $registrationProjectID = new \ProjectID($row['RegistrationProjectID']);
         $registrationCenterID = $row['RegistrationCenterID'];
 
         // store user data in object property
@@ -198,7 +198,7 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
         }
 
         $this->data = new CandidateData(
-            intval($registrationProjectID),
+            $registrationProjectID,
             intval($registrationCenterID),
             $timepoints,
         );
@@ -468,7 +468,7 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
      */
     function getProjectID(): \ProjectID
     {
-        return $this->candidateInfo["RegistrationProjectID"];
+        return $this->data->getProjectID();
     }
 
     /**

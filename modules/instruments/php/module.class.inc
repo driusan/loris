@@ -155,23 +155,7 @@ class Module extends \Module
      */
     public function getQueryEngine() : \LORIS\Data\Query\QueryEngine
     {
-        $tests = array_keys(\Utility::getAllInstruments());
-
-        $dict = [];
-        foreach ($tests as $testname) {
-            try {
-                $inst   = \NDB_BVL_Instrument::factory($testname, "", "");
-                $cat    = new \LORIS\Data\Dictionary\Category(
-                    $testname,
-                    $inst->getFullName()
-                );
-                $fields = $inst->getDataDictionary();
-                $dict[] = $cat->withItems($fields);
-            } catch (\LorisException $e) {
-                error_log($e);
-            }
-        }
-        return $dict;
+        return new InstrumentQueryEngine($this->lorisinstance);
     }
 }
 

@@ -20,11 +20,6 @@ use \LORIS\Data\Types\IntegerType;
 use \LORIS\Data\Types\Enumeration;
 use \LORIS\Data\Types\DateType;
 
-use \LORIS\Data\Types\StringType;
-use \LORIS\Data\Types\IntegerType;
-use \LORIS\Data\Types\Enumeration;
-use \LORIS\Data\Types\DateType;
-
 /**
  * Base class for all NeuroDB behavioural instruments
  *
@@ -113,7 +108,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                             'Candidate_age',
                             'Candidate Age (Months)',
                             $scope,
-                            new \LORIS\Data\Types\Duration(),
+                            new \LORIS\Data\Types\Interval(),
                             new Cardinality(Cardinality::SINGLE),
                         ),
                     ]
@@ -148,7 +143,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                         'Window_Difference',
                         'Window difference from test battery (days)',
                         $scope,
-                        new \LORIS\Data\Types\Duration(),
+                        new \LORIS\Data\Types\Interval(),
                         new Cardinality(Cardinality::SINGLE),
                     ),
                 ]
