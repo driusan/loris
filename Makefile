@@ -8,7 +8,7 @@ VERSION: .
 	tools/gen-version.sh
 
 phpdev:
-	composer install
+	# composer install
 
 jsdev:
 	npm ci

@@ -25,7 +25,7 @@ namespace LORIS\dqt;
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link       https://www.github.com/aces/Loris/
  */
-class Dqt extends \NDB_Form
+class Dqt extends \NDB_Page
 {
     public $skipTemplate = true;
 
@@ -38,6 +38,7 @@ class Dqt extends \NDB_Form
      */
     function _hasAccess(\User $user) : bool
     {
+        return true;
         // check user permissions
         return $user->hasPermission('dataquery_view');
     }
@@ -56,49 +57,7 @@ class Dqt extends \NDB_Form
         return array_merge(
             $deps,
             [
-                $baseURL . '/js/d3.min.js',
-                $baseURL . '/js/c3.min.js',
-                $baseURL . '/dqt/js/react.fieldselector.js',
-                $baseURL . '/dqt/js/react.filterBuilder.js',
-                $baseURL . '/dqt/js/react.tabs.js',
-                $baseURL . '/dqt/js/react.sidebar.js',
-                $baseURL . '/dqt/js/react.app.js',
-                $baseURL . '/js/flot/jquery.flot.min.js',
-                $baseURL . '/js/components/PaginationLinks.js',
-                $baseURL . '/js/jszip/jszip.min.js',
-                $baseURL . '/js/components/MultiSelectDropdown.js',
-            ]
-        );
-    }
-
-    /**
-     * Generate a breadcrumb trail for this page.
-     *
-     * @return \LORIS\BreadcrumbTrail
-     */
-    public function getBreadcrumbs(): \LORIS\BreadcrumbTrail
-    {
-        return new \LORIS\BreadcrumbTrail(
-            new \LORIS\Breadcrumb('Data Query Tool', "/$this->name")
-        );
-    }
-
-    /**
-     * Include additional CSS files:
-     *  1. dataquery.css
-     *
-     * @return array of javascript to be inserted
-     */
-    function getCSSDependencies()
-    {
-        $factory = \NDB_Factory::singleton();
-        $baseURL = $factory->settings()->getBaseURL();
-        $deps    = parent::getCSSDependencies();
-        return array_merge(
-            $deps,
-            [
-                $baseURL . '/dqt/css/dataquery.css',
-                $baseURL . '/css/c3.css',
+                $baseURL . "/dqt/js/index.js",
             ]
         );
     }
