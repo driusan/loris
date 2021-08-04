@@ -8,10 +8,10 @@ VERSION: .
 	tools/gen-version.sh
 
 phpdev:
-	composer install
+	# composer install
 
 javascript:
-	npm install
+	# npm install
 	npm run compile
 
 dev: VERSION phpdev javascript

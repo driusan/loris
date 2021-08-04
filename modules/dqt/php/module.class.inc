@@ -35,6 +35,7 @@ class Module extends \Module
      */
     public function hasAccess(\User $user) : bool
     {
+        return true;
         return parent::hasAccess($user) && $user->hasPermission('dataquery_view');
     }
 
@@ -55,6 +56,6 @@ class Module extends \Module
      */
     public function getLongName() : string
     {
-        return "Data Query Tool (Beta)";
+        return "Data Query Tool (Alpha)";
     }
 }

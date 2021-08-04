@@ -201,6 +201,7 @@ const config = [
     stats: 'errors-warnings',
   },
   // Modules
+  /*
   lorisModule('media', ['CandidateMediaWidget', 'mediaIndex']),
   lorisModule('issue_tracker', [
     'issueTrackerIndex',
@@ -241,20 +242,12 @@ const config = [
     'react.sidebar',
     'react.tabs',
   ]),
+  */
   lorisModule('dictionary', ['dataDictIndex']),
-  lorisModule('dqt', [
-    'components/expansionpanels',
-    'components/searchabledropdown',
-    'components/stepper',
-    'react.app',
-    'react.fieldselector',
-    'react.filterBuilder',
-    'react.navigationStepper',
-    'react.notice',
-    'react.savedqueries',
-    'react.sidebar',
-    'react.tabs',
-  ]),
+
+
+  lorisModule('dqt', ['index']),
+  /*
   lorisModule('dicom_archive', ['dicom_archive']),
   lorisModule('genomic_browser', ['genomicBrowserIndex']),
   lorisModule('electrophysiology_browser', [
@@ -291,6 +284,7 @@ const config = [
   lorisModule('instruments', ['CandidateInstrumentList']),
   lorisModule('candidate_profile', ['CandidateInfo']),
   lorisModule('api_docs', ['swagger-ui_custom']),
+  */
 ];
 
 // Support project overrides

@@ -21,6 +21,7 @@ class Fields extends \NDB_Page
      */
     function _hasAccess(\User $user) : bool
     {
+        return true;
         return $user->hasPermission('data_dict_edit');
     }
 

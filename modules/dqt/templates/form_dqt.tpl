@@ -1,4 +1,5 @@
 <!-- <script src="GetJS.php?Module=dataquery&file=react.datatable.js"></script> -->
+<!--
 <div id="reactTest">
 </div>
 <style type="text/css">
@@ -37,3 +38,4 @@ var queryApp = RDataQueryApp(
     });
 ReactDOM.render(queryApp, document.getElementById("reactTest"));
 </script>
+-->
