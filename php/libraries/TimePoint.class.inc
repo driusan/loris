@@ -73,12 +73,6 @@ class TimePoint implements \LORIS\StudyEntities\AccessibleResource,
     ];
 
 
-    protected $data;
-
-    public function __construct(?TimePointData $data=null) {
-        $this->data = $data;
-    }
-
     /**
      * A DTO for TimePoint related data
      */
