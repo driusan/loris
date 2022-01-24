@@ -16,33 +16,32 @@ import Select from 'react-select';
  */
 function FilterableSelectGroup(props) {
     let groups = [];
-    Object.keys(props.groups).forEach(
-            (key, index) => {
-                let options = [];
-                for (const [value, desc] of Object.entries(props.groups[key])) {
-                        options.push({
-                            value: value,
-                            label: desc,
-                            });
-                }
+    for (const [module, subcategories]
+        of Object.entries(props.groups)) {
+      let options = [];
+      for (const [value, desc] of Object.entries(subcategories)) {
+        options.push({
+          value: value,
+          label: desc,
+          module: module,
+        });
+      }
 
-                let label = {key};
-                if (props.mapGroupName) {
-                    label = props.mapGroupName(key);
-                }
-                console.log(options);
-                groups.push({
-                    label: label,
-                    options: options,
-                });
-       }
-    );
-    return (<div>
-        <input list="categories" placeholder="Select a category" />
-        <datalist id="categories">{groups}</datalist>
-    </div>);
+      let label = {module};
+      if (props.mapGroupName) {
+        label = props.mapGroupName(module);
+      }
+      groups.push({
+        label: label,
+        options: options,
+      });
+    }
+
+    const selected = (e) => {
+        props.onChange(e.module, e.value);
+    };
     return (
-        <Select options={groups} />
+        <Select options={groups} onChange={selected}/>
     );
 }
 /**
@@ -53,15 +52,20 @@ function FilterableSelectGroup(props) {
  * @return {ReactDOM}
  */
 function DefineFields(props) {
-  console.log(props.categories);
+  console.log('Define Fields', props.categories);
+  console.log('Fields', props.fields);
+
+  const fields = Object.keys(props.fields || {}).map((item, i) => {
+      const value = props.fields[item];
+      return <div key={item}>{item} {value.description}</div>;
+  });
   return (<div>
-                <FilterableSelectGroup groups={props.categories.categories}
-                    mapGroupName={(key) => props.categories.modules[key]}
-                    onChange={props.onFieldChange}
-                />
-          this is not implemented.
-          </div>
-          );
+    <FilterableSelectGroup groups={props.categories.categories}
+      mapGroupName={(key) => props.categories.modules[key]}
+      onChange={props.onFieldChange}
+    />
+    <div>{fields}</div>
+  </div>);
 }
 /**
  * Return the main page for the DQT
@@ -73,6 +77,8 @@ function DefineFields(props) {
 function DataQueryApp(props) {
     const [activeTab, setActiveTab] = useState('Info');
     const [selectedModule, setSelectedModule] = useState(false);
+    const [moduleDictionary, setModuleDictionary] = useState(false);
+    const [selectedModuleCategory, setSelectedModuleCategory] = useState(false);
     const [categories, setCategories] = useState(false);
     useEffect(() => {
         if (categories !== false) {
@@ -85,9 +91,7 @@ function DataQueryApp(props) {
                   }
                   return resp.json();
           }).then((result) => {
-                    console.log(result);
                   setCategories(result);
-                  console.log(categories);
                   }
           ).catch( (error) => {
                   console.error(error);
@@ -107,19 +111,18 @@ function DataQueryApp(props) {
                 }
                 return resp.json();
                 }).then((result) => {
+                    setModuleDictionary(result);
                     console.log(result);
                   }
           ).catch( (error) => {
                   console.error(error);
                   });
-    }, [selectedModule]);
+    }, [selectedModule, selectedModuleCategory]);
 
-    const getModuleFields = (category, module) => {
+    const getModuleFields = (module, category) => {
         setSelectedModule(module);
-        // http://localhost:8000/dictionary/module/$module
-        console.log(category, module);
+        setSelectedModuleCategory(category);
     };
-
     let content;
 
     switch (activeTab) {
@@ -167,7 +170,9 @@ function DataQueryApp(props) {
             break;
         case 'DefineFields':
             content = <DefineFields categories={categories}
-                onFieldChange={getModuleFields}/>;
+                fields={moduleDictionary[selectedModuleCategory]}
+                onFieldChange={getModuleFields}
+               />;
             break;
         case 'DefineFilters':
             content = <div>Unimplemented tab</div>;
