@@ -4,6 +4,7 @@
 import ExpansionPanels from './components/expansionpanels';
 import {NavigationStepper} from './navigationstepper';
 import {useState, useEffect} from 'react';
+import Select from 'react-select';
 
 /**
  * Render a select with option groups that can be
@@ -14,40 +15,35 @@ import {useState, useEffect} from 'react';
  * @return {ReactDOM}
  */
 function FilterableSelectGroup(props) {
-    const [filter, setFilter] = useState('');
-
-    const updateFilter = (e) => {
-        const newfilter = filter + e.key;
-        setFilter(newfilter);
-    };
-
     let groups = [];
     Object.keys(props.groups).forEach(
             (key, index) => {
                 let options = [];
                 for (const [value, desc] of Object.entries(props.groups[key])) {
-                    options.push(
-                        <option value={value} data-group={key}>{desc}</option>
-                    );
+                        options.push({
+                            value: value,
+                            label: desc,
+                            });
                 }
 
                 let label = {key};
                 if (props.mapGroupName) {
                     label = props.mapGroupName(key);
                 }
-                groups.push(<optgroup label={label}>{options}</optgroup>);
-            }
+                console.log(options);
+                groups.push({
+                    label: label,
+                    options: options,
+                });
+       }
     );
-    const onChange = (e) => {
-        props.onChange(
-            e.target.value,
-            e.target.selectedOptions[0].dataset.group
-        );
-    };
-    return (<select onKeyPress={updateFilter}
-        onChange={onChange}>
-        {groups}
-    </select>);
+    return (<div>
+        <input list="categories" placeholder="Select a category" />
+        <datalist id="categories">{groups}</datalist>
+    </div>);
+    return (
+        <Select options={groups} />
+    );
 }
 /**
  * Render the define fields tab
