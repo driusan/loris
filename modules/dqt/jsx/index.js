@@ -187,6 +187,8 @@ function DefineFields(props) {
       </div>
       <div style={{padding: '1em'}}>
         <h2>Selected Fields</h2>
+        <button type="button" className="btn btn-primary"
+            onClick={props.onClearAll}>Clear</button>
         <SelectedFieldList
             selected={props.selected}
             removeField={props.removeField}
@@ -348,6 +350,10 @@ function DataQueryApp(props) {
         }
     };
 
+    const clearAllFields = () => {
+        setFields([]);
+    };
+
     let content;
 
     switch (activeTab) {
@@ -406,6 +412,7 @@ function DataQueryApp(props) {
                 removeField={removeField}
                 onAddAll={addManyFields}
                 onRemoveAll={removeManyFields}
+                onClearAll={clearAllFields}
                />;
             break;
         case 'DefineFilters':
