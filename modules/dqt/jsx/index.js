@@ -42,10 +42,10 @@ function FilterableSelectGroup(props) {
     };
     return (
         <div>
-            <h4>Choose a category</h4>
             <Select options={groups} onChange={selected}
                  menuPortalTarget={document.body}
                  styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
+                 placeholder='Select a category'
             />
         </div>
     );
@@ -58,12 +58,24 @@ function FilterableSelectGroup(props) {
  * @return {ReactDOM}
  */
 function DefineFields(props) {
-  console.log('Define Fields', props.allCategories);
-  console.log('Fields', props.displayedFields);
+  const [activeFilter, setActiveFilter] = useState('');
 
-  const fields = Object.keys(props.displayedFields || {}).map((item, i) => {
+  const displayed = Object.keys(props.displayedFields || {}).filter((value) => {
+      if (activeFilter === '') {
+          // No filter set
+          return true;
+      }
+
+      // Filter with a case insensitive comparison to either the description or
+      // the field name displayed to the user
+      const lowerFilter = activeFilter.toLowerCase();
+      const desc = props.displayedFields[value].description;
+      return (value.toLowerCase().includes(lowerFilter)
+        || desc.toLowerCase().includes(lowerFilter));
+  });
+
+  const fields = displayed.map((item, i) => {
       const value = props.displayedFields[item];
-      console.log(value);
       const equalField = (element) => {
           return (element.module == props.module
               && element.category === props.category
@@ -85,14 +97,64 @@ function DefineFields(props) {
         <dd>{value.description}</dd>
       </div>);
   });
-  return (<div>
-    <FilterableSelectGroup groups={props.allCategories.categories}
-      mapGroupName={(key) => props.allCategories.modules[key]}
-      onChange={props.onCategoryChange}
-    />
-    <dl className="list-group">{fields}</dl>
-  </div>);
+
+  const setFilter = (e) => {
+      setActiveFilter(e.target.value);
+  };
+
+  let fieldList = null;
+  if (props.category) {
+      // Put into a short variable name for line length
+      const mCategories = props.allCategories.categories[props.module];
+      const cname = mCategories[props.category];
+      fieldList = (<div>
+            <div style={{display: 'flex', flexWrap: 'wrap',
+                justifyContent: 'space-between'}}>
+                <h2>{cname} fields</h2>
+                <input onChange={setFilter}
+                    type="text"
+                    placeholder="Filter"
+                    value={activeFilter} />
+            </div>
+            <dl className="list-group">{fields}</dl>
+        </div>);
+  }
+
+  return (
+    <div style={{display: 'flex', flexWrap: 'nowrap'}}>
+       <div style={{width: '80vw', padding: '1em'}}>
+            <h1>Available Fields</h1>
+            <FilterableSelectGroup groups={props.allCategories.categories}
+              mapGroupName={(key) => props.allCategories.modules[key]}
+              onChange={props.onCategoryChange}
+            />
+            {fieldList}
+      </div>
+      <div style={{padding: '1em'}}>
+        <h2>Selected Fields</h2>
+        <SelectedFieldList selected={props.selected} />
+      </div>
+   </div>);
 }
+
+/**
+ * Render the selected fields
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function SelectedFieldList(props) {
+  const fields = props.selected.map((item, i) => {
+      // const value = props.selected[item];
+      return (<div key={i}>
+        <dt>{item.field}</dt>
+        <dd>{item.dictionary.description}</dd>
+      </div>);
+  });
+  return <dl className="list-group">{fields}</dl>;
+}
+
 /**
  * Return the main page for the DQT
  *
@@ -140,7 +202,6 @@ function DataQueryApp(props) {
                 return resp.json();
                 }).then((result) => {
                     setModuleDictionary(result);
-                    console.log(result);
                   }
           ).catch( (error) => {
                   console.error(error);
@@ -152,11 +213,12 @@ function DataQueryApp(props) {
         setSelectedModuleCategory(category);
     };
 
-    const addRemoveField = (module, category, field) => {
+    const addRemoveField = (module, category, field, dict) => {
         const newFieldObj = {
                 module: module,
                 category: category,
                 field: field,
+                dictionary: dict,
             };
         const equalField = (element) => {
             return (element.module == module
@@ -173,9 +235,6 @@ function DataQueryApp(props) {
             setFields(newfields);
         }
     };
-
-    console.log(selectedFields);
-
 
     let content;
 
