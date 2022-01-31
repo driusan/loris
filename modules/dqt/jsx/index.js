@@ -41,7 +41,13 @@ function FilterableSelectGroup(props) {
         props.onChange(e.module, e.value);
     };
     return (
-        <Select options={groups} onChange={selected}/>
+        <div>
+            <h4>Choose a category</h4>
+            <Select options={groups} onChange={selected}
+                 menuPortalTarget={document.body}
+                 styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
+            />
+        </div>
     );
 }
 /**
@@ -52,19 +58,39 @@ function FilterableSelectGroup(props) {
  * @return {ReactDOM}
  */
 function DefineFields(props) {
-  console.log('Define Fields', props.categories);
-  console.log('Fields', props.fields);
+  console.log('Define Fields', props.allCategories);
+  console.log('Fields', props.displayedFields);
 
-  const fields = Object.keys(props.fields || {}).map((item, i) => {
-      const value = props.fields[item];
-      return <div key={item}>{item} {value.description}</div>;
+  const fields = Object.keys(props.displayedFields || {}).map((item, i) => {
+      const value = props.displayedFields[item];
+      console.log(value);
+      const equalField = (element) => {
+          return (element.module == props.module
+              && element.category === props.category
+              && element.field == item);
+      };
+
+      const className = props.selected.some(equalField) ?
+        'list-group-item active' :
+        'list-group-item';
+
+      return (<div className={className} key={item}
+                   onClick={() => props.onFieldToggle(
+                        props.module,
+                        props.category,
+                        item,
+                        value,
+                   )}>
+        <dt>{item}</dt>
+        <dd>{value.description}</dd>
+      </div>);
   });
   return (<div>
-    <FilterableSelectGroup groups={props.categories.categories}
-      mapGroupName={(key) => props.categories.modules[key]}
-      onChange={props.onFieldChange}
+    <FilterableSelectGroup groups={props.allCategories.categories}
+      mapGroupName={(key) => props.allCategories.modules[key]}
+      onChange={props.onCategoryChange}
     />
-    <div>{fields}</div>
+    <dl className="list-group">{fields}</dl>
   </div>);
 }
 /**
@@ -80,6 +106,8 @@ function DataQueryApp(props) {
     const [moduleDictionary, setModuleDictionary] = useState(false);
     const [selectedModuleCategory, setSelectedModuleCategory] = useState(false);
     const [categories, setCategories] = useState(false);
+    const [selectedFields, setFields] = useState([]);
+
     useEffect(() => {
         if (categories !== false) {
             return;
@@ -123,6 +151,32 @@ function DataQueryApp(props) {
         setSelectedModule(module);
         setSelectedModuleCategory(category);
     };
+
+    const addRemoveField = (module, category, field) => {
+        const newFieldObj = {
+                module: module,
+                category: category,
+                field: field,
+            };
+        const equalField = (element) => {
+            return (element.module == module
+                && element.category === category
+                && element.field == field);
+        };
+        if (selectedFields.some(equalField)) {
+            // Remove
+            const newfields = selectedFields.filter((el) => !(equalField(el)));
+            setFields(newfields);
+        } else {
+            // Add
+            const newfields = [...selectedFields, newFieldObj];
+            setFields(newfields);
+        }
+    };
+
+    console.log(selectedFields);
+
+
     let content;
 
     switch (activeTab) {
@@ -169,9 +223,15 @@ function DataQueryApp(props) {
               </div>;
             break;
         case 'DefineFields':
-            content = <DefineFields categories={categories}
-                fields={moduleDictionary[selectedModuleCategory]}
-                onFieldChange={getModuleFields}
+            content = <DefineFields allCategories={categories}
+                displayedFields={moduleDictionary[selectedModuleCategory]}
+
+                module={selectedModule}
+                category={selectedModuleCategory}
+                selected={selectedFields}
+
+                onCategoryChange={getModuleFields}
+                onFieldToggle={addRemoveField}
                />;
             break;
         case 'DefineFilters':
@@ -183,21 +243,6 @@ function DataQueryApp(props) {
         default:
             content = <div>Invalid tab</div>;
     }
-    /*
-    tabs.push(
-      <StepperPanel
-        key={'DefineFields'}
-        TabId='DefineFields'
-        active={activeTab === 'DefineFields'}
-        content={(
-          <div>This is the select field tab</div>
-        )}
-      />
-    );
-//    const [activeTab, setActiveTab] = useState('Info');
-//    const activeTab = 'Info';
-*/
-
     // Define Fields tab.
     return (<>
         <NavigationStepper
@@ -207,229 +252,6 @@ function DataQueryApp(props) {
         {content}
     </>);
 }
-
-/*
-    let tabs = [];
-
-    // Create or Load tab.
-    tabs.push(
-      <StepperPanel
-        key={'Info'}
-        TabId='Info'
-        active={this.state.ActiveTab === 'Info'}
-        content={(
-          <>
-            <h1 style={{
-              color: '#0a3572',
-              textAlign: 'center',
-              padding: '30px 0 0 0',
-            }}>
-              Welcome to the Data Query Tool
-            </h1>
-            <p style={{textAlign: 'center', margin: '10px 0 20px 0'}}>
-              Data was last updated on {this.props.UpdatedTime}.
-            </p>
-            <ExpansionPanels
-              panels={[
-                {
-                  title: 'Instructions on how to create a query',
-                  content: (
-                    <>
-                      <p>
-                        To start a new query, use the above navigation
-                        and or click on <i style={{color: '#596978'}}>
-                        "Define Fields"</i>
-                        &nbsp;to begin building the fields for the query.
-                      </p>
-                      <p>
-                        You may choose to then click the navigation
-                        again for the <i style={{color: '#596978'}}>
-                        "Define Filters (Optional)"</i>
-                        &nbsp;and define how you will filter the query data.
-                      </p>
-                      <p>Lastly, navigate to the <i style={{color: '#596978'}}>
-                        "Run Query"</i> and run the query you built. 🙂</p>
-                    </>
-                  ),
-                  alwaysOpen: true,
-                },
-                {
-                  title: 'Load Existing Query',
-                  content: (
-                    <>
-                      <ManageSavedQueriesTabPane
-                        key='SavedQueriesTab'
-                        TabId='SavedQueriesTab'
-                        userQueries={this.state.queryIDs.User}
-                        globalQueries={this.state.queryIDs.Shared}
-                        onSaveQuery={this.saveCurrentQuery}
-                        queryDetails={this.state.savedQueries}
-                        onSelectQuery={this.loadSavedQuery}
-                        queriesLoaded={this.state.queriesLoaded}
-                        Loading={this.state.loading}
-                        savePrompt={this.state.savePrompt}
-                      />
-                      <SavedQueriesList
-                        userQueries={this.state.queryIDs.User}
-                        globalQueries={this.state.queryIDs.Shared}
-                        queryDetails={this.state.savedQueries}
-                        queriesLoaded={this.state.queriesLoaded}
-                        onSelectQuery={this.loadSavedQuery}
-                        loadedQuery={this.state.loadedQuery}
-                      />
-                    </>
-                  ),
-                },
-              ]}
-            />
-          </>
-        )}
-      />
-    );
-    // Define Fields tab.
-    tabs.push(
-      <StepperPanel
-        key={'DefineFields'}
-        TabId='DefineFields'
-        active={this.state.ActiveTab === 'DefineFields'}
-        content={(
-          <FieldSelectTabPane
-            key='DefineFields'
-            TabId='DefineFields'
-            categories={this.props.categories}
-            onFieldChange={this.fieldChange}
-            selectedFields={this.state.selectedFields}
-            Visits={this.props.Visits}
-            fieldVisitSelect={this.fieldVisitSelect}
-            Loading={this.state.loading}
-            Active={this.state.ActiveTab === 'DefineFields'}
-          />
-        )}
-      />
-    );
-    // Define Filters (Optional) tab.
-    tabs.push(
-      <StepperPanel
-        key={'DefineFilters'}
-        TabId='DefineFilters'
-        active={this.state.ActiveTab === 'DefineFilters'}
-        content={(
-          <FilterSelectTabPane
-            key='DefineFilters'
-            TabId='DefineFilters'
-            categories={this.props.categories}
-            filter={this.state.filter}
-            updateFilter={this.updateFilter}
-            Visits={this.props.Visits}
-            Loading={this.state.loading}
-            Active={this.state.ActiveTab === 'DefineFilters'}
-          />
-        )}
-      />
-    );
-
-    // Define the data displayed type and add the view data tab
-    let displayType = (this.state.grouplevel === 0)
-      ? 'Cross-sectional'
-      : 'Longitudinal';
-
-    // Run Query tab.
-    tabs.push(
-      <StepperPanel
-        key={'ViewData'}
-        TabId='ViewData'
-        active={this.state.ActiveTab === 'ViewData'}
-        content={(
-          <ViewDataTabPane
-            key='ViewData'
-            TabId='ViewData'
-            Active={this.state.ActiveTab === 'ViewData'}
-            Fields={this.state.fields}
-            Criteria={this.state.criteria}
-            Sessions={this.getSessions()}
-            Data={this.state.rowData.rowdata}
-            RowInfo={this.state.rowData.Identifiers}
-            RowHeaders={this.state.rowData.RowHeaders}
-            FileData={this.state.rowData.fileData}
-            onRunQueryClicked={this.runQuery}
-            displayType={displayType}
-            changeDataDisplay={this.changeDataDisplay}
-            Loading={this.state.loading}
-            runQuery={this.runQuery}
-            displayVisualizedData={this.displayVisualizedData}
-          />
-        )}
-      />
-    );
-
-    // Add the stats tab
-    tabs.push(<StatsVisualizationTabPane
-      key='Statistics'
-      TabId='Statistics'
-      Active={this.state.ActiveTab === 'Statistics'}
-      Fields={this.state.rowData.RowHeaders}
-      Data={this.state.rowData.rowdata}
-      Loading={this.state.loading}
-    />);
-
-    let sideBar = this.getSideBarVisibleStatus()
-      ? (
-        <div className='col-md-2'>
-          <FieldsSidebar
-            Fields={this.state.fields}
-            Criteria={this.state.criteria}
-            resetQuery={this.resetQuery}
-          />
-        </div>
-      )
-      : null;
-
-    let widthClass = this.getSideBarVisibleStatus()
-      ? 'col-md-10'
-      : 'col-md-12';
-
-    let mySavePrompt = this.state.savePrompt ? (
-      <SaveQueryDialog
-        onDismissClicked={() => {
-          this.setState({savePrompt: false});
-        }}
-        onSaveClicked={(name, shared) => {
-          this.saveCurrentQuery(name, shared, 'false');
-          this.setState({savePrompt: false});
-        }}
-      />
-    ) : null;
-
-    return (
-      <>
-        <NavigationWithSave
-          index={this.state.navigation.index}
-          disable={this.state.navigation.disable}
-          onClickHandler={this.navigationClicked}
-        />
-        <NavigationStepper
-          setIndex={this.state.ActiveTab}
-          stepperClicked={this.stepperClicked}
-        />
-        <NoticeMessage
-          dismissAlert={this.dismissAlert}
-          overrideQuery={this.overrideQuery}
-          alertConflict={this.state.alertConflict}
-          alertSaved={this.state.alertSaved}
-          alertLoaded={this.state.alertLoaded}
-        />
-        {mySavePrompt}
-        <div className={widthClass}>
-          <div className='tab-content'>
-            {tabs}
-          </div>
-        </div>
-        {sideBar}
-      </>
-    );
-  }
-}
-*/
 
 window.addEventListener('load', () => {
   ReactDOM.render(
