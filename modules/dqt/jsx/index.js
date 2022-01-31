@@ -87,6 +87,7 @@ function DefineFields(props) {
         'list-group-item';
 
       return (<div className={className} key={item}
+                   style={{cursor: 'pointer'}}
                    onClick={() => props.onFieldToggle(
                         props.module,
                         props.category,
@@ -98,8 +99,34 @@ function DefineFields(props) {
       </div>);
   });
 
+
   const setFilter = (e) => {
       setActiveFilter(e.target.value);
+  };
+
+  const addAll = () => {
+      const toAdd = displayed.map((item, i) => {
+          const dict = props.displayedFields[item];
+          return {
+              module: props.module,
+              category: props.category,
+              field: item,
+              dictionary: dict,
+          };
+      });
+      props.onAddAll(toAdd);
+  };
+  const removeAll = () => {
+      const toRemove = displayed.map((item, i) => {
+          const dict = props.displayedFields[item];
+          return {
+              module: props.module,
+              category: props.category,
+              field: item,
+              dictionary: dict,
+          };
+      });
+      props.onRemoveAll(toRemove);
   };
 
   let fieldList = null;
@@ -111,10 +138,38 @@ function DefineFields(props) {
             <div style={{display: 'flex', flexWrap: 'wrap',
                 justifyContent: 'space-between'}}>
                 <h2>{cname} fields</h2>
-                <input onChange={setFilter}
-                    type="text"
-                    placeholder="Filter"
-                    value={activeFilter} />
+                <div style={{marginTop: '1em',
+                    display: 'flex',
+                    flexWrap: 'nowrap',
+                    flexDirection: 'column',
+                    }}>
+                    <div className="input-group">
+                        <input onChange={setFilter}
+                            className='form-control'
+                            type="text"
+                            placeholder="Filter within category"
+                            aria-describedby="input-filter-addon"
+                            value={activeFilter} />
+                        <span className="input-group-addon">
+                                <span className="glyphicon glyphicon-search"/>
+                        </span>
+                    </div>
+                    <div style={{margin: '1ex',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        flexDirection: 'row',
+                        justifyContent: 'space-around',
+                    }}>
+                        <button type="button" className="btn btn-primary"
+                            onClick={addAll}>
+                            Add all
+                        </button>
+                        <button type="button" className="btn btn-primary"
+                            onClick={removeAll}>
+                            Remove all
+                        </button>
+                    </div>
+                </div>
             </div>
             <dl className="list-group">{fields}</dl>
         </div>);
@@ -132,7 +187,10 @@ function DefineFields(props) {
       </div>
       <div style={{padding: '1em'}}>
         <h2>Selected Fields</h2>
-        <SelectedFieldList selected={props.selected} />
+        <SelectedFieldList
+            selected={props.selected}
+            removeField={props.removeField}
+        />
       </div>
    </div>);
 }
@@ -147,12 +205,24 @@ function DefineFields(props) {
 function SelectedFieldList(props) {
   const fields = props.selected.map((item, i) => {
       // const value = props.selected[item];
-      return (<div key={i}>
-        <dt>{item.field}</dt>
-        <dd>{item.dictionary.description}</dd>
+      const removeField = (item) => {
+          console.log(item);
+          props.removeField(item.module, item.category, item.field);
+      };
+      return (<div key={i} style={{display: 'flex',
+                flexWrap: 'nowrap',
+                justifyContent: 'space-between'}}>
+        <div>
+            <dt>{item.field}</dt>
+            <dd>{item.dictionary.description}</dd>
+        </div>
+        <div><i
+            className="fas fa-trash-alt" onClick={() => removeField(item)}
+            style={{cursor: 'pointer'}} />
+        </div>
       </div>);
   });
-  return <dl className="list-group">{fields}</dl>;
+  return <div className="list-group">{fields}</div>;
 }
 
 /**
@@ -211,6 +281,48 @@ function DataQueryApp(props) {
     const getModuleFields = (module, category) => {
         setSelectedModule(module);
         setSelectedModuleCategory(category);
+    };
+
+    const removeField = (module, category, field) => {
+      const equalField = (element) => {
+        return (element.module == module
+          && element.category === category
+          && element.field == field);
+      };
+      const newfields = selectedFields.filter((el) => !(equalField(el)));
+      setFields(newfields);
+    };
+
+    const addManyFields = (elements) => {
+        let newfields = selectedFields;
+        for (let i = 0; i < elements.length; i++) {
+            const newFieldObj = elements[i];
+            const equalField = (element) => {
+                return (element.module == newFieldObj.module
+                    && element.category === newFieldObj.category
+                    && element.field == newFieldObj.field);
+            };
+            if (!newfields.some((el) => equalField(el))) {
+                newfields = [...newfields, newFieldObj];
+            }
+        }
+        setFields(newfields);
+    };
+
+    const removeManyFields = (removeelements) => {
+        console.log(removeelements);
+        const equalField = (el1, el2) => {
+           return (el1.module == el2.module
+                    && el1.category === el2.category
+                    && el1.field == el2.field);
+            };
+        const newfields = selectedFields.filter((el) => {
+            if (removeelements.some((rel) => equalField(rel, el))) {
+                return false;
+            }
+            return true;
+        });
+        setFields(newfields);
     };
 
     const addRemoveField = (module, category, field, dict) => {
@@ -291,6 +403,9 @@ function DataQueryApp(props) {
 
                 onCategoryChange={getModuleFields}
                 onFieldToggle={addRemoveField}
+                removeField={removeField}
+                onAddAll={addManyFields}
+                onRemoveAll={removeManyFields}
                />;
             break;
         case 'DefineFilters':
