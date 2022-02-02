@@ -200,11 +200,17 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
         }
     }
 
-
+    private $visitcache = [];
     public function getVisitList(\LORIS\Data\Dictionary\Category $inst, \LORIS\Data\Dictionary\DictionaryItem $item) : iterable
     {
         if($item->getScope()->__toString() !== 'session') {
             return null;
+        }
+
+        // An instrument's fields all have the same visit list, so cache
+        // the results to ensure it's only queried once.
+        if(isset($this->visitcache[$inst->getName()])) {
+            return $this->visitcache[$inst->getName()];
         }
 
         $DB = \NDB_Factory::singleton()->database();
@@ -217,6 +223,8 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
             ['tn' => $inst->getName()]
         );
 
+        $this->visitcache[$inst->getName()] = $visits;
+        
         return $visits;
     }
 

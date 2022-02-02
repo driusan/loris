@@ -270,7 +270,6 @@ html, body {
 }
 
 #page {
-    overflow: auto;
     padding-bottom: 100px; /* must be same height as the footer */
 }
 

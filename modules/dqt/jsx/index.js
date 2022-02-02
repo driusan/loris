@@ -66,22 +66,39 @@ function QueryField(props) {
   const value=props.value;
 
   let visits;
-  if (value.scope === 'session' && props.selected) {
-      /*
+  let selectedVisits;
+
+  if (value.scope === 'session') {
+    const selected = (newvisits) => {
+        props.onChangeVisitList(
+         props.module,
+         props.category,
+         item,
+         value,
+         newvisits,
+        );
+    };
+
     const selectOptions = value.visits.map((vl) => {
         return {value: vl, label: vl};
     });
 
-    visits = <div onClick={(e) => e.stopPropagation()}>
-        <Select options={selectOptions}
-            isMulti
-            onChange={selected}
-            placeholder='Visits'
-            value={selectOptions}
-        />
+    if (props.selected && props.selected.visits) {
+        selectedVisits = props.selected.visits;
+    } else {
+        selectedVisits = selectOptions;
+    }
+
+    if (props.selected) {
+        visits = <div onClick={(e) => e.stopPropagation()}>
+            <Select options={selectOptions}
+                isMulti
+                onChange={selected}
+                placeholder='Visits'
+                value={selectedVisits}
+            />
         </div>;
-        */
-    visits = [];
+    }
   }
   return (
     <div className={className}
@@ -95,6 +112,7 @@ function QueryField(props) {
          props.category,
          item,
          value,
+         selectedVisits,
        )}>
          <dl>
            <dt>{item}</dt>
@@ -132,15 +150,17 @@ function DefineFields(props) {
               && element.category === props.category
               && element.field == item);
       };
-      console.log(props.selected);
+      const selobj = props.selected.find(equalField);
       return <QueryField
                 key={item}
                 item={item}
                 value={props.displayedFields[item]}
-                selected={props.selected.some(equalField)}
+                selected={selobj}
                 module={props.module}
                 category={props.category}
                 onFieldToggle={props.onFieldToggle}
+                onChangeVisitList={props.onChangeVisitList}
+                selectedVisits={props.selectedVisits}
             />;
   });
 
@@ -149,14 +169,29 @@ function DefineFields(props) {
       setActiveFilter(e.target.value);
   };
 
+/*
+    const selectOptions = value.visits.map((vl) => {
+        return {value: vl, label: vl};
+    });
+
+    if (props.selected && props.selected.visits) {
+        selectedVisits = props.selected.visits;
+    } else {
+        selectedVisits = selectOptions;
+    }
+    */
   const addAll = () => {
       const toAdd = displayed.map((item, i) => {
           const dict = props.displayedFields[item];
+          const visits = dict.visits.map((vl) => {
+                  return {value: vl, label: vl};
+          });
           return {
               module: props.module,
               category: props.category,
               field: item,
               dictionary: dict,
+              visits: visits,
           };
       });
       props.onAddAll(toAdd);
@@ -230,7 +265,7 @@ function DefineFields(props) {
             />
             {fieldList}
       </div>
-      <div style={{padding: '1em'}}>
+      <div style={{padding: '1em', position: 'sticky', top: 0, height: 500}}>
         <h2>Selected Fields</h2>
         <button type="button" className="btn btn-primary"
             onClick={props.onClearAll}>Clear</button>
@@ -254,12 +289,16 @@ function SelectedFieldList(props) {
       const removeField = (item) => {
           props.removeField(item.module, item.category, item.field);
       };
+      const visits = item.visits
+        ? <dd>{item.visits.map((el) => el.label).join(', ')}</dd>
+        : '';
       return (<div key={i} style={{display: 'flex',
                 flexWrap: 'nowrap',
                 justifyContent: 'space-between'}}>
         <div>
             <dt>{item.field}</dt>
             <dd>{item.dictionary.description}</dd>
+            {visits}
         </div>
         <div><i
             className="fas fa-trash-alt" onClick={() => removeField(item)}
@@ -355,7 +394,6 @@ function DataQueryApp(props) {
     };
 
     const removeManyFields = (removeelements) => {
-        console.log(removeelements);
         const equalField = (el1, el2) => {
            return (el1.module == el2.module
                     && el1.category === el2.category
@@ -370,12 +408,13 @@ function DataQueryApp(props) {
         setFields(newfields);
     };
 
-    const addRemoveField = (module, category, field, dict) => {
+    const addRemoveField = (module, category, field, dict, visits) => {
         const newFieldObj = {
                 module: module,
                 category: category,
                 field: field,
                 dictionary: dict,
+                visits: visits,
             };
         const equalField = (element) => {
             return (element.module == module
@@ -390,6 +429,24 @@ function DataQueryApp(props) {
             // Add
             const newfields = [...selectedFields, newFieldObj];
             setFields(newfields);
+        }
+    };
+
+    const modifyFieldVisits = (module, category, field, dict, visits) => {
+        const newfields = [...selectedFields];
+        const equalField = (element) => {
+            return (element.module == module
+                && element.category === category
+                && element.field == field);
+        };
+
+        for (let i = 0; i < newfields.length; i++) {
+            console.log(i, newfields[i], equalField(newfields[i]));
+            if (equalField(newfields[i])) {
+                newfields[i].visits = visits;
+                setFields(newfields);
+                return;
+            }
         }
     };
 
@@ -452,6 +509,9 @@ function DataQueryApp(props) {
 
                 onCategoryChange={getModuleFields}
                 onFieldToggle={addRemoveField}
+
+                onChangeVisitList={modifyFieldVisits}
+
                 removeField={removeField}
                 onAddAll={addManyFields}
                 onRemoveAll={removeManyFields}
