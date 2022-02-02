@@ -90,11 +90,13 @@ class ModuleDict extends \NDB_Page
             }
             $fieldname = $row->getFieldName();
             $datatype  = $row->getDataType();
+
             $organized[$cat][$fieldname] = [
                 'description' => $row->getDescription(),
                 'scope'       => $row->getScope(),
                 'type'        => $row->getDataType(),
                 'cardinality' => $row->getCardinality(),
+                'visits' => $row->getVisitList(),
             ];
             if ($datatype instanceof \LORIS\Data\Types\Enumeration) {
                 $organized[$cat][$fieldname]['options'] = $datatype->getOptions();

@@ -142,4 +142,15 @@ class DataDictRow implements \LORIS\Data\DataInstance,
     {
         return $this->item->getCardinality();
     }
+
+    public function getVisitList() : iterable 
+    {
+        if ($this->getScope() == 'candidate') {
+            return [];
+        }
+        return $this->itemmodule->getQueryEngine()->getVisitList(
+            $this->itemcategory,
+            $this->item,
+        );
+    }
 }

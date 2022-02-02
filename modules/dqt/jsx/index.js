@@ -50,6 +50,47 @@ function FilterableSelectGroup(props) {
         </div>
     );
 }
+
+/**
+ * Displays a single field to be selected for querying
+ *
+ * @param {object} props - react props
+ *
+ * @return {ReactDOM}
+ */
+function QueryField(props) {
+  const item=props.item;
+  const className = props.selected ?
+    'list-group-item active' :
+    'list-group-item';
+  const value=props.value;
+
+  let visits;
+  if (value.scope === 'session') {
+    visits = <ul>{value.visits.map((vl) => {
+        return <li key={vl}>{vl}</li>;
+    })}</ul>;
+  }
+  return (
+    <div className={className}
+       style={{
+       cursor: 'pointer',
+       display: 'flex',
+       justifyContent: 'space-between',
+       }}
+       onClick={() => props.onFieldToggle(
+         props.module,
+         props.category,
+         item,
+         value,
+       )}>
+         <dl>
+           <dt>{item}</dt>
+           <dd>{value.description}</dd>
+         </dl>
+         <div>{visits}</div>
+    </div>);
+}
 /**
  * Render the define fields tab
  *
@@ -59,7 +100,6 @@ function FilterableSelectGroup(props) {
  */
 function DefineFields(props) {
   const [activeFilter, setActiveFilter] = useState('');
-
   const displayed = Object.keys(props.displayedFields || {}).filter((value) => {
       if (activeFilter === '') {
           // No filter set
@@ -75,28 +115,21 @@ function DefineFields(props) {
   });
 
   const fields = displayed.map((item, i) => {
-      const value = props.displayedFields[item];
       const equalField = (element) => {
           return (element.module == props.module
               && element.category === props.category
               && element.field == item);
       };
-
-      const className = props.selected.some(equalField) ?
-        'list-group-item active' :
-        'list-group-item';
-
-      return (<div className={className} key={item}
-                   style={{cursor: 'pointer'}}
-                   onClick={() => props.onFieldToggle(
-                        props.module,
-                        props.category,
-                        item,
-                        value,
-                   )}>
-        <dt>{item}</dt>
-        <dd>{value.description}</dd>
-      </div>);
+      console.log(props.selected);
+      return <QueryField
+                key={item}
+                item={item}
+                value={props.displayedFields[item]}
+                selected={props.selected.some(equalField)}
+                module={props.module}
+                category={props.category}
+                onFieldToggle={props.onFieldToggle}
+            />;
   });
 
 
@@ -171,7 +204,7 @@ function DefineFields(props) {
                     </div>
                 </div>
             </div>
-            <dl className="list-group">{fields}</dl>
+            <div className="list-group">{fields}</div>
         </div>);
   }
 
@@ -206,9 +239,7 @@ function DefineFields(props) {
  */
 function SelectedFieldList(props) {
   const fields = props.selected.map((item, i) => {
-      // const value = props.selected[item];
       const removeField = (item) => {
-          console.log(item);
           props.removeField(item.module, item.category, item.field);
       };
       return (<div key={i} style={{display: 'flex',

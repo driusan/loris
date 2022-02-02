@@ -52,7 +52,7 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
         $dict = [];
         foreach ($rows as $testname) {
             try {
-                $inst   = \NDB_BVL_Instrument::factory($testname, "", "");
+                $inst   = \NDB_BVL_Instrument::factory($this->loris, $testname, "", "");
                 $cat    = new \LORIS\Data\Dictionary\Category(
                     $testname,
                     $inst->getFullName()

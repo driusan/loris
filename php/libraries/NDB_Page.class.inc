@@ -30,7 +30,7 @@ class NDB_Page implements RequestHandlerInterface
 {
     use Psr\Log\LoggerAwareTrait;
 
-    protected $lorisinstance;
+    protected \LORIS\LorisInstance $lorisinstance;
     /**
      * The name of the test_name being accessed
      */
@@ -133,6 +133,7 @@ class NDB_Page implements RequestHandlerInterface
         string $commentID
     ) {
         $this->loris  = $loris;
+        $this->lorisinstance  = $loris;
         $this->Module = $module;
         $this->name   = $module->getName(); // for legacy purposes.
 
