@@ -61,4 +61,24 @@ class Dqt extends \NDB_Page
             ]
         );
     }
+
+    /**
+     * Include additional CSS files:
+     *  1. dataquery.css
+     *
+     * @return array of javascript to be inserted
+     */
+    function getCSSDependencies()
+    {
+        $factory = \NDB_Factory::singleton();
+        $baseURL = $factory->settings()->getBaseURL();
+        $deps    = parent::getCSSDependencies();
+        return array_merge(
+                $deps,
+                [
+                $baseURL . '/dqt/css/dataquery.css',
+                $baseURL . '/css/c3.css',
+                ]
+                );
+    }
 }
