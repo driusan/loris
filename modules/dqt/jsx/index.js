@@ -91,15 +91,19 @@ function QueryField(props) {
 
     if (props.selected) {
         visits = <div onClick={(e) => e.stopPropagation()}>
+            <h4>Visits</h4>
             <Select options={selectOptions}
                 isMulti
                 onChange={selected}
-                placeholder='Visits'
+                placeholder='Select Visits'
                 value={selectedVisits}
             />
         </div>;
     }
   }
+  console.log(item, value);
+  const download = value.type == 'URI' ?
+    <i className="fas fa-download" /> : null;
   return (
     <div className={className}
        style={{
@@ -116,9 +120,9 @@ function QueryField(props) {
        )}>
          <dl>
            <dt>{item}</dt>
-           <dd>{value.description}</dd>
+           <dd>{value.description} {download}</dd>
          </dl>
-         <div>{visits}</div>
+         {visits}
     </div>);
 }
 /**
@@ -265,7 +269,13 @@ function DefineFields(props) {
             />
             {fieldList}
       </div>
-      <div style={{padding: '1em', position: 'sticky', top: 0, height: 500}}>
+      <div style={{
+          padding: '1em',
+          position: 'sticky',
+          top: 0,
+          maxHeight: '90vh',
+          overflow: 'auto',
+        }}>
         <h2>Selected Fields</h2>
         <button type="button" className="btn btn-primary"
             onClick={props.onClearAll}>Clear</button>
