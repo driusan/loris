@@ -86,7 +86,9 @@ function QueryField(props) {
     if (props.selected && props.selected.visits) {
         selectedVisits = props.selected.visits;
     } else {
-        selectedVisits = selectOptions;
+        selectedVisits = selectOptions.filter((opt) => {
+            return props.defaultVisits.includes(opt.value);
+        });
     }
 
     if (props.selected) {
@@ -97,11 +99,12 @@ function QueryField(props) {
                 onChange={selected}
                 placeholder='Select Visits'
                 value={selectedVisits}
+                menuPortalTarget={document.body}
+                styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
             />
         </div>;
     }
   }
-  console.log(item, value);
   const download = value.type == 'URI' ?
     <i className="fas fa-download" /> : null;
   return (
@@ -165,6 +168,7 @@ function DefineFields(props) {
                 onFieldToggle={props.onFieldToggle}
                 onChangeVisitList={props.onChangeVisitList}
                 selectedVisits={props.selectedVisits}
+                defaultVisits={props.defaultVisits}
             />;
   });
 
@@ -173,17 +177,6 @@ function DefineFields(props) {
       setActiveFilter(e.target.value);
   };
 
-/*
-    const selectOptions = value.visits.map((vl) => {
-        return {value: vl, label: vl};
-    });
-
-    if (props.selected && props.selected.visits) {
-        selectedVisits = props.selected.visits;
-    } else {
-        selectedVisits = selectOptions;
-    }
-    */
   const addAll = () => {
       const toAdd = displayed.map((item, i) => {
           const dict = props.displayedFields[item];
@@ -218,6 +211,27 @@ function DefineFields(props) {
       // Put into a short variable name for line length
       const mCategories = props.allCategories.categories[props.module];
       const cname = mCategories[props.category];
+      let defaultVisits;
+      if (props.defaultVisits) {
+          const allVisits = props.allVisits.map((el) => {
+              return {value: el, label: el};
+          });
+          const selectedVisits = props.defaultVisits.map((el) => {
+              return {value: el, label: el};
+          });
+          defaultVisits = <div>
+                <h4>Default Visits</h4>
+                <Select options={allVisits}
+                    isMulti
+                    onChange={props.onChangeDefaultVisits}
+                    placeholder='Select Visits'
+                    menuPortalTarget={document.body}
+                    styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
+                    value={selectedVisits}
+                />
+            </div>;
+      }
+
       fieldList = (<div>
             <div style={{display: 'flex', flexWrap: 'wrap',
                 justifyContent: 'space-between'}}>
@@ -253,6 +267,7 @@ function DefineFields(props) {
                             Remove all
                         </button>
                     </div>
+                    {defaultVisits}
                 </div>
             </div>
             <div className="list-group">{fields}</div>
@@ -333,6 +348,8 @@ function DataQueryApp(props) {
     const [selectedModuleCategory, setSelectedModuleCategory] = useState(false);
     const [categories, setCategories] = useState(false);
     const [selectedFields, setFields] = useState([]);
+    const [defaultVisits, setDefaultVisits] = useState(false);
+    const [allVisits, setAllVisits] = useState(false);
 
     useEffect(() => {
         if (categories !== false) {
@@ -346,6 +363,25 @@ function DataQueryApp(props) {
                   return resp.json();
           }).then((result) => {
                   setCategories(result);
+                  }
+          ).catch( (error) => {
+                  console.error(error);
+                  });
+    }, []);
+
+    useEffect(() => {
+        if (defaultVisits !== false) {
+            return;
+        }
+          fetch('/dqt/visitlist', {credentials: 'same-origin'})
+          .then((resp) => {
+                  if (!resp.ok) {
+                      throw new Error('Invalid response');
+                  }
+                  return resp.json();
+          }).then((result) => {
+                  setDefaultVisits(result.Visits);
+                  setAllVisits(result.Visits);
                   }
           ).catch( (error) => {
                   console.error(error);
@@ -451,7 +487,6 @@ function DataQueryApp(props) {
         };
 
         for (let i = 0; i < newfields.length; i++) {
-            console.log(i, newfields[i], equalField(newfields[i]));
             if (equalField(newfields[i])) {
                 newfields[i].visits = visits;
                 setFields(newfields);
@@ -462,6 +497,10 @@ function DataQueryApp(props) {
 
     const clearAllFields = () => {
         setFields([]);
+    };
+
+    const modifyDefaultVisits = (values) => {
+        setDefaultVisits(values.map((el) => el.value));
     };
 
     let content;
@@ -512,6 +551,10 @@ function DataQueryApp(props) {
         case 'DefineFields':
             content = <DefineFields allCategories={categories}
                 displayedFields={moduleDictionary[selectedModuleCategory]}
+
+                defaultVisits={defaultVisits}
+                onChangeDefaultVisits={modifyDefaultVisits}
+                allVisits={allVisits}
 
                 module={selectedModule}
                 category={selectedModuleCategory}
