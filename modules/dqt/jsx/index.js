@@ -101,6 +101,7 @@ function QueryField(props) {
                 value={selectedVisits}
                 menuPortalTarget={document.body}
                 styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
+                closeMenuOnSelect={false}
             />
         </div>;
     }
@@ -180,7 +181,9 @@ function DefineFields(props) {
   const addAll = () => {
       const toAdd = displayed.map((item, i) => {
           const dict = props.displayedFields[item];
-          const visits = dict.visits.map((vl) => {
+          const visits = dict.visits.filter((visit) => {
+              return props.defaultVisits.includes(visit);
+          }).map((vl) => {
                   return {value: vl, label: vl};
           });
           return {
@@ -219,8 +222,8 @@ function DefineFields(props) {
           const selectedVisits = props.defaultVisits.map((el) => {
               return {value: el, label: el};
           });
-          defaultVisits = <div>
-                <h4>Default Visits</h4>
+          defaultVisits = <div style={{paddingBottom: '1em', display: 'flex'}}>
+                <h4 style={{paddingRight: '1ex'}}>Default Visits</h4>
                 <Select options={allVisits}
                     isMulti
                     onChange={props.onChangeDefaultVisits}
@@ -228,6 +231,7 @@ function DefineFields(props) {
                     menuPortalTarget={document.body}
                     styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
                     value={selectedVisits}
+                    closeMenuOnSelect={false}
                 />
             </div>;
       }
@@ -241,6 +245,7 @@ function DefineFields(props) {
                     flexWrap: 'nowrap',
                     flexDirection: 'column',
                     }}>
+                    {defaultVisits}
                     <div className="input-group">
                         <input onChange={setFilter}
                             className='form-control'
@@ -267,7 +272,6 @@ function DefineFields(props) {
                             Remove all
                         </button>
                     </div>
-                    {defaultVisits}
                 </div>
             </div>
             <div className="list-group">{fields}</div>
@@ -291,13 +295,25 @@ function DefineFields(props) {
           maxHeight: '90vh',
           overflow: 'auto',
         }}>
-        <h2>Selected Fields</h2>
-        <button type="button" className="btn btn-primary"
-            onClick={props.onClearAll}>Clear</button>
-        <SelectedFieldList
-            selected={props.selected}
-            removeField={props.removeField}
-        />
+        <div>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-end',
+                marginBottom: '1em',
+            }}>
+                <h2>Selected Fields</h2>
+                <div>
+                    <button type="button" className="btn btn-primary"
+                        style={{marginBottom: 7}}
+                        onClick={props.onClearAll}>Clear</button>
+                </div>
+            </div>
+            <SelectedFieldList
+                selected={props.selected}
+                removeField={props.removeField}
+            />
+        </div>
       </div>
    </div>);
 }
@@ -314,16 +330,12 @@ function SelectedFieldList(props) {
       const removeField = (item) => {
           props.removeField(item.module, item.category, item.field);
       };
-      const visits = item.visits
-        ? <dd>{item.visits.map((el) => el.label).join(', ')}</dd>
-        : '';
       return (<div key={i} style={{display: 'flex',
                 flexWrap: 'nowrap',
                 justifyContent: 'space-between'}}>
         <div>
             <dt>{item.field}</dt>
             <dd>{item.dictionary.description}</dd>
-            {visits}
         </div>
         <div><i
             className="fas fa-trash-alt" onClick={() => removeField(item)}
