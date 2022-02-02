@@ -66,10 +66,22 @@ function QueryField(props) {
   const value=props.value;
 
   let visits;
-  if (value.scope === 'session') {
-    visits = <ul>{value.visits.map((vl) => {
-        return <li key={vl}>{vl}</li>;
-    })}</ul>;
+  if (value.scope === 'session' && props.selected) {
+      /*
+    const selectOptions = value.visits.map((vl) => {
+        return {value: vl, label: vl};
+    });
+
+    visits = <div onClick={(e) => e.stopPropagation()}>
+        <Select options={selectOptions}
+            isMulti
+            onChange={selected}
+            placeholder='Visits'
+            value={selectOptions}
+        />
+        </div>;
+        */
+    visits = [];
   }
   return (
     <div className={className}
