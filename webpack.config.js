@@ -153,6 +153,7 @@ try {
 
 const config = [
   // Core components
+  /*
   {
     mode: mode,
     entry: {
@@ -231,7 +232,9 @@ const config = [
     module: mod,
     stats: 'errors-warnings',
   },
+  */
   // Modules
+  /*
   lorisModule('media', ['CandidateMediaWidget', 'mediaIndex']),
   lorisModule('issue_tracker', [
     'issueTrackerIndex',
@@ -251,11 +254,14 @@ const config = [
   lorisModule('bvl_feedback', ['react.behavioural_feedback_panel']),
   lorisModule('behavioural_qc', ['behaviouralQCIndex']),
   lorisModule('create_timepoint', ['createTimepointIndex']),
+  */
   lorisModule('candidate_list', [
     'openProfileForm',
     'onLoad',
     'candidateListIndex',
+    'accesswidget',
   ]),
+  /*
   lorisModule('datadict', ['dataDictIndex']),
   lorisModule('data_release', [
     'dataReleaseIndex',
@@ -310,6 +316,7 @@ const config = [
   lorisModule('instruments', ['CandidateInstrumentList']),
   lorisModule('candidate_profile', ['CandidateInfo']),
   lorisModule('api_docs', ['swagger-ui_custom']),
+  */
 ];
 
 // Support project overrides

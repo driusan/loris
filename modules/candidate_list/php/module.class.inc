@@ -95,4 +95,39 @@ class Module extends \Module
         return true;
     }
 
+    public function getWidgets(string $type, \User $user, array $options) : array
+    {
+        switch ($type) {
+            case 'dashboard':
+                $factory = \NDB_Factory::singleton();
+                $baseURL = $factory->settings()->getBaseURL();
+                return [
+                    new \LORIS\dashboard\Widget(
+                        new \LORIS\dashboard\WidgetContent(
+                            "Access Candidate",
+                            $this->renderTemplate(
+                                 'access_widget.tpl',
+                                 ['BaseURL' => $baseURL],
+                            ),
+                            // No footer
+                            "", 
+                        ),
+                        new \LORIS\dashboard\WidgetDisplayProps(
+                            "small",
+                            1,
+                            // No menu for widget
+                            [], 
+                        ),
+                        new \LORIS\dashboard\WidgetDependencies(
+                            // CSS
+                            [],
+                            // JS
+                            [$baseURL . '/candidate_list/js/accesswidget.js'],
+                        ),
+                    ),
+                ];
+        }
+        return [];
+    }
+
 }
