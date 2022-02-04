@@ -28,7 +28,7 @@ use \LORIS\StudyEntities\Candidate\CandID;
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-class ValidateIDs extends \NDB_Page
+class ConvertID extends \NDB_Page
 {
     public $skipTemplate = true;
 
@@ -73,7 +73,7 @@ class ValidateIDs extends \NDB_Page
 
         // Ensure CandID and PSCID are both passed.
         $gets = $request->getQueryParams();
-        if (!isset($gets['CandID'])) {
+        if (!isset($gets['PSCID'])) {
             return (new \LORIS\Http\Response())
                 ->withStatus(400)
                 ->withHeader("Content-Type", "text/plain")
@@ -84,23 +84,20 @@ class ValidateIDs extends \NDB_Page
                 );
         }
 
-        // Return "0" or "1" based on whether it exists or not.
-        // We always return a 200 error code and not a 404, because
-        // even if the CandID doesn't exist or match, the validateids
-        // endpoint still exists and has a valid response.
-        try {
-            $exists = \Candidate::candidateExists(
-                new CandID($gets['CandID']),
-                $gets['PSCID'] ?? null,
-            ) ? "1" : "0";
-        } catch(\Exception $e) {
-            // Invalid CandID format, doesn't exist
-            $exists = "0";
+
+        $row = $this->loris->getDatabaseConnection()->pselectOne(
+            "SELECT CandID
+                FROM candidate
+             WHERE PSCID=:pscid AND Active = 'Y'",
+            ['pscid' => $gets['PSCID']]
+        );
+        if ($row === NULL) {
+            $row = "";
         }
 
         return (new \LORIS\Http\Response())
             ->withStatus(200)
             ->withHeader("Content-Type", "text/plain")
-            ->withBody(new \LORIS\Http\StringStream($exists));
+            ->withBody(new \LORIS\Http\StringStream($row));
     }
 }

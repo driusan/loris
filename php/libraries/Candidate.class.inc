@@ -344,7 +344,7 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
      * @return bool TRUE if candidate is found (in candidate table), FALSE otherwise
      * @throws DatabaseException
      */
-    static function candidateExists(CandID $candID, string $PSCID): bool
+    static function candidateExists(CandID $candID, ?string $PSCID): bool
     {
         // make a local reference to the Database object
         $factory = NDB_Factory::singleton();
@@ -352,13 +352,19 @@ class Candidate implements \LORIS\StudyEntities\AccessibleResource,
 
         $candidateIDs = [
             ':candidate_id' => $candID,
-            ':pscid'        => $PSCID,
         ];
+        $where = "CandID = :candidate_id";
 
+        if($PSCID !== null) {
+            $candidateIDs[':pscid'] = $PSCID;
+            $where = "CandID = :candidate_id AND PSCID = :pscid";
+        } 
+
+        
         // get candidate data from database
         $query = "SELECT CandID
             FROM candidate
-            WHERE CandID = :candidate_id AND PSCID = :pscid
+            WHERE $where
             AND Active = 'Y'";
 
         $row = $db->pselectRow($query, $candidateIDs);
