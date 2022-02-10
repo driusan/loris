@@ -158,7 +158,7 @@ class SiteIDGenerator extends IdentifierGenerator
         $config = \NDB_Factory::singleton()->config();
         $kind   = $config->getSetting($this->kind);
 
-        if (!is_array($kind)) {
+        if(!is_array($kind)) {
             throw new \LorisException("Invalid config for $this->kind");
         };
         // The generation setting can be easily extracted and returned.
@@ -232,12 +232,19 @@ class SiteIDGenerator extends IdentifierGenerator
      * configured. Do error handling to make sure that there is exactly one
      * value corresponding to the requested setting.
      *
+<<<<<<< HEAD
      * @param array<array<array<string>>> $idStructure Settings concerning ID
      *                                                 structure extracted from
      *                                                 project/config.sml
      * @param string                      $setting     The name of the variable
      *                                                 for which we want the
      *                                                 value.
+=======
+     * @param array<array<array<string>>> $idStructure Settings concerning ID structure
+     *                                  extracted from project/config.sml
+     * @param string       $setting     The name of the variable for which we
+     *                                  want the value.
+>>>>>>> 153ddde0d (Upgrade phpstan to latest version)
      *
      * @throws \ConfigurationException
      *
@@ -289,24 +296,35 @@ class SiteIDGenerator extends IdentifierGenerator
                 'Too many values found for config setting: ' . $setting
             );
         }
+<<<<<<< HEAD
 
         $val = array_pop($seqAttributes);
         if ($val === null) {
             return null;
         }
         return strval($val);
+=======
+        return strval(array_pop($seqAttributes));
+>>>>>>> 153ddde0d (Upgrade phpstan to latest version)
     }
 
     /**
      * Traverse the $idStructure array and collect all values that exist
      * for $setting.
      *
+<<<<<<< HEAD
      * @param array<array<array<string>>> $idStructure Settings concerning ID
      *                                                 structure extracted from
      *                                                 project/config.xml
      * @param string                      $setting     The name of the variable
      *                                                 for which we want the
      *                                                 value.
+=======
+     * @param array<array<array<string>>> $idStructure Settings concerning ID structure
+     *                                  extracted from project/config.xml
+     * @param string       $setting     The name of the variable for which
+     *                                  we want the value.
+>>>>>>> 153ddde0d (Upgrade phpstan to latest version)
      *
      * @return array<int,mixed> The value(s) corresponding to $setting.
      */
