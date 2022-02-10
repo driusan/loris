@@ -246,6 +246,18 @@ class VisitInstrumentList extends Component {
             padding: '1ex',
         };
 
+        let visitLink;
+        if (this.props.VisitMap) {
+            visitLink = <a href={this.props.BaseURL
+                            + '/instrument_list/?candID='
+                            + this.props.Candidate.Meta.CandID
+                            + '&sessionID='
+                            + this.props.VisitMap[this.props.Visit.Meta.Visit]}>
+                            {this.props.Visit.Meta.Visit}
+                        </a>;
+        } else {
+            visitLink = <span>{this.props.Visit.Meta.Visit}</span>;
+        }
         return (
           <div
               style={style}
@@ -258,13 +270,7 @@ class VisitInstrumentList extends Component {
                 </div>
                 <div style={center}>
                     <h4 style={{width: '100%', padding: 0, margin: 0}}>
-                        <a href={this.props.BaseURL
-                            + '/instrument_list/?candID='
-                            + this.props.Candidate.Meta.CandID
-                            + '&sessionID='
-                            + this.props.VisitMap[this.props.Visit.Meta.Visit]}>
-                            {this.props.Visit.Meta.Visit}
-                        </a>
+                        {visitLink}
                     </h4>
                 </div>
                 <div>

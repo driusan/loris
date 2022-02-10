@@ -50,7 +50,7 @@ function CSSGrid(props) {
             (node) => (node.firstChild.clientHeight)
         );
         setPanelHeights(heights);
-    });
+    }, [panelHeights]);
     const grid = {
         display: 'grid',
         gridTemplateColumns: '33% 33% 33%',

@@ -34,6 +34,7 @@ const resolve = {
     Loader: path.resolve(__dirname, './jsx/Loader'),
     Markdown: path.resolve(__dirname, './jsx/Markdown'),
     Modal: path.resolve(__dirname, './jsx/Modal'),
+    QRModal: path.resolve(__dirname, './jsx/QRModal'),
     MultiSelectDropdown: path.resolve(__dirname, './jsx/MultiSelectDropdown'),
     PaginationLinks: path.resolve(__dirname, './jsx/PaginationLinks'),
     Panel: path.resolve(__dirname, './jsx/Panel'),
@@ -314,9 +315,11 @@ const config = [
   lorisModule('imaging_qc', ['imagingQCIndex']),
   lorisModule('server_processes_manager', ['server_processes_managerIndex']),
   lorisModule('instruments', ['CandidateInstrumentList']),
-  lorisModule('candidate_profile', ['CandidateInfo']),
   lorisModule('api_docs', ['swagger-ui_custom']),
   */
+  lorisModule('candidate_profile', ['CandidateInfo']),
+  lorisModule('portal', ['index', 'CandidateInstrumentList', 'CandidateInfo' ]),
+  lorisModule('instruments', ['CandidateInstrumentList']),
 ];
 
 // Support project overrides

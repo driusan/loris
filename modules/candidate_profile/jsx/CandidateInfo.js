@@ -73,6 +73,10 @@ export class CandidateInfo extends Component {
      */
     getVisitList(visits) {
         let visitlinks = visits.map( (visit) => {
+            if (!this.props.VisitMap) {
+                return visit.Meta.Visit;
+            }
+
             const sessionID = this.props.VisitMap[visit.Meta.Visit];
             const candID = this.props.Candidate.Meta.CandID;
             return <a
@@ -211,5 +215,5 @@ CandidateInfo.propTypes = {
   BaseURL: PropTypes.string.isRequired,
   Candidate: PropTypes.object.isRequired,
   Visits: PropTypes.array.isRequired,
-  VisitMap: PropTypes.object.isRequired,
+  VisitMap: PropTypes.object,
 };
