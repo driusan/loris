@@ -77,7 +77,8 @@ class VisitSummary extends \NDB_Page
             "SELECT
                 f.Test_name,
                 f.CommentID,
-                COUNT(cu.ConflictID) AS NumOfConflict
+                COUNT(cu.ConflictID) AS NumOfConflict,
+                ExternalDataEntryURL
             FROM session s
                 LEFT JOIN flag f ON (s.ID = f.SessionID)
                 LEFT JOIN conflicts_unresolved cu

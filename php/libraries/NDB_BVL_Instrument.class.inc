@@ -3083,4 +3083,30 @@ abstract class NDB_BVL_Instrument extends NDB_Page
 
         return $instrumentNames;
     }
+
+    /**
+     * Return the URL template that should be used for data entry of
+     * this type of instrument, if external to LORIS. The template is
+     * the template for the URL before variable substitutions such
+     * as identifiers or visit labels.
+     *
+     * If instrument type is not external to LORIS, returns null.
+     *
+     * @return ?string
+     */
+    function getExternalDataEntryURLTemplate() : ?string {
+        $DB = $this->loris->getDatabaseConnection();
+
+        $val = $DB->pselectRow(
+            "SELECT ExternalDataEntryURL FROM test_names WHERE Test_name=:tn",
+            ['tn' => $this->testName]
+        );
+
+        // $val = [] means that there was no result in the test
+        // names table.
+        if (count($val) < 1) {
+            throw new \LogicException("Invalid test name $this->testName");
+        }
+        return $val['ExternalDataEntryURL'];
+    }
 }

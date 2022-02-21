@@ -215,7 +215,9 @@ class VisitInstrumentList extends Component {
                            className="fas fa-exclamation-triangle"></i>
                     </a>);
                 }
-                const linkURI = this.props.BaseURL
+                const linkURI = instrument.ExternalDataEntryURL ?
+                    instrument.ExternalDataEntryURL
+                   : this.props.BaseURL
                             + '/instruments/' + instrument.Test_name
                             + '?commentID='
                             + instrument.CommentID;

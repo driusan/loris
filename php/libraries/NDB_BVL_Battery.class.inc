@@ -229,14 +229,18 @@ class NDB_BVL_Battery
             $DB->insert($obj->table, ['CommentID' => $ddeCommentID]);
         }
 
+        $externalTemplate = $obj->getExternalDataEntryURLTemplate();
+
+        $externalURL = $this->interpolateURL($externalTemplate, $commentID);
         // insert into the flag table
         $DB->insert(
             'flag',
             [
-                'SessionID' => $sessionData['SessionID'],
-                'Test_name' => $testName,
-                'CommentID' => $commentID,
-                'UserID'    => $sessionData['UserID'],
+                'SessionID'                     => $sessionData['SessionID'],
+                'Test_name'                     => $testName,
+                'CommentID'                     => $commentID,
+                'UserID'                        => $sessionData['UserID'],
+                'ExternalDataEntryURL'          => $externalURL,
             ]
         );
 
@@ -248,6 +252,7 @@ class NDB_BVL_Battery
                 'Test_name' => $testName,
                 'CommentID' => $ddeCommentID,
                 'UserID'    => $sessionData['UserID'],
+                'ExternalDataEntryURL'          => $externalURL,
             ]
         );
 
@@ -630,4 +635,32 @@ class NDB_BVL_Battery
 
         return ($row['counter'] ?? 0) >= 1;
     } // end _assertValidInstrument()
+
+    function interpolateURL(?string $template, string $CommentID) : ?string {
+        if ($template === null) {
+            return null;
+        }
+
+        $timepoint = \TimePoint::singleton($this->sessionID);
+        $candidate = \Candidate::singleton($timepoint->getCandID());
+
+        // Session
+        $replacements = [
+            '{CommentID}'  => urlencode($CommentID),
+
+            '{SessionID}'  => urlencode($this->sessionID->__toString()),
+            '{VisitLabel}' => urlencode($timepoint->getVisitLabel()),
+            '{VisitSite}'       => urlencode($timepoint->getPSC()),
+
+            '{CandID}' => urlencode($timepoint->getCandID()),
+            '{PSCID}'  => urlencode($candidate->getPSCID()),
+            '{Project}'  => urlencode($candidate->getProjectTitle()),
+        ];
+
+         return str_replace(
+            array_keys($replacements),
+            array_values($replacements),
+            $template
+        );
+    }
 }
