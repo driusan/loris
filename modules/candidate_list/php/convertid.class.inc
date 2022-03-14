@@ -96,7 +96,7 @@ class ConvertID extends \NDB_Page
         }
 
         return (new \LORIS\Http\Response())
-            ->withStatus(200)
+            ->withStatus($row == "" ? 404 : 200)
             ->withHeader("Content-Type", "text/plain")
             ->withBody(new \LORIS\Http\StringStream($row));
     }

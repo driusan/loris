@@ -34,6 +34,7 @@ export function IndexPage(props) {
                 const value = JSON.parse(decodedText);
                 const PSCID = value.PSCID;
                 const VL = value.VisitLabel;
+                const Name = value.Name;
                 html5QrCode.stop();
 
                 console.log(PSCID, VL);
@@ -45,16 +46,25 @@ export function IndexPage(props) {
                     })
                 .then((result) => {
                     if (!result.ok) {
+                        swal.fire({
+                            title: 'Incorrect code',
+                            icon: 'error',
+                            html: '<p>You have an invalid QR code. Please see your study ' +
+                                  'coordinator to correct.</p>'
+                        });
+                        setCandID(false);
+                        setVisitLabel(false);
                         throw new Error("Could not convert ID");
                     }
                     return result.text();
                 }).then((result) => {
+                    const title = Name ? '<p>Welcome ' + Name + '!</p>' : 'Confirmation';
                     swal.fire({
-                        title: 'Confirmation',
+                        title: title,
                         icon: 'info',
                         html:
                             '<p>You appear to be here for visit ' + VL +
-                            '</p><p>Is this correct?</p>',
+                            '.</p><p>Is this correct?</p>',
                             showCancelButton: true,
                             focusConfirm: false,
                             confirmButtonText: '<i class="fa fa-thumbs-up"></i> Yes',
