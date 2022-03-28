@@ -39,9 +39,9 @@ $value   = $args[2];
 $config = $DB->pselectRow(
     "SELECT ID, AllowMultiple FROM ConfigSettings WHERE Name=:config",
     ['config' => $setting]
-);
+) ?? [];
 
-if (count($config ?? []) === 0) {
+if (count($config) === 0) {
     die("Invalid config name");
 }
 

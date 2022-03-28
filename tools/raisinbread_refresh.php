@@ -139,7 +139,7 @@ if ($status != 0) {
 }
 
 // Drop tables
-echo printHeader('Dropping LORIS tables.');
+printHeader('Dropping LORIS tables.');
 dropTables();
 
 // Print the names of remaining tables, if any. Some tables may remain if they

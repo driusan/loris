@@ -105,8 +105,8 @@ if (empty($output)) {
 /**
  * Create a linst formated string for an LorisForm element.
  *
- * @param LorisFormElement $elements   The element to parse.
- * @param String           $groupLabel The group label
+ * @param array[] $elements   The element to parse.
+ * @param string             $groupLabel The group label
  *
  * @return string LINST formated element.
  */
