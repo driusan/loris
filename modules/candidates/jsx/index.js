@@ -622,6 +622,7 @@ function DisplayField(props) {
         </span>
         </div>;
 }
+
 /**
  * Return a JSX component denoting the filter state
  *
@@ -1006,7 +1007,7 @@ function CandidatesIndex(props) {
         for (const value of criteria) {
             if (!payloadcriteria.hasOwnProperty(value.module)) {
                 payloadcriteria[value.module] = [];
-            }
+           }
 
             let fieldobj = {
                     field: value.field,

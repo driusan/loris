@@ -5,8 +5,8 @@ import ExpansionPanels from './components/expansionpanels';
 import {NavigationStepper} from './navigationstepper';
 import {useState, useEffect} from 'react';
 
-import {DefineFilters} from './definefilters';
-import {DefineFields} from './definefields';
+import DefineFilters from './definefilters';
+import DefineFields from './definefields';
 
 /**
  * Return the main page for the DQT
@@ -24,6 +24,9 @@ function DataQueryApp(props) {
     const [selectedFields, setFields] = useState([]);
     const [defaultVisits, setDefaultVisits] = useState(false);
     const [allVisits, setAllVisits] = useState(false);
+
+    const [searchType, setSearchType] = useState('candidates');
+    const [criteria, setCriteria] = useState([]);
 
     useEffect(() => {
         if (categories !== false) {
@@ -83,6 +86,7 @@ function DataQueryApp(props) {
     }, [selectedModule, selectedModuleCategory]);
 
     const getModuleFields = (module, category) => {
+        console.log('get', module, category);
         setSelectedModule(module);
         setSelectedModuleCategory(category);
     };
@@ -177,6 +181,25 @@ function DataQueryApp(props) {
         setDefaultVisits(values.map((el) => el.value));
     };
 
+    const addCriteria = () => {
+        const newcriteria = [...criteria, {editstate: 'new'}];
+        setCriteria(newcriteria);
+    };
+
+    const deleteCriteria = (idx) => {
+        const newcriteria = criteria.filter((el, fidx) => {
+            return idx != fidx;
+        });
+        setCriteria(newcriteria);
+    };
+
+    /*
+    const resetCriteria = (value) => {
+        const newcriteria = [...criteria];
+        setCriteria(newcriteria);
+    };
+    */
+
     let content;
 
     switch (activeTab) {
@@ -246,7 +269,24 @@ function DataQueryApp(props) {
                />;
             break;
         case 'DefineFilters':
-            content = <DefineFilters />;
+            content = <DefineFilters
+                setSearchType={setSearchType}
+                searchtype={searchType}
+
+                module={selectedModule}
+                category={selectedModuleCategory}
+
+                dictionary={moduleDictionary[selectedModuleCategory]}
+
+                categories={categories}
+                onCategoryChange={getModuleFields}
+
+                criteria={criteria}
+
+                setCriteria={setCriteria}
+                onAddCriteria={addCriteria}
+                deleteCriteria={deleteCriteria}
+            />;
             break;
         case 'ViewData':
             content = <div>Unimplemented tab</div>;

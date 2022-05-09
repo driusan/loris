@@ -30,7 +30,6 @@ class NDB_Page implements RequestHandlerInterface
 {
     use Psr\Log\LoggerAwareTrait;
 
-    protected \LORIS\LorisInstance $lorisinstance;
     /**
      * The name of the test_name being accessed
      */
@@ -81,7 +80,7 @@ class NDB_Page implements RequestHandlerInterface
      *
      * @var \LORIS\LorisInstance
      */
-    protected $loris;
+    protected \LORIS\LorisInstance $loris;
 
     /**
      * The format that the page content should be returned in. This is generally

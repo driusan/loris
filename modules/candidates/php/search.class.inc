@@ -390,8 +390,8 @@ class Search extends \NDB_Page
             if ($row['sessionID'] !== null) {
                 $organized[$candid]['Timepoints'][] = new \TimePoint(new \TimePointData(
                     new \SessionID($row['sessionID']),
-                    intval($row['SProjectID']),
-                    intval($row['SCenterID']),
+                    new \ProjectID($row['SProjectID']),
+                    new \CenterID($row['SCenterID']),
                 ));
             }
         }
@@ -401,7 +401,7 @@ class Search extends \NDB_Page
         foreach($organized as $vals) {
             $canddata = new \CandidateData(
                 new \ProjectID($vals['RegistrationProject']),
-                $vals['RegistrationCenter'],
+                new \CenterID($vals['RegistrationCenter']),
                 $vals['Timepoints']
             );
             $candidate = new \Candidate($canddata);

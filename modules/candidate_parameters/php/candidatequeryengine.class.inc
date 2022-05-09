@@ -308,12 +308,12 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             return 'c.EDC';
         case 'Project':
             $this->addTable('LEFT JOIN session s ON (s.CandID=c.CandID)');
-            $this->addTable('LEFT JOIN project proj ON (s.ProjectID=proj.ProjectID)');
+            $this->addTable('LEFT JOIN Project proj ON (s.ProjectID=proj.ProjectID)');
             $this->addWhereClause("s.Active='Y'");
 
             return 'proj.Name';
         case 'RegistrationProject':
-            $this->addTable('LEFT JOIN project rproj ON (c.RegistrationProjectID=rproj.ProjectID)');
+            $this->addTable('LEFT JOIN Project rproj ON (c.RegistrationProjectID=rproj.ProjectID)');
             return 'rproj.Name';
         case 'Subproject':
             $this->addTable('LEFT JOIN session s ON (s.CandID=c.CandID)');

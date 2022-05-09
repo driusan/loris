@@ -104,7 +104,7 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             $query .= 'AND s.Visit_label IN (' . join(",", $inset) . ')';
         }
 
-        $DB = \Database::singleton();
+        $DB = $this->loris->getDatabaseConnection();
         $rows = $DB->pselectCol($query, $prepbindings);
 
         return array_map(function($cid) {
@@ -148,7 +148,7 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         }
 
         $query .= ' ORDER BY c.CandID';
-        $DB = \Database::singleton();
+        $DB = $this->loris->getDatabaseConnection();
 
         $rows = $DB->prepare($query);
         $rows->execute($prepbindings);
