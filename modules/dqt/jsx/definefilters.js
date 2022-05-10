@@ -64,7 +64,6 @@ function DefineFilters(props) {
                 searchtype={props.searchtype}
                 onCategoryChange={props.onCategoryChange}
                 categories={props.categories}
-                loadModule={props.loadModule}
                 dictionary={props.dictionary || {}}
                 VisitListURL={props.VisitListURL}
             />
@@ -83,10 +82,16 @@ function DefineFilters(props) {
  * @return {string}
  */
 function getFieldScope(dictionary, field) {
+    if (dictionary[field.field]) {
+        return dictionary[field.field].scope;
+    }
+    /*
     const fmod = dictionary[field.module];
     const fcat = fmod[field.category];
     const fdict = fcat[field.field];
+
     return fdict.scope;
+    */
 }
 
 /**
@@ -99,10 +104,13 @@ function getFieldScope(dictionary, field) {
  * @return {string}
  */
 function getFieldCardinality(dictionary, field) {
+    return dictionary.cardinality;
+    /*
     const fmod = dictionary[field.module];
     const fcat = fmod[field.category];
     const fdict = fcat[field.field];
     return fdict.cardinality;
+    */
 }
 
 /**
@@ -115,10 +123,13 @@ function getFieldCardinality(dictionary, field) {
  * @return {string}
  */
 function getFieldDescription(dictionary, field) {
+    return dictionary.description;
+    /*
     const fmod = dictionary[field.module];
     const fcat = fmod[field.category];
     const fdict = fcat[field.field];
     return fdict.description;
+    */
 }
 
 /**
@@ -129,54 +140,22 @@ function getFieldDescription(dictionary, field) {
  * @return {JSX}
  */
 function EditField(props) {
-    const [forceVisitRefresh, setForceVisitRefresh] = useState(0);
-    const [validvisits, setVisitList] = useState({});
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!field.module || !field.field) {
-                return;
-            }
-
-            if (getFieldScope(props.dictionary, field) === 'candidate') {
-                return;
-            }
-
-            const result = await fetch(
-                props.VisitListURL
-                    + '?module='
-                    + field.module
-                    + '&item=' + field.field,
-                {credentials: 'same-origin'}
-            );
-
-            const results = await result.json();
-            let resultobj = {};
-            for (const visit of results.Visits) {
-                resultobj[visit] = visit;
-            }
-            setVisitList(resultobj);
-        };
-        fetchData();
-    }, [forceVisitRefresh]);
+    const validvisits = props.dictionary[props.field.field]
+        ? props.dictionary[props.field.field].visits
+        : [];
 
     const andword = props.last != true ? 'and' : '';
     let field = props.field;
 
     const setField = (f, v) => {
-        if (f == 'module' || f == 'field') {
-            setForceVisitRefresh(forceVisitRefresh + 1);
-        }
         field[f] = v;
-        if (f == 'module') {
-            delete field['category'];
-            props.loadModule(v);
-        }
-        props.setCriteria(props.criteria);
+
+        props.setCriteria([...props.criteria]);
     };
 
     const setValue = (e) => {
         field['value'] = e.target.value;
-        props.setCriteria(props.criteria);
+        props.setCriteria([...props.criteria]);
     };
 
     const addFieldVisit = (visit) => {
@@ -184,7 +163,7 @@ function EditField(props) {
             field.visits = {};
         }
         field.visits[visit] = true;
-        props.setCriteria(props.criteria);
+        props.setCriteria([...props.criteria]);
     };
 
     const removeFieldVisit = (visit) => {
@@ -192,15 +171,13 @@ function EditField(props) {
         if (Object.keys(field.visits).length == 0) {
             delete field.visits;
         }
-        props.setCriteria(props.criteria);
+        props.setCriteria([...props.criteria]);
     };
 
     let fields = {};
     let fielddict = [];
-    console.log(field);
 
     for (const [key, value] of Object.entries(props.dictionary)) {
-        console.log('key, val', key, value);
         if (key == field.field) {
             fielddict = value;
         }
@@ -422,9 +399,10 @@ function EditField(props) {
                 };
             };
 
-            const entries =
-                Object.keys(fields);
-            return entries.map((visit) => {
+        /*    const entries =
+                Object.keys(fields); */
+            return fields.map((visit) => {
+            // return entries.map((visit) => {
                 const checked = (field.visits && field.visits[visit])
                     ? true
                     : false;
@@ -451,11 +429,15 @@ function EditField(props) {
             </div>;
     };
 
+    const onModuleChange = (module, category) => {
+        props.onCategoryChange(module, category);
+        setField('module', module);
+    };
     return (<div className="row">
-               <div className="row">
+               <div className="row col-xs-12" style={{paddingBottom: '2em'}}>
                 <FilterableSelectGroup groups={props.categories.categories}
                     mapGroupName={(key) => props.categories.modules[key]}
-                    onChange={props.onCategoryChange}
+                    onChange={onModuleChange}
                 />
               </div>
               <div className="row">
@@ -510,7 +492,7 @@ function DisplayField(props) {
     let field = props.field;
     const setField = (f, v) => {
         field[f] = v;
-        props.setCriteria(props.criteria);
+        props.setCriteria([...props.criteria]);
     };
 
     const displayOp = (op) => {
@@ -535,6 +517,7 @@ function DisplayField(props) {
     };
 
     const visitlist = () => {
+        console.log(props);
         if (getFieldScope(props.dictionary, props.field) === 'candidate') {
             return <span className="col-sm-2">for the candidate</span>;
         }
@@ -653,6 +636,7 @@ function FieldList(props) {
         if (row.editstate=='new' || row.editstate=='editing') {
             canAddNew = false;
             style.padding = '1.2em';
+            console.log(props);
             return (<li key={'row' + idx} className="row"
                         style={style}>
                         <EditField
@@ -665,8 +649,6 @@ function FieldList(props) {
                             deleteCriteria={props.deleteCriteria}
                             categories={props.categories}
                             dictionary={props.dictionary}
-
-                            VisitListURL={props.VisitListURL}
                         />
             </li>);
         }
@@ -680,7 +662,6 @@ function FieldList(props) {
                 criteria={props.criteria}
                 deleteCriteria={props.deleteCriteria}
                 setCriteria={props.setCriteria}
-                loadModule={props.loadModule}
                 dictionary={props.dictionary}
             />
             </li>);
