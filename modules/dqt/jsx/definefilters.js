@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import FilterableSelectGroup from './components/filterableselectgroup';
+// import React, {useState, useEffect} from 'react';
+// import FilterableSelectGroup from './components/filterableselectgroup';
 
 /**
  * Return a JSX component denoting the filter state
@@ -81,18 +81,20 @@ function DefineFilters(props) {
  *
  * @return {string}
  */
+ /*
 function getFieldScope(dictionary, field) {
     if (dictionary[field.field]) {
         return dictionary[field.field].scope;
     }
-    /*
-    const fmod = dictionary[field.module];
-    const fcat = fmod[field.category];
-    const fdict = fcat[field.field];
+    return '';
 
-    return fdict.scope;
-    */
+    // const fmod = dictionary[field.module];
+    // const fcat = fmod[field.category];
+    // const fdict = fcat[field.field];
+    //
+    // return fdict.scope;
 }
+*/
 
 /**
  * Extracts the cardinality for a field from the data dictionary
@@ -103,15 +105,15 @@ function getFieldScope(dictionary, field) {
  *
  * @return {string}
  */
+/*
 function getFieldCardinality(dictionary, field) {
     return dictionary.cardinality;
-    /*
-    const fmod = dictionary[field.module];
-    const fcat = fmod[field.category];
-    const fdict = fcat[field.field];
-    return fdict.cardinality;
-    */
+    // const fmod = dictionary[field.module];
+    // const fcat = fmod[field.category];
+    // const fdict = fcat[field.field];
+    // return fdict.cardinality;
 }
+*/
 
 /**
  * Extracts the description for a field from the data dictionary
@@ -122,15 +124,15 @@ function getFieldCardinality(dictionary, field) {
  *
  * @return {string}
  */
+ /*
 function getFieldDescription(dictionary, field) {
     return dictionary.description;
-    /*
-    const fmod = dictionary[field.module];
-    const fcat = fmod[field.category];
-    const fdict = fcat[field.field];
-    return fdict.description;
-    */
+    // const fmod = dictionary[field.module];
+    // const fcat = fmod[field.category];
+    // const fdict = fcat[field.field];
+    // return fdict.description;
 }
+*/
 
 /**
  * React
@@ -139,6 +141,7 @@ function getFieldDescription(dictionary, field) {
  *
  * @return {JSX}
  */
+ /*
 function EditField(props) {
     const validvisits = props.dictionary[props.field.field]
         ? props.dictionary[props.field.field].visits
@@ -399,8 +402,7 @@ function EditField(props) {
                 };
             };
 
-        /*    const entries =
-                Object.keys(fields); */
+            const entries = Object.keys(fields);
             return fields.map((visit) => {
             // return entries.map((visit) => {
                 const checked = (field.visits && field.visits[visit])
@@ -479,6 +481,7 @@ function EditField(props) {
               </div>
             </div>);
 }
+*/
 
 /**
  * Displays a field
@@ -487,6 +490,7 @@ function EditField(props) {
  *
  * @return {JSX}
  */
+ /*
 function DisplayField(props) {
     const andword = props.last != true ? 'and' : '';
     let field = props.field;
@@ -605,6 +609,7 @@ function DisplayField(props) {
         </span>
         </div>;
 }
+*/
 
 /**
  * Return a JSX component denoting the filter state
@@ -614,6 +619,28 @@ function DisplayField(props) {
  * @return {JSX}
  */
 function FieldList(props) {
+    if (props.criteria.op) {
+        return (<div>
+            <h4>All {props.searchtype}</h4>
+            <button className="btn btn-primary"
+                    type="button"
+                    onClick={props.onAddCriteria}
+                    style={{float: 'left'}}>
+                    Add Criteria
+            </button>
+        </div>);
+    } else {
+        return (<div>
+            <h4>All {props.searchtype}</h4>
+            <button className="btn btn-primary"
+                    type="button"
+                    onClick={props.onAddCriteria}
+                    style={{float: 'left'}}>
+                    Add Criteria
+            </button>
+        </div>);
+    }
+    /*
     if (props.criteria.length == 0) {
         return (<div>
             <h4>All {props.searchtype}</h4>
@@ -636,7 +663,6 @@ function FieldList(props) {
         if (row.editstate=='new' || row.editstate=='editing') {
             canAddNew = false;
             style.padding = '1.2em';
-            console.log(props);
             return (<li key={'row' + idx} className="row"
                         style={style}>
                         <EditField
@@ -689,6 +715,7 @@ function FieldList(props) {
         </ul>
         <div>{addButton}</div>
         </div>);
+    */
 }
 
 export default DefineFilters;

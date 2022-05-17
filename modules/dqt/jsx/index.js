@@ -26,7 +26,7 @@ function DataQueryApp(props) {
     const [allVisits, setAllVisits] = useState(false);
 
     const [searchType, setSearchType] = useState('candidates');
-    const [criteria, setCriteria] = useState([]);
+    const [criteria, setCriteria] = useState({});
 
     useEffect(() => {
         if (categories !== false) {
