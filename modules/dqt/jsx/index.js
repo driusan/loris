@@ -26,7 +26,7 @@ function DataQueryApp(props) {
     const [allVisits, setAllVisits] = useState(false);
 
     const [searchType, setSearchType] = useState('candidates');
-    const [criteria, setCriteria] = useState({});
+    const [criteria, setCriteria] = useState([]);
 
     useEffect(() => {
         if (categories !== false) {
@@ -86,7 +86,7 @@ function DataQueryApp(props) {
     }, [selectedModule, selectedModuleCategory]);
 
     const getModuleFields = (module, category) => {
-        console.log('get', module, category);
+        // console.log('get', module, category);
         setSelectedModule(module);
         setSelectedModuleCategory(category);
     };
@@ -182,7 +182,15 @@ function DataQueryApp(props) {
     };
 
     const addCriteria = () => {
-        const newcriteria = [...criteria, {editstate: 'new'}];
+        const newcriteria = {...criteria};
+        newcriteria.state = 'editing';
+        newcriteria.op = 'and';
+        if (newcriteria.groups) {
+            newcriteria.groups = [...newcriteria.groups, {editstate: 'new'}];
+        } else {
+            newcriteria.groups = [{editstate: 'new'}];
+        }
+        console.log(newcriteria);
         setCriteria(newcriteria);
     };
 

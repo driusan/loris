@@ -1,5 +1,5 @@
 // import React, {useState, useEffect} from 'react';
-// import FilterableSelectGroup from './components/filterableselectgroup';
+import FilterableSelectGroup from './components/filterableselectgroup';
 
 /**
  * Return a JSX component denoting the filter state
@@ -71,6 +71,47 @@ function DefineFilters(props) {
     </form>);
 }
 
+/**
+ * Return a JSX component representing a group of filters
+ * combined by a single operation.
+ *
+ * @param {object} props - React props
+ *
+ * @return {JSX}
+ */
+function FilterGroup(props) {
+    if (props.groups.length == 1) {
+        return <Filter
+                editstate={props.groups[0].editstate}
+                categories={props.categories}
+            />;
+    }
+    const groupRender = props.groups.map((row, idx) => {
+            return <Filter editstate={props.groups[idx].editstate} />;
+    });
+
+    return <div>{groupRender}</div>;
+}
+
+/**
+ * Return a JSX component representing a single filter
+ *
+ * @param {object} props - React props
+ *
+ * @return {JSX}
+ */
+function Filter(props) {
+    if (props.editstate == 'new') {
+        return <div> editing
+            <FilterableSelectGroup
+                groups={props.categories.categories}
+                mapGroupName={(key) => props.categories.modules[key]}
+                onChange={props.onCategoryChange}
+              />
+      </div>;
+    }
+    return <div>rendering field</div>;
+}
 
 /**
  * Extracts the scope for a field from the data dictionary
@@ -619,25 +660,36 @@ function DisplayField(props) {
  * @return {JSX}
  */
 function FieldList(props) {
-    if (props.criteria.op) {
-        return (<div>
-            <h4>All {props.searchtype}</h4>
+    const criteriaButton = props.criteria.state == 'editing' ? (
             <button className="btn btn-primary"
                     type="button"
+                    disabled="disabled"
                     onClick={props.onAddCriteria}
                     style={{float: 'left'}}>
                     Add Criteria
             </button>
+    ) : (<button className="btn btn-primary"
+                    type="button"
+                    onClick={props.onAddCriteria}
+                    style={{float: 'left'}}>
+                    Add Criteria
+            </button>);
+    if (props.criteria.groups && props.criteria.groups.length > 0) {
+        const typeCapitalized = props.searchtype == 'candidates'
+            ? 'Candidates'
+            : 'Sessions';
+        return (<div>
+            <h4>{typeCapitalized} matching</h4>
+            <FilterGroup groups={props.criteria.groups}
+                op={props.criteria.op}
+                categories={props.categories}
+                searchtype={props.searchtype} />
+            {criteriaButton}
         </div>);
     } else {
         return (<div>
             <h4>All {props.searchtype}</h4>
-            <button className="btn btn-primary"
-                    type="button"
-                    onClick={props.onAddCriteria}
-                    style={{float: 'left'}}>
-                    Add Criteria
-            </button>
+            {criteriaButton}
         </div>);
     }
     /*
