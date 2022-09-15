@@ -1,5 +1,5 @@
 // import React, {useState, useEffect} from 'react';
-import FilterableSelectGroup from './components/filterableselectgroup';
+// import FilterableSelectGroup from './components/filterableselectgroup';
 
 /**
  * Return a JSX component denoting the filter state
@@ -8,6 +8,7 @@ import FilterableSelectGroup from './components/filterableselectgroup';
  *
  * @return {JSX}
  */
+ /*
 function SearchTypeSelect(props) {
     if (props.searchtype == 'sessions') {
         return (<span className='btn-group' role='group'>
@@ -38,7 +39,26 @@ function SearchTypeSelect(props) {
             </span>
    );
 }
+*/
 
+/**
+ * And AND/OR group of terms within a query
+ */
+class QueryGroup {
+    /**
+     * Constructor
+     */
+    __construct() {
+        this.operator = 'and';
+        this.group = [];
+    }
+
+    /**
+     * Adds a term to this group
+     */
+    addTerm() {
+    }
+}
 /**
  * The define filters tab of the DQT
  *
@@ -47,6 +67,22 @@ function SearchTypeSelect(props) {
  * @return {ReactDOM}
  */
 function DefineFilters(props) {
+    const [query, setQuery] = useState(new QueryGroup());
+
+    if (query.group.length > 0) {
+        setQuery();
+    }
+
+    return (
+      <form>
+        <fieldset>
+            <button>Add Group Item</button>
+            <button>Add new Group</button>
+        </fieldset>
+      </form>
+      );
+
+    /*
     return (
       <form name="criteria" action="#">
         <fieldset>
@@ -69,6 +105,7 @@ function DefineFilters(props) {
             />
         </fieldset>
     </form>);
+    */
 }
 
 /**
@@ -79,6 +116,7 @@ function DefineFilters(props) {
  *
  * @return {JSX}
  */
+ /*
 function FilterGroup(props) {
     if (props.groups.length == 1) {
         return <Filter
@@ -92,6 +130,7 @@ function FilterGroup(props) {
 
     return <div>{groupRender}</div>;
 }
+*/
 
 /**
  * Return a JSX component representing a single filter
@@ -100,6 +139,7 @@ function FilterGroup(props) {
  *
  * @return {JSX}
  */
+ /*
 function Filter(props) {
     if (props.editstate == 'new') {
         return <div> editing
@@ -112,6 +152,7 @@ function Filter(props) {
     }
     return <div>rendering field</div>;
 }
+*/
 
 /**
  * Extracts the scope for a field from the data dictionary
@@ -659,6 +700,7 @@ function DisplayField(props) {
  *
  * @return {JSX}
  */
+ /*
 function FieldList(props) {
     const criteriaButton = props.criteria.state == 'editing' ? (
             <button className="btn btn-primary"
@@ -768,6 +810,8 @@ function FieldList(props) {
         <div>{addButton}</div>
         </div>);
     */
+    /*
 }
+*/
 
 export default DefineFilters;
