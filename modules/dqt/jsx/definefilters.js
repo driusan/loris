@@ -1,5 +1,6 @@
-// import React, {useState, useEffect} from 'react';
+// import React, {useState} from 'react';
 // import FilterableSelectGroup from './components/filterableselectgroup';
+import {QueryGroup, QueryTerm} from './querydef';
 
 /**
  * Return a JSX component denoting the filter state
@@ -42,22 +43,60 @@ function SearchTypeSelect(props) {
 */
 
 /**
- * And AND/OR group of terms within a query
+ * Recursively render a tree of AND/OR
+ * conditions
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
  */
-class QueryGroup {
-    /**
-     * Constructor
-     */
-    __construct() {
-        this.operator = 'and';
-        this.group = [];
+function QueryTree(props) {
+    console.log(props.items);
+    let terms;
+    if (props.items.group.length > 0) {
+        const renderitem = (item, i) => {
+            const operator = i != props.items.group.length-1 ?
+                props.items.operator : '';
+            if (item instanceof QueryTerm) {
+                return <li key={i}>{item.term} {operator}</li>;
+            } else if (item instanceof QueryGroup) {
+                return (<li key={i}><QueryTree items={item}
+                        newItem={props.newItem}
+                        newGroup={props.newGroup} />
+                </li>);
+            } else {
+                console.error('Invalid tree');
+            }
+            return <li>{i}</li>;
+        };
+        terms = (
+            <ul>
+                {props.items.group.map(renderitem)}
+
+            </ul>
+        );
     }
 
-    /**
-     * Adds a term to this group
-     */
-    addTerm() {
-    }
+    const newItemClick = (e) => {
+        e.preventDefault();
+        props.newItem(props.items);
+    };
+    const newGroupClick = (e) => {
+        e.preventDefault();
+        props.newGroup(props.items);
+    };
+
+    const antiOperator = props.items.operator == 'and' ? 'OR' : 'AND';
+    return (
+       <div>
+          {terms}
+
+          <button onClick={newItemClick}>
+             New {props.items.operator.toUpperCase()} condition
+          </button>
+          <button onClick={newGroupClick}>New {antiOperator} group</button>
+       </div>
+    );
 }
 /**
  * The define filters tab of the DQT
@@ -67,19 +106,53 @@ class QueryGroup {
  * @return {ReactDOM}
  */
 function DefineFilters(props) {
-    const [query, setQuery] = useState(new QueryGroup());
-
-    if (query.group.length > 0) {
-        setQuery();
-    }
-
-    return (
+    let displayquery = '';
+    if (props.query.group.length == 0) {
+        displayquery = <div>
+            <div>I am looking for all candidates</div>
+            <div><button onClick={(e) => {
+                e.preventDefault();
+                props.addQueryGroupItem(props.query);
+            }}>Add condition</button>
+            </div>
+        </div>;
+        // Add condition button
+    } else if (props.query.group.length == 1) {
+        displayquery = <div>
+            <div>
+            I am looking for candidates with
+            {props.query.group[0].term}
+            </div>
+            <div>
+                <button onClick={(e) => {
+                e.preventDefault();
+                props.query.operator = 'and';
+                props.addQueryGroupItem(props.query);
+            }}>Add AND condition</button>
+                <button onClick={(e) => {
+                e.preventDefault();
+                props.query.operator = 'or';
+                props.addQueryGroupItem(props.query);
+            }}>Add OR condition</button>
+            </div>
+        </div>;
+        // buttons for 1. Add and condition 2. condition
+    } else {
+        displayquery = <div>I am looking for all candidates with
       <form>
         <fieldset>
-            <button>Add Group Item</button>
-            <button>Add new Group</button>
+            <QueryTree items={props.query}
+                newItem={props.addQueryGroupItem}
+                newGroup={props.addNewQueryGroup}
+                />
         </fieldset>
       </form>
+      </div>;
+    }
+    return (<div>
+      <h1>Current Query</h1>
+      {displayquery}
+      </div>
       );
 
     /*

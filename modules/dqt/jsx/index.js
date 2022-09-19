@@ -8,6 +8,8 @@ import {useState, useEffect} from 'react';
 import DefineFilters from './definefilters';
 import DefineFields from './definefields';
 
+import {QueryGroup} from './querydef';
+
 /**
  * Return the main page for the DQT
  *
@@ -27,6 +29,8 @@ function DataQueryApp(props) {
 
     const [searchType, setSearchType] = useState('candidates');
     const [criteria, setCriteria] = useState([]);
+
+    const [query, setQuery] = useState(new QueryGroup('and'));
 
     useEffect(() => {
         if (categories !== false) {
@@ -201,6 +205,30 @@ function DataQueryApp(props) {
         setCriteria(newcriteria);
     };
 
+    const addQueryGroupItem = (querygroup) => {
+        // clone the top level query to force
+        // a new rendering
+        let newquery = new QueryGroup(query.operator);
+
+        // Add to this level of the tree
+        querygroup.addTerm();
+
+        newquery.group = query.group;
+        setQuery(newquery);
+    };
+
+    const addNewQueryGroup = (parentgroup) => {
+        // clone the top level query to force
+        // a new rendering
+        let newquery = new QueryGroup(query.operator);
+
+        // Add to this level of the tree
+        parentgroup.addGroup();
+
+        newquery.group = query.group;
+
+        setQuery(newquery);
+    };
     /*
     const resetCriteria = (value) => {
         const newcriteria = [...criteria];
@@ -294,6 +322,9 @@ function DataQueryApp(props) {
                 setCriteria={setCriteria}
                 onAddCriteria={addCriteria}
                 deleteCriteria={deleteCriteria}
+                addQueryGroupItem={addQueryGroupItem}
+                addNewQueryGroup={addNewQueryGroup}
+                query={query}
             />;
             break;
         case 'ViewData':
