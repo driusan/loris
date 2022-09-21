@@ -1,47 +1,97 @@
-// import React, {useState} from 'react';
-// import FilterableSelectGroup from './components/filterableselectgroup';
+import {useState} from 'react';
+import FilterableSelectGroup from './components/filterableselectgroup';
 import {QueryGroup, QueryTerm} from './querydef';
+import Modal from 'jsx/Modal';
 
 /**
- * Return a JSX component denoting the filter state
+ * Render a modal window for adding a filter
  *
  * @param {object} props - React props
  *
- * @return {JSX}
+ * @return {ReactDOM}
  */
- /*
-function SearchTypeSelect(props) {
-    if (props.searchtype == 'sessions') {
-        return (<span className='btn-group' role='group'>
-                    <button className='btn btn-primary'
-                        type="button"
-                        onClick={() => props.setSearchType('candidates')}>
-                    Candidates
-                    </button>
-                    <button className='btn btn-primary active'
-                        type="button"
-                        onClick={() => props.setSearchType('sessions')} >
-                    Sessions
-                    </button>
-                </span>
-       );
+function AddFilterModal(props) {
+    let fieldSelect;
+    let operatorSelect;
+    let valueSelect;
+    let [fieldDictionary, setFieldDictionary] = useState(false);
+    let [fieldname, setFieldname] = useState(false);
+    let [op, setOp] = useState(false);
+    let [value, setValue] = useState('');
+    if (props.displayedFields) {
+        let options = {'Fields': {}};
+        for (const [key, value] of Object.entries(props.displayedFields)) {
+            options['Fields'][key] = value.description;
+        }
+        fieldSelect = <div>
+            <h3>Field</h3>
+            <FilterableSelectGroup groups={options}
+                onChange={(key, fieldname) => {
+                    const dict = props.displayedFields[fieldname];
+                    setFieldDictionary(dict);
+                    setFieldname(fieldname);
+                    // console.log(props.module, props.category, fieldname);
+                }}
+                placeholder="Select a field" />
+        </div>;
     }
-    return (<span className='btn-group' role='group'>
-                <button className='btn btn-primary active'
-                    type="button"
-                    onClick={() => props.setSearchType('candidates')}>
-                    Candidates
-                </button>
-                <button className='btn btn-primary'
-                    type="button"
-                    onClick={() => props.setSearchType('sessions')}>
-                    Sessions
-                </button>
-            </span>
-   );
-}
-*/
 
+    if (fieldDictionary) {
+        operatorSelect = <div>
+            <h3>Operator</h3>
+            <SelectElement
+               name="operator"
+               id="operator"
+               label=''
+               emptyOption={true}
+               sortByValue={false}
+               value={op || ''}
+               onUserInput={(name, value) => {
+                   console.log(name, value);
+                   setOp(value);
+               }}
+               options={getOperatorOptions(fieldDictionary)}
+            />
+        </div>;
+    }
+
+    if (op) {
+        valueSelect = valueInput(fieldDictionary, op, value, setValue);
+    }
+
+    return <Modal title="Add criteria"
+       show={true}
+       throwWarning={true}
+       onClose={props.closeModal}
+       onSubmit={() => {
+           props.addQueryGroupItem(
+               props.query,
+               {
+                    // console.log(props.module, props.category, fieldname);
+                   'Module': props.module,
+                   'Category': props.category,
+                   'Field': fieldname,
+                   'Op': op,
+                   'Value': value,
+               },
+               fieldDictionary,
+           );
+
+           props.closeModal();
+       }}>
+            <div style={{width: '100%', padding: '1em'}}>
+                <h3>Add filter from category</h3>
+                <FilterableSelectGroup groups={props.categories.categories}
+                    mapGroupName={(key) => props.categories.modules[key]}
+                    onChange={props.onCategoryChange} />
+                {fieldSelect}
+                {operatorSelect}
+                <div>
+                {valueSelect}
+                </div>
+            </div>
+    </Modal>;
+}
 /**
  * Recursively render a tree of AND/OR
  * conditions
@@ -51,18 +101,36 @@ function SearchTypeSelect(props) {
  * @return {ReactDOM}
  */
 function QueryTree(props) {
-    console.log(props.items);
     let terms;
+    const [hover, setHover] = useState(false);
     if (props.items.group.length > 0) {
         const renderitem = (item, i) => {
             const operator = i != props.items.group.length-1 ?
                 props.items.operator : '';
+            const style = {
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+            };
+            const operatorStyle = {
+                alignSelf: 'center',
+                fontWeight: 'bold',
+            };
             if (item instanceof QueryTerm) {
-                return <li key={i}>{item.term} {operator}</li>;
+                return <li key={i} style={style}>
+                        <div><CriteriaTerm term={item} /></div>
+                        <div style={operatorStyle}>{operator}</div>
+                    </li>;
             } else if (item instanceof QueryGroup) {
-                return (<li key={i}><QueryTree items={item}
-                        newItem={props.newItem}
-                        newGroup={props.newGroup} />
+                return (<li key={i} style={style}>
+                        <div>
+                            <QueryTree items={item}
+                                buttonGroupStyle={props.buttonGroupStyle}
+                                activeGroup={props.activeGroup}
+                                newItem={props.newItem}
+                                newGroup={props.newGroup} />
+                        </div>
+                        <div style={operatorStyle}>{operator}</div>
                 </li>);
             } else {
                 console.error('Invalid tree');
@@ -72,11 +140,9 @@ function QueryTree(props) {
         terms = (
             <ul>
                 {props.items.group.map(renderitem)}
-
             </ul>
         );
     }
-
     const newItemClick = (e) => {
         e.preventDefault();
         props.newItem(props.items);
@@ -86,18 +152,31 @@ function QueryTree(props) {
         props.newGroup(props.items);
     };
 
-    const antiOperator = props.items.operator == 'and' ? 'OR' : 'AND';
+    const antiOperator = props.items.operator == 'and' ? 'or' : 'and';
+    const style = {};
+    if (props.activeGroup == props.items || hover) {
+        style.background = 'pink';
+    }
+
     return (
-       <div>
+       <div style={style}>
           {terms}
 
-          <button onClick={newItemClick}>
-             New {props.items.operator.toUpperCase()} condition
-          </button>
-          <button onClick={newGroupClick}>New {antiOperator} group</button>
+          <div style={props.buttonGroupStyle}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            >
+              <ButtonElement
+                label={'Add "' + props.items.operator + '" condition to group'}
+                onUserInput={newItemClick} />
+              <ButtonElement
+                label={'New "' + antiOperator + '" subgroup'}
+                onUserInput={newGroupClick} />
+          </div>
        </div>
     );
 }
+
 /**
  * The define filters tab of the DQT
  *
@@ -107,784 +186,298 @@ function QueryTree(props) {
  */
 function DefineFilters(props) {
     let displayquery = '';
+    const [addModal, setAddModal] = useState(false);
+    // The subgroup used for the "Add Filter" modal window
+    // to add to. Default to top level unless click from a
+    // query group, in which case the callback changes it
+    // to that group.
+    const [modalQueryGroup, setModalGroup] = useState(props.query);
+
+    const bGroupStyle = {
+        display: 'flex',
+    };
+
     if (props.query.group.length == 0) {
+        // Only 1 add condition button since "and" or "or"
+        // are the same with only 1 term
         displayquery = <div>
-            <div>I am looking for all candidates</div>
-            <div><button onClick={(e) => {
-                e.preventDefault();
-                props.addQueryGroupItem(props.query);
-            }}>Add condition</button>
+            <div>Querying for ALL candidates</div>
+            <div style={bGroupStyle}><ButtonElement
+                label='Add Condition'
+                onUserInput={(e) => {
+                    e.preventDefault();
+                    setAddModal(true);
+                }}
+             />
             </div>
         </div>;
-        // Add condition button
     } else if (props.query.group.length == 1) {
-        displayquery = <div>
+        // buttons for 1. Add "and" condition 2. Add "or" condition
+        displayquery = (<div>
+            Querying for any candidates with
             <div>
-            I am looking for candidates with
-            {props.query.group[0].term}
+                <CriteriaTerm term={props.query.group[0]} />
             </div>
-            <div>
-                <button onClick={(e) => {
-                e.preventDefault();
-                props.query.operator = 'and';
-                props.addQueryGroupItem(props.query);
-            }}>Add AND condition</button>
-                <button onClick={(e) => {
-                e.preventDefault();
-                props.query.operator = 'or';
-                props.addQueryGroupItem(props.query);
-            }}>Add OR condition</button>
+            <div style={bGroupStyle}>
+                <ButtonElement
+                    label='Add "and" condition'
+                    onUserInput={(e) => {
+                        e.preventDefault();
+                        props.query.operator = 'and';
+                        setAddModal(true);
+                    }} />
+                <ButtonElement
+                    label='Add "or" condition'
+                    onUserInput={(e) => {
+                        e.preventDefault();
+                        setAddModal(true);
+                        props.query.operator = 'or';
+                }} />
             </div>
-        </div>;
-        // buttons for 1. Add and condition 2. condition
+
+        </div>);
     } else {
+        // Add buttons are delegated to the QueryTree rendering so they
+        // can be placed at the right level
         displayquery = <div>I am looking for all candidates with
       <form>
         <fieldset>
             <QueryTree items={props.query}
-                newItem={props.addQueryGroupItem}
+                // Only highlight the active group if the modal is open
+                activeGroup={addModal ? modalQueryGroup : ''}
+                buttonGroupStyle={bGroupStyle}
+                newItem={(group) => {
+                    setModalGroup(group);
+                    setAddModal(true);
+                }}
                 newGroup={props.addNewQueryGroup}
                 />
         </fieldset>
       </form>
       </div>;
     }
+    const modal = addModal ? (
+        <AddFilterModal
+            query={modalQueryGroup}
+            closeModal={() => setAddModal(false)}
+            addQueryGroupItem={props.addQueryGroupItem}
+            categories={props.categories}
+            onCategoryChange={props.onCategoryChange}
+            displayedFields={props.displayedFields}
+
+            module={props.module}
+            category={props.category}
+         />)
+         : '';
+
     return (<div>
-      <h1>Current Query</h1>
-      {displayquery}
+          {modal}
+          <h1>Current Query</h1>
+          {displayquery}
       </div>
       );
-
-    /*
-    return (
-      <form name="criteria" action="#">
-        <fieldset>
-            <legend>Selection</legend>
-            <div>I am looking for &nbsp;
-                <SearchTypeSelect
-                    searchtype={props.searchtype}
-                    setSearchType={props.setSearchType}/>
-          </div>
-            <FieldList
-                criteria={props.criteria}
-                onAddCriteria={props.onAddCriteria}
-                deleteCriteria={props.deleteCriteria}
-                setCriteria={props.setCriteria}
-                searchtype={props.searchtype}
-                onCategoryChange={props.onCategoryChange}
-                categories={props.categories}
-                dictionary={props.dictionary || {}}
-                VisitListURL={props.VisitListURL}
-            />
-        </fieldset>
-    </form>);
-    */
 }
 
 /**
- * Return a JSX component representing a group of filters
- * combined by a single operation.
+ * Convert an operator serialization back to unicode for
+ * display.
  *
- * @param {object} props - React props
- *
- * @return {JSX}
- */
- /*
-function FilterGroup(props) {
-    if (props.groups.length == 1) {
-        return <Filter
-                editstate={props.groups[0].editstate}
-                categories={props.categories}
-            />;
-    }
-    const groupRender = props.groups.map((row, idx) => {
-            return <Filter editstate={props.groups[idx].editstate} />;
-    });
-
-    return <div>{groupRender}</div>;
-}
-*/
-
-/**
- * Return a JSX component representing a single filter
- *
- * @param {object} props - React props
- *
- * @return {JSX}
- */
- /*
-function Filter(props) {
-    if (props.editstate == 'new') {
-        return <div> editing
-            <FilterableSelectGroup
-                groups={props.categories.categories}
-                mapGroupName={(key) => props.categories.modules[key]}
-                onChange={props.onCategoryChange}
-              />
-      </div>;
-    }
-    return <div>rendering field</div>;
-}
-*/
-
-/**
- * Extracts the scope for a field from the data dictionary
- *
- * @param {object} dictionary - The data dictionary
- * @param {object} field - the field whose scope should
- *      be extracted
+ * @param {string} op - the backend operator
  *
  * @return {string}
  */
- /*
-function getFieldScope(dictionary, field) {
-    if (dictionary[field.field]) {
-        return dictionary[field.field].scope;
+function op2str(op) {
+    switch (op) {
+    case 'lt': return '<';
+    case 'lte': return '≤';
+    case 'eq': return '=';
+    case 'neq': return '≠';
+    case 'gte': return '≥';
+    case 'gt': return '>';
+    case 'in': return 'in';
+    case 'startsWith': return 'starts with';
+    case 'contains': return 'contains';
+    case 'endsWith': return 'ends with';
+    case 'isnotnull': return 'has data';
+    case 'isnull': return 'has no data';
+    case 'exists': return 'exists';
+    case 'notexists': return 'does not exist';
+    case 'numberof': return 'number of';
+    default: console.error('Unhandle operator');
     }
-    return '';
-
-    // const fmod = dictionary[field.module];
-    // const fcat = fmod[field.category];
-    // const fdict = fcat[field.field];
-    //
-    // return fdict.scope;
-}
-*/
+};
 
 /**
- * Extracts the cardinality for a field from the data dictionary
+ * Get a list of possible query operators based on a field's dictionary
  *
- * @param {object} dictionary - The data dictionary
- * @param {object} field - the field whose scope should
- *      be extracted
+ * @param {object} dict - the field dictionary
  *
- * @return {string}
+ * @return {object}
  */
-/*
-function getFieldCardinality(dictionary, field) {
-    return dictionary.cardinality;
-    // const fmod = dictionary[field.module];
-    // const fcat = fmod[field.category];
-    // const fdict = fcat[field.field];
-    // return fdict.cardinality;
-}
-*/
+function getOperatorOptions(dict) {
+    let options;
 
-/**
- * Extracts the description for a field from the data dictionary
- *
- * @param {object} dictionary - The data dictionary
- * @param {object} field - the field whose scope should
- *      be extracted
- *
- * @return {string}
- */
- /*
-function getFieldDescription(dictionary, field) {
-    return dictionary.description;
-    // const fmod = dictionary[field.module];
-    // const fcat = fmod[field.category];
-    // const fdict = fcat[field.field];
-    // return fdict.description;
-}
-*/
-
-/**
- * React
- *
- * @param {object} props - React props
- *
- * @return {JSX}
- */
- /*
-function EditField(props) {
-    const validvisits = props.dictionary[props.field.field]
-        ? props.dictionary[props.field.field].visits
-        : [];
-
-    const andword = props.last != true ? 'and' : '';
-    let field = props.field;
-
-    const setField = (f, v) => {
-        field[f] = v;
-
-        props.setCriteria([...props.criteria]);
-    };
-
-    const setValue = (e) => {
-        field['value'] = e.target.value;
-        props.setCriteria([...props.criteria]);
-    };
-
-    const addFieldVisit = (visit) => {
-        if (!field['visits']) {
-            field.visits = {};
-        }
-        field.visits[visit] = true;
-        props.setCriteria([...props.criteria]);
-    };
-
-    const removeFieldVisit = (visit) => {
-        delete field.visits[visit];
-        if (Object.keys(field.visits).length == 0) {
-            delete field.visits;
-        }
-        props.setCriteria([...props.criteria]);
-    };
-
-    let fields = {};
-    let fielddict = [];
-
-    for (const [key, value] of Object.entries(props.dictionary)) {
-        if (key == field.field) {
-            fielddict = value;
-        }
-        fields[key] = value.description;
-    }
-
-    const fieldoptions = (dict) => {
-        let options;
-
-        // Possible types are: DateType.php
-        // Enumeration.php
-        // Interval.php
-        // TimeType.php
-        // DecimalType.php
-        // IntegerType.php
-        // StringType.php
-        // URI.php
-        if (dict.type == 'integer' || dict.type == 'date' ||
+    if (dict.type == 'integer' || dict.type == 'date' ||
             dict.type == 'interval' || dict.type == 'time' ||
             dict.type == 'decimal') {
-            // Comparable data types
-            options = {
-                'lt': '<',
-                'lte': '≤',
-                'eq': '=',
-                'neq': '≠',
-                'gte': '≥',
-                'gt': '>',
-            };
-        } else if (dict.type == 'enumeration') {
-            // Enumerations are a dropdown. Comparable operators
-            // are meaningless, but the options are a dropdown
-            // and we might be looking for an option "in" any
-            // of the selected choices.
-            options = {
-                'eq': '=',
-                'neq': '≠',
-                'in': 'in',
-            };
-        } else if (dict.type == 'string' ||
+        // Comparable data types
+        options = {
+            'lt': '<',
+            'lte': '≤',
+            'eq': '=',
+            'neq': '≠',
+            'gte': '≥',
+            'gt': '>',
+        };
+    } else if (dict.type == 'enumeration') {
+        // Enumerations are a dropdown. Comparable operators
+        // are meaningless, but the options are a dropdown
+        // and we might be looking for an option "in" any
+        // of the selected choices.
+        options = {
+            'eq': '=',
+            'neq': '≠',
+            'in': 'in',
+        };
+    } else if (dict.type == 'string' ||
             dict.type == 'URI') {
-            // We might be looking for a substring.
-            options = {
-                'eq': '=',
-                'neq': '≠',
-                'startsWith': 'starts with',
-                'contains': 'contains',
-                'endsWith': 'ends with',
-            };
-        } else {
-            // fall back to == and !=, valid for any type.
-            options = {'eq': '=', 'neq': '≠'};
-        }
+        // We might be looking for a substring.
+        options = {
+            'eq': '=',
+            'neq': '≠',
+            'startsWith': 'starts with',
+            'contains': 'contains',
+            'endsWith': 'ends with',
+        };
+    } else {
+        // fall back to == and !=, valid for any type.
+        options = {'eq': '=', 'neq': '≠'};
+    }
 
-        // Possible cardinalities are unique, single,
-        // optional, or many. Unique and single don't
-        // change the possible operators, optional or
-        // 1-many cardinalities have a couple more
-        // things you can check.
-        if (dict.cardinality == 'optional') {
-            options['isnotnull'] = 'has data';
-            options['isnull'] = ' has no data';
-        } else if (dict.cardinality == 'many') {
-            options['exists'] = 'exists';
-            options['notexists'] = 'does not exist';
-            options['numberof'] = 'number of';
-        }
-        return options;
-    };
+    // Possible cardinalities are unique, single,
+    // optional, or many. Unique and single don't
+    // change the possible operators, optional or
+    // 1-many cardinalities have a couple more
+    // things you can check.
+    if (dict.cardinality == 'optional') {
+        options['isnotnull'] = 'has data';
+        options['isnull'] = ' has no data';
+    } else if (dict.cardinality == 'many') {
+        options['exists'] = 'exists';
+        options['notexists'] = 'does not exist';
+        options['numberof'] = 'number of';
+    }
+    return options;
+};
 
-    const valueinput = () => {
-        switch (field.op) {
-            case 'exists':
-            case 'notexists':
-            case 'isnull':
-            case 'isnotnull':
-                return <span/>;
-                // <input type="hidden" value={field.op} name="value"/>;
-            case 'numberof':
-                return <input name="value"
-                            type="number"
-                            value={field.value || 0}
-                            onChange={setValue}
-                />;
-        }
 
-        switch (fielddict.type) {
-        case 'date':
-           return <input name="value" type="date"
-                value={field.value || ''}
-                onChange={setValue}
-           />;
-        case 'time':
+/**
+ * Returns an input field for getting the value of a filter criteria
+ * in a context-sensitive way
+ *
+ * @param {object} fielddict - The field dictionary
+ * @param {string} op - The operator selected
+ * @param {string} value - The current value
+ * @param {string} setValue - a callback when a new value is selected
+ *
+ * @return {ReactDOM}
+ */
+function valueInput(fielddict, op, value, setValue) {
+   switch (op) {
+      case 'exists':
+      case 'notexists':
+      case 'isnull':
+      case 'isnotnull':
+          return <span/>;
+      case 'numberof':
+          return <NumericElement
+             value={value}
+             onUserInput={(name, value) => setValue(value)} />;
+    }
+
+   switch (fielddict.type) {
+       case 'date':
+          return <DateElement
+             name="date"
+             value={value}
+             onUserInput={(name, value) => setValue(value)} />;
+       case 'time':
            return <input name="value" type="time"
-                value={field.value || '12:00pm'}
-                onChange={setValue}
+               value={value || '12:00pm'}
+               onChange={setValue}
            />;
-        case 'URI':
-           return <input name="value" type="url" value={field.value || ''}
-                onChange={setValue}
-           />;
-        case 'integer':
-           return <input name="value" type="number" value={field.value || 0}
-                onChange={setValue}
-           />;
-        case 'boolean':
+       case 'URI':
+           return <input name="value" type="url" value={value || ''}
+               onChange={setValue}
+               />;
+       case 'integer':
+          return <NumericElement
+             value={value}
+             onUserInput={(name, value) => setValue(value)} />;
+       case 'boolean':
            return <SelectElement
-                        label=''
-                        name='value'
-                        options={{'true': 'true', 'false': 'false'}}
-                        onUserInput={setField}
-                        value={field.value}
-                        sortByValue={false}
-                    />;
-        case 'enumeration':
+               label=''
+               name='value'
+               options={{'true': 'true', 'false': 'false'}}
+               onUserInput={(name, value) => setValue(value)}
+               value={value}
+               sortByValue={false}
+               />;
+       case 'enumeration':
            let opts = {};
            for (let i = 0; i < fielddict.options.length; i++) {
                const opt = fielddict.options[i];
                opts[opt] = opt;
            }
            return <SelectElement
-                        label=''
-                        multiple={field.op == 'in'}
-                        name='value'
-                        options={opts}
-                        onUserInput={setField}
-                        value={field.value}
-                        sortByValue={false}
-                    />;
-        default:
-           return <input name="value" type="text" value={field.value || ''}
-                onChange={setValue}
+               label=''
+               multiple={op == 'in'}
+               name='value'
+               options={opts}
+               onUserInput={(name, value) => setValue(value)}
+               value={value}
+               sortByValue={false}
            />;
-        }
-        // Possible types are: DateType.php (done)
-        // Enumeration.php
-        // Interval.php (Default is fine, I guess?)
-        // TimeType.php (done)
-        // DecimalType.php (default is kind of fine)
-        // IntegerType.php (done)
-        // StringType.php (default is fine)
-        // URI.php  (done)
-    };
-
-    const actionstyle = {
-        cursor: 'pointer',
-        fontSize: '1.2em',
-        padding: '0.75ex',
-        marginLeft: '2px',
-        marginRight: '2px',
-    };
-
-    const fieldIsValid = () => {
-        if (!field.field) {
-            return false;
-        }
-
-        if (!field.op) {
-            return false;
-        }
-
-        // We don't care about the value for these types
-        switch (field.op) {
-        case 'exists':
-        case 'notexists':
-        case 'isnull':
-        case 'isnotnull':
-            return true;
-        }
-
-        // FIXME: only some ops require values, for others
-        // the empty string is valid..
-        if (!field.value) {
-            return false;
-        }
-        return true;
-    };
-
-    let checkmarkstyle = {
-        ...actionstyle,
-        color: 'green',
-    };
-
-    let editClick = () => setField('editstate', 'done');
-    if (!fieldIsValid()) {
-        checkmarkstyle.color='grey';
-        checkmarkstyle.cursor='not-allowed';
-        editClick = () => {};
-    }
-
-    const actions = <div className="row"
-       style={{width: '100%', textAlign: 'center'}}>
-           <span style={checkmarkstyle}
-                onClick={editClick}>Accept <i className="fas fa-check"></i>
-           </span>
-           <span style={actionstyle}
-              onClick={() => props.deleteCriteria(props.idx)}>Remove
-           <i className="fa fa-trash-alt"></i>
-           </span>
-    </div>;
-
-    const visitSelect = () => {
-        if (fielddict.scope != 'session') {
-            return;
-        }
-        const fields = validvisits;
-
-        const visitlist = () => {
-            const addVisit = (label) => {
-                return (fieldname, value) => {
-                    // fieldname is unused, but it needs
-                    // to be in the signature to get to the
-                    // second parameter..
-                    if (value) {
-                        addFieldVisit(label);
-                    } else {
-                        removeFieldVisit(label);
-                    }
-                };
-            };
-
-            const entries = Object.keys(fields);
-            return fields.map((visit) => {
-            // return entries.map((visit) => {
-                const checked = (field.visits && field.visits[visit])
-                    ? true
-                    : false;
-                return <div key={'visit_' + visit}>
-                            <CheckboxElement
-                                label={visit}
-                                value={checked}
-                                name="visit"
-                                onUserInput={addVisit(visit)} />
-                    </div>;
-            });
-        };
-
-        return <div className="row">
-                <div className="col-xs-8">
-                    <label className="col-xs-4">
-                        At at least one visit of<br />
-                (leave all visits unchecked for "any visit"):
-                    </label>
-                    <span className="col-xs-8">
-                        {visitlist()}
-                    </span>
-                </div>
-            </div>;
-    };
-
-    const onModuleChange = (module, category) => {
-        props.onCategoryChange(module, category);
-        setField('module', module);
-    };
-    return (<div className="row">
-               <div className="row col-xs-12" style={{paddingBottom: '2em'}}>
-                <FilterableSelectGroup groups={props.categories.categories}
-                    mapGroupName={(key) => props.categories.modules[key]}
-                    onChange={onModuleChange}
-                />
-              </div>
-              <div className="row">
-                <div className="col-xs-4">
-                    <SelectElement
-                        label='Field'
-                        name='field'
-                        options={fields}
-                        value={field.field}
-                        onUserInput={setField}
-                        sortByValue={false}
-                    />
-                </div>
-                <div className="col-xs-4">
-                    <SelectElement
-                        label=''
-                        name='op'
-                        options={fieldoptions(fielddict)}
-                        sortByValue={false}
-                        onUserInput={setField}
-                        value={field.op}
-                    />
-                </div>
-                <div className="col-xs-4">
-                    {valueinput()}
-                </div>
-              </div>
-              {visitSelect()}
-              {actions}
-              <div className="row"
-                    style={
-                        {
-                            width: '100%',
-                            textAlign: 'center',
-                            marginBottom: '15px',
-                        }
-                    }>
-                    {andword}
-              </div>
-            </div>);
-}
-*/
+       default:
+            return <TextboxElement
+               onUserInput={(name, value) => setValue(value)}
+               value={value} />;
+   }
+};
 
 /**
- * Displays a field
+ * Renders a single term of a condition
  *
  * @param {object} props - React props
  *
- * @return {JSX}
+ * @return {ReactDOM}
  */
- /*
-function DisplayField(props) {
-    const andword = props.last != true ? 'and' : '';
-    let field = props.field;
-    const setField = (f, v) => {
-        field[f] = v;
-        props.setCriteria([...props.criteria]);
+function CriteriaTerm(props) {
+    const containerStyle={
+        display: 'flex',
+        flexWrap: 'nowrap',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        width: '100%',
     };
 
-    const displayOp = (op) => {
-        switch (op) {
-        case 'lt': return '<';
-        case 'lte': return '≤';
-        case 'eq': return '=';
-        case 'neq': return '≠';
-        case 'gte': return '≥';
-        case 'gt': return '>';
-        case 'in': return 'in';
-        case 'startsWith': return 'starts with';
-        case 'contains': return 'contains';
-        case 'endsWith': return 'ends with';
-        case 'exists': return 'exists';
-        case 'notexists': return 'does not exist';
-        case 'isnull': return 'has no data';
-        case 'isnotnull': return 'has data';
-        case 'numberof': return 'number of equals';
-        default: return op;
-        }
+    const fieldStyle = {
+        width: '33%',
+        alignSelf: 'start',
     };
-
-    const visitlist = () => {
-        console.log(props);
-        if (getFieldScope(props.dictionary, props.field) === 'candidate') {
-            return <span className="col-sm-2">for the candidate</span>;
-        }
-
-        if (!field.visits) {
-            return <span className="col-sm-2">at any visit</span>;
-        }
-
-        const visits = Object.keys(field.visits);
-        if (visits.length == 1) {
-            return (<span className="col-sm-2">
-                at visit {visits[0]}
-                </span>);
-        }
-
-        let str = '';
-        for (let idx = 0; idx < visits.length; idx++) {
-            const visit = visits[idx];
-            if (idx == 0) {
-                str += visit;
-            } else if (idx == visits.length-1) {
-                str += ' or ' + visit;
-            } else {
-                str += ', ' + visit;
-            }
-        }
-
-        return (<span className="col-sm-2">
-            at at least one visit of {str}
-            </span>);
+    const opStyle = {
+        width: '33%',
+        alignSelf: 'center',
     };
-
-    const displayField = (dictionary, field) => {
-        const desc = getFieldCardinality(dictionary, field) === 'many' ?
-            'at least one ' : '';
-
-        return <span>{desc}<b title={getFieldDescription(dictionary, field)}
-            style={
-                {
-                    textDecorationLine: 'underline',
-                    textDecorationStyle: 'dashed',
-                }
-            }>
-            {field.field}</b></span>;
+    const valueStyle = {
+        width: '33%',
+        alignSelf: 'end',
     };
-
-    const displayValue = (value) => {
-        if (Array.isArray(value)) {
-            let display = [];
-            for (let i = 0; i < value.length; i++) {
-                display.push(<b>{value[i]}</b>);
-                if (i == value.length-2) {
-                    display.push(' or ');
-                } else if (i != value.length-1) {
-                    display.push(', ');
-                }
-            }
-            return display;
-        }
-        return <b>{value}</b>;
-    };
-
-    return <div className="row">
-        <span className="col-sm-3">
-            {displayField(props.dictionary, props.field)}
-        </span>
-        <span className="col-sm-2"><b>{displayOp(props.field.op)}</b></span>
-        <span className="col-sm-2">{displayValue(props.field.value)}</span>
-        {visitlist()}
-        <span className="col-sm-2">
-            <i
-                className="fas fa-edit"
-                style={{cursor: 'pointer',
-            marginLeft: '1ex',
-            marginRight: '1ex'}}
-                onClick={() => setField('editstate', 'editing')}>
-            </i>
-            <i
-                className="fa fa-trash-alt"
-                style={{cursor: 'pointer',
-                    marginRight: '1ex'}}
-                onClick={() => props.deleteCriteria(props.idx)}>
-            </i>
-            {andword}
-        </span>
-        </div>;
+    return (
+        <div style={containerStyle}>
+            <div style={fieldStyle}>{props.term.fieldname}</div>
+            <div style={opStyle}>{op2str(props.term.op)}</div>
+            <div style={valueStyle}>{props.term.value}</div>
+        </div>);
 }
-*/
-
-/**
- * Return a JSX component denoting the filter state
- *
- * @param {object} props - React props
- *
- * @return {JSX}
- */
- /*
-function FieldList(props) {
-    const criteriaButton = props.criteria.state == 'editing' ? (
-            <button className="btn btn-primary"
-                    type="button"
-                    disabled="disabled"
-                    onClick={props.onAddCriteria}
-                    style={{float: 'left'}}>
-                    Add Criteria
-            </button>
-    ) : (<button className="btn btn-primary"
-                    type="button"
-                    onClick={props.onAddCriteria}
-                    style={{float: 'left'}}>
-                    Add Criteria
-            </button>);
-    if (props.criteria.groups && props.criteria.groups.length > 0) {
-        const typeCapitalized = props.searchtype == 'candidates'
-            ? 'Candidates'
-            : 'Sessions';
-        return (<div>
-            <h4>{typeCapitalized} matching</h4>
-            <FilterGroup groups={props.criteria.groups}
-                op={props.criteria.op}
-                categories={props.categories}
-                searchtype={props.searchtype} />
-            {criteriaButton}
-        </div>);
-    } else {
-        return (<div>
-            <h4>All {props.searchtype}</h4>
-            {criteriaButton}
-        </div>);
-    }
-    /*
-    if (props.criteria.length == 0) {
-        return (<div>
-            <h4>All {props.searchtype}</h4>
-            <button className="btn btn-primary"
-                    type="button"
-                    onClick={props.onAddCriteria}
-                    style={{float: 'left'}}>
-                    Add Criteria
-            </button>
-        </div>);
-    }
-
-    let canAddNew = true;
-    const fieldlist = props.criteria.map((row, idx) => {
-        let style = {};
-
-        if (idx % 2 == 1) {
-            style.backgroundColor = '#e1e1e1';
-        }
-        if (row.editstate=='new' || row.editstate=='editing') {
-            canAddNew = false;
-            style.padding = '1.2em';
-            return (<li key={'row' + idx} className="row"
-                        style={style}>
-                        <EditField
-                            field={row}
-                            idx={idx}
-                            last={idx == props.criteria.length-1}
-                            onCategoryChange={props.onCategoryChange}
-                            setCriteria={props.setCriteria}
-                            criteria={props.criteria}
-                            deleteCriteria={props.deleteCriteria}
-                            categories={props.categories}
-                            dictionary={props.dictionary}
-                        />
-            </li>);
-        }
-
-        style.padding = '1ex';
-        return (<li key={row + idx} style={style}>
-            <DisplayField
-                field={row}
-                idx={idx}
-                last={idx == props.criteria.length-1}
-                criteria={props.criteria}
-                deleteCriteria={props.deleteCriteria}
-                setCriteria={props.setCriteria}
-                dictionary={props.dictionary}
-            />
-            </li>);
-    });
-
-    const addButton = canAddNew ?
-            <button className="btn btn-primary"
-                    type="button"
-                    onClick={props.onAddCriteria}
-                    style={{float: 'left'}}>
-                    Add Criteria
-            </button>
-        : <button className="btn btn-primary disabled"
-                title="Must finish editing current criteria before adding more"
-                style={{cursor: 'not-allowed', pointerEvents: 'auto',
-                    color: 'white', float: 'left'}}
-                    type="button">
-                    Add Criteria
-            </button>;
-
-    return (<div>
-        <h4>with</h4>
-        <ul style={{listStyleType: 'none', padding: 0, margin: '1em'}}>
-            {fieldlist}
-        </ul>
-        <div>{addButton}</div>
-        </div>);
-    */
-    /*
-}
-*/
-
 export default DefineFilters;

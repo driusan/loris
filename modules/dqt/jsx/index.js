@@ -205,13 +205,13 @@ function DataQueryApp(props) {
         setCriteria(newcriteria);
     };
 
-    const addQueryGroupItem = (querygroup) => {
+    const addQueryGroupItem = (querygroup, condition, dictionary) => {
         // clone the top level query to force
         // a new rendering
         let newquery = new QueryGroup(query.operator);
 
         // Add to this level of the tree
-        querygroup.addTerm();
+        querygroup.addTerm(condition);
 
         newquery.group = query.group;
         setQuery(newquery);
@@ -229,12 +229,6 @@ function DataQueryApp(props) {
 
         setQuery(newquery);
     };
-    /*
-    const resetCriteria = (value) => {
-        const newcriteria = [...criteria];
-        setCriteria(newcriteria);
-    };
-    */
 
     let content;
 
@@ -313,6 +307,7 @@ function DataQueryApp(props) {
                 category={selectedModuleCategory}
 
                 dictionary={moduleDictionary[selectedModuleCategory]}
+                displayedFields={moduleDictionary[selectedModuleCategory]}
 
                 categories={categories}
                 onCategoryChange={getModuleFields}
