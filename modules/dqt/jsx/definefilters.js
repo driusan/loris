@@ -30,7 +30,6 @@ function AddFilterModal(props) {
                     const dict = props.displayedFields[fieldname];
                     setFieldDictionary(dict);
                     setFieldname(fieldname);
-                    // console.log(props.module, props.category, fieldname);
                 }}
                 placeholder="Select a field" />
         </div>;
@@ -47,7 +46,6 @@ function AddFilterModal(props) {
                sortByValue={false}
                value={op || ''}
                onUserInput={(name, value) => {
-                   console.log(name, value);
                    setOp(value);
                }}
                options={getOperatorOptions(fieldDictionary)}
@@ -67,7 +65,6 @@ function AddFilterModal(props) {
            props.addQueryGroupItem(
                props.query,
                {
-                    // console.log(props.module, props.category, fieldname);
                    'Module': props.module,
                    'Category': props.category,
                    'Field': fieldname,
@@ -118,17 +115,55 @@ function QueryTree(props) {
             };
             if (item instanceof QueryTerm) {
                 return <li key={i} style={style}>
-                        <div><CriteriaTerm term={item} /></div>
+                        <div style={{display: 'flex'}}>
+                            <CriteriaTerm term={item}
+                                mapModuleName={props.mapModuleName}
+                                mapCategoryName={props.mapCategoryName}
+                            />
+                            <div style={{alignSelf: 'center'}}><i
+                                className="fas fa-trash-alt"
+                                onClick={() => {
+                                    const newquery = props.removeQueryGroupItem(
+                                        props.items,
+                                        i,
+                                    );
+                                    setModalGroup(newquery);
+                                }}
+                                style={{cursor: 'pointer'}}
+                            />
+                            </div>
+                        </div>
                         <div style={operatorStyle}>{operator}</div>
                     </li>;
             } else if (item instanceof QueryGroup) {
                 return (<li key={i} style={style}>
                         <div>
-                            <QueryTree items={item}
-                                buttonGroupStyle={props.buttonGroupStyle}
-                                activeGroup={props.activeGroup}
-                                newItem={props.newItem}
-                                newGroup={props.newGroup} />
+                            <div style={{display: 'flex'}}>
+                                <QueryTree items={item}
+                                    buttonGroupStyle={props.buttonGroupStyle}
+                                    mapModuleName={props.mapModuleName}
+                                    mapCategoryName={props.mapCategoryName}
+                                    removeQueryGroupItem={
+                                            props.removeQueryGroupItem
+                                        }
+                                    activeGroup={props.activeGroup}
+                                    newItem={props.newItem}
+                                    newGroup={props.newGroup} />
+
+                                <div style={{alignSelf: 'center'}}>
+                                    <i className="fas fa-trash-alt"
+                                    onClick={() => {
+                                        const rqgi = props.removeQueryGroupItem;
+                                        const newquery = rqgi(
+                                            props.items,
+                                            i,
+                                        );
+                                        setModalGroup(newquery);
+                                    }}
+                                    style={{cursor: 'pointer'}}
+                                    />
+                                </div>
+                            </div>
                         </div>
                         <div style={operatorStyle}>{operator}</div>
                 </li>);
@@ -142,6 +177,38 @@ function QueryTree(props) {
                 {props.items.group.map(renderitem)}
             </ul>
         );
+    }
+    let warning;
+    switch (props.items.group.length) {
+    case 0:
+        warning = <div className="alert alert-warning"
+                style={{display: 'flex'}}>
+            <i className="fas fa-exclamation-triangle"
+                style={{
+                    fontSize: '1.5em',
+                    margin: 7,
+                    marginLeft: 10,
+                }}></i>
+            <div style={{alignSelf: 'center'}}>
+                Group does not have any items.
+            </div>
+        </div>;
+        break;
+    case 1:
+        warning = <div className="alert alert-warning"
+                 style={{display: 'flex'}}>
+            <i className="fas fa-exclamation-triangle"
+                style={{
+                    fontSize: '1.5em',
+                    margin: 7,
+                    marginLeft: 10,
+                }}></i>
+            <div style={{alignSelf: 'center'}}>
+            Group only has 1 item. A group with only 1 item is equivalent
+            to not having the group.
+            </div>
+        </div>;
+        break;
     }
     const newItemClick = (e) => {
         e.preventDefault();
@@ -166,12 +233,22 @@ function QueryTree(props) {
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
             >
-              <ButtonElement
-                label={'Add "' + props.items.operator + '" condition to group'}
-                onUserInput={newItemClick} />
-              <ButtonElement
-                label={'New "' + antiOperator + '" subgroup'}
-                onUserInput={newGroupClick} />
+              <div style={{margin: 5}}>
+                  <ButtonElement
+                    label={'Add "' + props.items.operator
+                        + '" condition to group'}
+                    onUserInput={newItemClick}
+                    columnSize='col-sm-12'
+                  />
+              </div>
+              <div style={{margin: 5}}>
+                  <ButtonElement
+                    label={'New "' + antiOperator + '" subgroup'}
+                    onUserInput={newGroupClick}
+                    columnSize='col-sm-12'
+                  />
+              </div>
+              {warning}
           </div>
        </div>
     );
@@ -195,6 +272,15 @@ function DefineFilters(props) {
 
     const bGroupStyle = {
         display: 'flex',
+        flexWrap: 'wrap',
+    };
+
+    const mapModuleName = (name) => {
+        return props.categories.modules[name];
+    };
+    const mapCategoryName = (module, category) => {
+        return props.categories.categories[module][category];
+        // return props.categories.categories[name];
     };
 
     if (props.query.group.length == 0) {
@@ -215,8 +301,23 @@ function DefineFilters(props) {
         // buttons for 1. Add "and" condition 2. Add "or" condition
         displayquery = (<div>
             Querying for any candidates with
-            <div>
-                <CriteriaTerm term={props.query.group[0]} />
+            <div style={{display: 'flex'}}>
+                <CriteriaTerm
+                    term={props.query.group[0]}
+                    mapModuleName={mapModuleName}
+                    mapCategoryName={mapCategoryName}
+                />
+                <div style={{alignSelf: 'center'}}><i
+                    className="fas fa-trash-alt"
+                    onClick={() => {
+                        const newquery = props.removeQueryGroupItem(
+                            props.query,
+                            0
+                        );
+                        setModalGroup(newquery);
+                    }}
+                    style={{cursor: 'pointer'}} />
+                </div>
             </div>
             <div style={bGroupStyle}>
                 <ButtonElement
@@ -239,13 +340,16 @@ function DefineFilters(props) {
     } else {
         // Add buttons are delegated to the QueryTree rendering so they
         // can be placed at the right level
-        displayquery = <div>I am looking for all candidates with
+        displayquery = <div>Querying for any candidates with
       <form>
         <fieldset>
             <QueryTree items={props.query}
                 // Only highlight the active group if the modal is open
                 activeGroup={addModal ? modalQueryGroup : ''}
                 buttonGroupStyle={bGroupStyle}
+                removeQueryGroupItem={props.removeQueryGroupItem}
+                mapModuleName={mapModuleName}
+                mapCategoryName={mapCategoryName}
                 newItem={(group) => {
                     setModalGroup(group);
                     setAddModal(true);
@@ -260,7 +364,14 @@ function DefineFilters(props) {
         <AddFilterModal
             query={modalQueryGroup}
             closeModal={() => setAddModal(false)}
-            addQueryGroupItem={props.addQueryGroupItem}
+            addQueryGroupItem={(querygroup, condition, dictionary) => {
+                const newquery = props.addQueryGroupItem(
+                    querygroup,
+                    condition,
+                    dictionary
+                );
+                setModalGroup(newquery);
+            }}
             categories={props.categories}
             onCategoryChange={props.onCategoryChange}
             displayedFields={props.displayedFields}
@@ -475,7 +586,15 @@ function CriteriaTerm(props) {
     };
     return (
         <div style={containerStyle}>
-            <div style={fieldStyle}>{props.term.fieldname}</div>
+            <div style={fieldStyle}>
+                <div title={props.term.fieldname}>
+                    {props.term.dictionary.description}
+                </div>
+                <div style={{fontSize: '0.8em', color: '#aaa'}}>
+                {props.mapCategoryName(props.term.module, props.term.category)}
+                &nbsp;({props.mapModuleName(props.term.module)})
+                </div>
+            </div>
             <div style={opStyle}>{op2str(props.term.op)}</div>
             <div style={valueStyle}>{props.term.value}</div>
         </div>);

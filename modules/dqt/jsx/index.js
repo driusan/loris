@@ -28,7 +28,6 @@ function DataQueryApp(props) {
     const [allVisits, setAllVisits] = useState(false);
 
     const [searchType, setSearchType] = useState('candidates');
-    const [criteria, setCriteria] = useState([]);
 
     const [query, setQuery] = useState(new QueryGroup('and'));
 
@@ -185,25 +184,6 @@ function DataQueryApp(props) {
         setDefaultVisits(values.map((el) => el.value));
     };
 
-    const addCriteria = () => {
-        const newcriteria = {...criteria};
-        newcriteria.state = 'editing';
-        newcriteria.op = 'and';
-        if (newcriteria.groups) {
-            newcriteria.groups = [...newcriteria.groups, {editstate: 'new'}];
-        } else {
-            newcriteria.groups = [{editstate: 'new'}];
-        }
-        console.log(newcriteria);
-        setCriteria(newcriteria);
-    };
-
-    const deleteCriteria = (idx) => {
-        const newcriteria = criteria.filter((el, fidx) => {
-            return idx != fidx;
-        });
-        setCriteria(newcriteria);
-    };
 
     const addQueryGroupItem = (querygroup, condition, dictionary) => {
         // clone the top level query to force
@@ -211,21 +191,36 @@ function DataQueryApp(props) {
         let newquery = new QueryGroup(query.operator);
 
         // Add to this level of the tree
-        querygroup.addTerm(condition);
+        querygroup.addTerm(condition, dictionary);
 
-        newquery.group = query.group;
+
+        newquery.group = [...query.group];
         setQuery(newquery);
+        return newquery;
     };
 
-    const addNewQueryGroup = (parentgroup) => {
+    const removeQueryGroupItem = (querygroup, idx) => {
+        // Remove from this level of the tree
+        querygroup.removeTerm(idx);
+
         // clone the top level query to force
         // a new rendering
         let newquery = new QueryGroup(query.operator);
 
+        newquery.group = [...query.group];
+        setQuery(newquery);
+
+        return newquery;
+    };
+
+    const addNewQueryGroup = (parentgroup) => {
         // Add to this level of the tree
         parentgroup.addGroup();
 
-        newquery.group = query.group;
+        // clone the top level query to force
+        // a new rendering
+        let newquery = new QueryGroup(query.operator);
+        newquery.group = [...query.group];
 
         setQuery(newquery);
     };
@@ -312,12 +307,8 @@ function DataQueryApp(props) {
                 categories={categories}
                 onCategoryChange={getModuleFields}
 
-                criteria={criteria}
-
-                setCriteria={setCriteria}
-                onAddCriteria={addCriteria}
-                deleteCriteria={deleteCriteria}
                 addQueryGroupItem={addQueryGroupItem}
+                removeQueryGroupItem={removeQueryGroupItem}
                 addNewQueryGroup={addNewQueryGroup}
                 query={query}
             />;
