@@ -89,6 +89,21 @@ function AddFilterModal(props) {
             </div>
     </Modal>;
 }
+
+/**
+ * Alternate background colour for a QueryTree
+ *
+ * @param {string} c - the current colour
+ *
+ * @return {string}
+ */
+function alternateColour(c) {
+    if (c == 'rgb(255, 255, 255)') {
+        return 'rgb(240, 240, 240)';
+    }
+    return 'rgb(255, 255, 255)';
+}
+
 /**
  * Recursively render a tree of AND/OR
  * conditions
@@ -99,12 +114,13 @@ function AddFilterModal(props) {
  */
 function QueryTree(props) {
     let terms;
-    const [hover, setHover] = useState(false);
+    const [deleteItemIndex, setDeleteItemIndex] = useState(null);
+
     if (props.items.group.length > 0) {
         const renderitem = (item, i) => {
             const operator = i != props.items.group.length-1 ?
                 props.items.operator : '';
-            const style = {
+            let style = {
                 display: 'flex',
                 flexDirection: 'column',
                 width: '100%',
@@ -112,6 +128,17 @@ function QueryTree(props) {
             const operatorStyle = {
                 alignSelf: 'center',
                 fontWeight: 'bold',
+            };
+            if (deleteItemIndex == i) {
+                style.textDecoration = 'line-through';
+            }
+
+            const deleteItem = () => {
+                const newquery = props.removeQueryGroupItem(
+                        props.items,
+                        i,
+                );
+                setModalGroup(newquery);
             };
             if (item instanceof QueryTerm) {
                 return <li key={i} style={style}>
@@ -121,14 +148,11 @@ function QueryTree(props) {
                                 mapCategoryName={props.mapCategoryName}
                             />
                             <div style={{alignSelf: 'center'}}><i
+                                title="Delete item"
                                 className="fas fa-trash-alt"
-                                onClick={() => {
-                                    const newquery = props.removeQueryGroupItem(
-                                        props.items,
-                                        i,
-                                    );
-                                    setModalGroup(newquery);
-                                }}
+                                onClick={deleteItem}
+                                onMouseEnter={() => setDeleteItemIndex(i)}
+                                onMouseLeave={() => setDeleteItemIndex(null)}
                                 style={{cursor: 'pointer'}}
                             />
                             </div>
@@ -136,9 +160,12 @@ function QueryTree(props) {
                         <div style={operatorStyle}>{operator}</div>
                     </li>;
             } else if (item instanceof QueryGroup) {
+                const buttonStyle = deleteItemIndex == i ? {
+                    textDecoration: 'line-through',
+                } : {};
+
                 return (<li key={i} style={style}>
-                        <div>
-                            <div style={{display: 'flex'}}>
+                        <div style={{background: props.backgroundColour}}>
                                 <QueryTree items={item}
                                     buttonGroupStyle={props.buttonGroupStyle}
                                     mapModuleName={props.mapModuleName}
@@ -148,22 +175,17 @@ function QueryTree(props) {
                                         }
                                     activeGroup={props.activeGroup}
                                     newItem={props.newItem}
-                                    newGroup={props.newGroup} />
-
-                                <div style={{alignSelf: 'center'}}>
-                                    <i className="fas fa-trash-alt"
-                                    onClick={() => {
-                                        const rqgi = props.removeQueryGroupItem;
-                                        const newquery = rqgi(
-                                            props.items,
-                                            i,
-                                        );
-                                        setModalGroup(newquery);
-                                    }}
-                                    style={{cursor: 'pointer'}}
+                                    newGroup={props.newGroup}
+                                    backgroundColour={
+                                        alternateColour(props.backgroundColour)
+                                    }
+                                    deleteItem={deleteItem}
+                                    buttonStyle={buttonStyle}
+                                    onDeleteHover={() => setDeleteItemIndex(i)}
+                                    onDeleteLeave={
+                                            () => setDeleteItemIndex(null)
+                                    }
                                     />
-                                </div>
-                            </div>
                         </div>
                         <div style={operatorStyle}>{operator}</div>
                 </li>);
@@ -221,23 +243,35 @@ function QueryTree(props) {
 
     const antiOperator = props.items.operator == 'and' ? 'or' : 'and';
     const style = {};
-    if (props.activeGroup == props.items || hover) {
+    if (props.activeGroup == props.items) {
         style.background = 'pink';
     }
 
+    let deleteGroupHTML;
+    if (props.deleteItem) {
+        deleteGroupHTML = (
+            <div style={{alignSelf: 'center', marginLeft: 'auto'}}>
+                <i className="fas fa-trash-alt"
+                    title='Delete Group'
+
+                    onMouseEnter={props.onDeleteHover}
+                    onMouseLeave={props.onDeleteLeave}
+                    onClick={props.deleteItem}
+                    style={{cursor: 'pointer', marginLeft: 'auto'}} />
+            </div>
+        );
+    }
     return (
        <div style={style}>
           {terms}
 
-          <div style={props.buttonGroupStyle}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-            >
+          <div style={props.buttonGroupStyle}>
               <div style={{margin: 5}}>
                   <ButtonElement
                     label={'Add "' + props.items.operator
                         + '" condition to group'}
                     onUserInput={newItemClick}
+                    style={props.buttonStyle}
                     columnSize='col-sm-12'
                   />
               </div>
@@ -245,10 +279,12 @@ function QueryTree(props) {
                   <ButtonElement
                     label={'New "' + antiOperator + '" subgroup'}
                     onUserInput={newGroupClick}
+                    style={props.buttonStyle}
                     columnSize='col-sm-12'
                   />
               </div>
               {warning}
+              {deleteGroupHTML}
           </div>
        </div>
     );
@@ -269,10 +305,12 @@ function DefineFilters(props) {
     // query group, in which case the callback changes it
     // to that group.
     const [modalQueryGroup, setModalGroup] = useState(props.query);
+    const [deleteItemIndex, setDeleteItemIndex] = useState(null);
 
     const bGroupStyle = {
         display: 'flex',
         flexWrap: 'wrap',
+        marginTop: 10,
     };
 
     const mapModuleName = (name) => {
@@ -287,60 +325,139 @@ function DefineFilters(props) {
         // Only 1 add condition button since "and" or "or"
         // are the same with only 1 term
         displayquery = <div>
-            <div>Querying for ALL candidates</div>
-            <div style={bGroupStyle}><ButtonElement
-                label='Add Condition'
-                onUserInput={(e) => {
-                    e.preventDefault();
-                    setAddModal(true);
-                }}
-             />
+            <div style={{paddingLeft: '2em',
+                paddingRight: '2em'}}>
+            <p>Currently querying for ALL candidates.</p>
+            <p>You can add conditions by clicking one of the buttons below.</p>
+            <p>Click <code>Add Condition</code> to add one or more conditions
+               to your filters (ie. "Date Of Birth &lt; 2015-02-15"). <b>This is
+               most likely where you want to start your filters.</b>
+            </p>
+            <p>The "nested groups" options are advanced options for queries
+               that do not have any specific condition at the base of the query.
+               Use <code>Add nested "or" condition groups</code> if you need to
+               build a query of the form
+               <i> (a or b) and (c or d) [or (e and f)..]</i>.
+               Use <code>Add nested "and" condition groups</code> if you need
+               to build a query of the form
+               <i> (a and b) or (c and d) [or (e and f)..]</i>. If there are
+               *any* conditions at the base of the query such as
+               <i> a and (b or c)</i> it is easiest to start with
+               <code>Add condition</code> instead of the nested groups.
+            </p>
             </div>
+            <form>
+              <fieldset>
+                  <div style={{display: 'flex'}}>
+                      <div style={bGroupStyle}>
+                          <ButtonElement
+                              label='Add Condition'
+                              onUserInput={(e) => {
+                                  e.preventDefault();
+                                  setAddModal(true);
+                              }}
+                           />
+                      </div>
+                      <div style={bGroupStyle}>
+                          <ButtonElement
+                              label='Add nested "or" condition groups'
+                              onUserInput={(e) => {
+                                  e.preventDefault();
+                                  props.query.condition = 'and';
+                                  props.addNewQueryGroup(props.query);
+                              }}
+                           />
+                      </div>
+                      <div style={bGroupStyle}>
+                          <ButtonElement
+                              label='Add nested "and" condition groups'
+                              onUserInput={(e) => {
+                                  e.preventDefault();
+                                  props.query.condition = 'or';
+                                  props.addNewQueryGroup(props.query);
+                              }}
+                           />
+                      </div>
+                   </div>
+               </fieldset>
+            </form>
         </div>;
-    } else if (props.query.group.length == 1) {
+    } else if (props.query.group.length == 1 &&
+        props.query.group[0] instanceof QueryTerm
+    ) {
         // buttons for 1. Add "and" condition 2. Add "or" condition
         displayquery = (<div>
-            Querying for any candidates with
-            <div style={{display: 'flex'}}>
-                <CriteriaTerm
-                    term={props.query.group[0]}
-                    mapModuleName={mapModuleName}
-                    mapCategoryName={mapCategoryName}
-                />
-                <div style={{alignSelf: 'center'}}><i
-                    className="fas fa-trash-alt"
-                    onClick={() => {
-                        const newquery = props.removeQueryGroupItem(
-                            props.query,
-                            0
-                        );
-                        setModalGroup(newquery);
-                    }}
-                    style={{cursor: 'pointer'}} />
-                </div>
-            </div>
-            <div style={bGroupStyle}>
-                <ButtonElement
-                    label='Add "and" condition'
-                    onUserInput={(e) => {
-                        e.preventDefault();
-                        props.query.operator = 'and';
-                        setAddModal(true);
-                    }} />
-                <ButtonElement
-                    label='Add "or" condition'
-                    onUserInput={(e) => {
-                        e.preventDefault();
-                        setAddModal(true);
-                        props.query.operator = 'or';
-                }} />
-            </div>
+            <p>Currently querying for any candidates with:</p>
 
+            <form>
+              <fieldset>
+                    <div style={{
+                        display: 'flex', marginTop: 10,
+                        textDecoration: deleteItemIndex == 0 ?
+                            'line-through' : '',
+                    }}>
+                        <CriteriaTerm
+                            term={props.query.group[0]}
+                            mapModuleName={mapModuleName}
+                            mapCategoryName={mapCategoryName}
+                        />
+                        <div style={{alignSelf: 'center'}}><i
+                            className="fas fa-trash-alt"
+                            title='Delete Item'
+                            onClick={() => {
+                                const newquery = props.removeQueryGroupItem(
+                                    props.query,
+                                    0
+                                );
+                                setModalGroup(newquery);
+                            }}
+                            onMouseEnter={() => setDeleteItemIndex(0)}
+                            onMouseLeave={() => setDeleteItemIndex(null)}
+                            style={{cursor: 'pointer'}} />
+                        </div>
+                    </div>
+                    <div>
+                        <div style={bGroupStyle}>
+                            <ButtonElement
+                                label='Add "and" condition'
+                                onUserInput={(e) => {
+                                    e.preventDefault();
+                                    props.query.operator = 'and';
+                                    setAddModal(true);
+                                }} />
+                            <ButtonElement
+                                label='Add "or" condition'
+                                onUserInput={(e) => {
+                                    e.preventDefault();
+                                    setAddModal(true);
+                                    props.query.operator = 'or';
+                            }} />
+                        </div>
+                        <div style={bGroupStyle}>
+                            <ButtonElement
+                                label='New "and" subgroup'
+                                onUserInput={(e) => {
+                                    e.preventDefault();
+                                    props.query.operator = 'or';
+                                    props.addNewQueryGroup(props.query);
+                                }} />
+                            <ButtonElement
+                                label='New "or" subgroup'
+                                onUserInput={(e) => {
+                                    e.preventDefault();
+                                    props.query.operator = 'and';
+                                    props.addNewQueryGroup(props.query);
+                            }} />
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
         </div>);
     } else {
         // Add buttons are delegated to the QueryTree rendering so they
         // can be placed at the right level
-        displayquery = <div>Querying for any candidates with
+        displayquery = <div>
+            <p>Currently querying for any candidates with:</p>
       <form>
         <fieldset>
             <QueryTree items={props.query}
@@ -354,6 +471,7 @@ function DefineFilters(props) {
                     setModalGroup(group);
                     setAddModal(true);
                 }}
+                backgroundColour='rgb(240, 240, 240)'
                 newGroup={props.addNewQueryGroup}
                 />
         </fieldset>
