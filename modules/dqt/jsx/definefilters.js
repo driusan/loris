@@ -2,6 +2,44 @@ import {useState} from 'react';
 import FilterableSelectGroup from './components/filterableselectgroup';
 import {QueryGroup, QueryTerm} from './querydef';
 import Modal from 'jsx/Modal';
+import Select from 'react-select';
+/**
+ * Renders a selectable list of visits
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function VisitList(props) {
+    let selectedVisits;
+    const selectOptions = props.options.map(
+        (vl) => {
+            return {value: vl, label: vl};
+        }
+    );
+
+    if (props.selected && props.selected.visits) {
+        selectedVisits = selectOptions;
+    } else {
+        selectedVisits = selectOptions.filter((opt) => {
+            return props.selected.includes(opt.value);
+        });
+    }
+
+    return <Select options={selectOptions}
+        isMulti
+        onChange={(newvals) => {
+            props.onChange(
+                newvals.map((valobj) => valobj.value)
+            );
+        }}
+        placeholder='Select Visits'
+        value={selectedVisits}
+        menuPortalTarget={document.body}
+        styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
+        closeMenuOnSelect={false}
+    />;
+}
 
 /**
  * Render a modal window for adding a filter
@@ -12,49 +50,64 @@ import Modal from 'jsx/Modal';
  */
 function AddFilterModal(props) {
     let fieldSelect;
-    let operatorSelect;
-    let valueSelect;
+    let criteriaSelect;
+    let visitSelect;
     let [fieldDictionary, setFieldDictionary] = useState(false);
     let [fieldname, setFieldname] = useState(false);
     let [op, setOp] = useState(false);
     let [value, setValue] = useState('');
+    let [selectedVisits, setSelectedVisits] = useState(false);
     if (props.displayedFields) {
         let options = {'Fields': {}};
         for (const [key, value] of Object.entries(props.displayedFields)) {
             options['Fields'][key] = value.description;
         }
-        fieldSelect = <div>
-            <h3>Field</h3>
-            <FilterableSelectGroup groups={options}
+        fieldSelect = <FilterableSelectGroup groups={options}
                 onChange={(key, fieldname) => {
                     const dict = props.displayedFields[fieldname];
                     setFieldDictionary(dict);
                     setFieldname(fieldname);
+                    setSelectedVisits(dict.visits);
                 }}
-                placeholder="Select a field" />
-        </div>;
+                placeholder="Select a field" />;
     }
 
     if (fieldDictionary) {
-        operatorSelect = <div>
-            <h3>Operator</h3>
-            <SelectElement
-               name="operator"
-               id="operator"
-               label=''
-               emptyOption={true}
-               sortByValue={false}
-               value={op || ''}
-               onUserInput={(name, value) => {
-                   setOp(value);
-               }}
-               options={getOperatorOptions(fieldDictionary)}
-            />
+        let valueSelect;
+        if (op) {
+            valueSelect = valueInput(fieldDictionary, op, value, setValue);
+        }
+
+        criteriaSelect = <div>
+            <h3>Criteria</h3>
+            <div style={{display: 'flex'}}>
+                <div style={{width: '20%'}}>
+                    <SelectElement
+                       name="operator"
+                       id="operator"
+                       label=''
+                       emptyOption={true}
+                       sortByValue={false}
+                       value={op || ''}
+                       onUserInput={(name, value) => {
+                           setOp(value);
+                       }}
+                       options={getOperatorOptions(fieldDictionary)}
+                    />
+                </div>
+                <div style={{width: '80%'}}>{valueSelect}</div>
+            </div>
         </div>;
     }
 
-    if (op) {
-        valueSelect = valueInput(fieldDictionary, op, value, setValue);
+    if (fieldDictionary.scope == 'session') {
+        visitSelect = <div onClick={(e) => e.stopPropagation()}>
+                <h3>for at least one of the following visits</h3>
+                <VisitList options={fieldDictionary.visits}
+                   selected={selectedVisits}
+                   onChange={setSelectedVisits}
+                />
+        </div>;
     }
 
     return <Modal title="Add criteria"
@@ -62,30 +115,39 @@ function AddFilterModal(props) {
        throwWarning={true}
        onClose={props.closeModal}
        onSubmit={() => {
-           props.addQueryGroupItem(
-               props.query,
-               {
+           let crit = {
                    'Module': props.module,
                    'Category': props.category,
                    'Field': fieldname,
                    'Op': op,
                    'Value': value,
-               },
+           };
+           if (fieldDictionary.scope == 'session') {
+               crit.Visits = selectedVisits;
+           }
+
+           props.addQueryGroupItem(
+               props.query,
+               crit,
                fieldDictionary,
            );
 
            props.closeModal();
        }}>
             <div style={{width: '100%', padding: '1em'}}>
-                <h3>Add filter from category</h3>
-                <FilterableSelectGroup groups={props.categories.categories}
-                    mapGroupName={(key) => props.categories.modules[key]}
-                    onChange={props.onCategoryChange} />
-                {fieldSelect}
-                {operatorSelect}
-                <div>
-                {valueSelect}
+                <h3>Field</h3>
+                <div style={{display: 'flex', width: '100%'}}>
+                    <div style={{width: '40%'}}>
+                    <FilterableSelectGroup groups={props.categories.categories}
+                        mapGroupName={(key) => props.categories.modules[key]}
+                        onChange={props.onCategoryChange} />
+                    </div>
+                    <div style={{width: '100%'}}>
+                    {fieldSelect}
+                    </div>
                 </div>
+                {criteriaSelect}
+                {visitSelect}
             </div>
     </Modal>;
 }
@@ -714,7 +776,8 @@ function CriteriaTerm(props) {
                 </div>
             </div>
             <div style={opStyle}>{op2str(props.term.op)}</div>
-            <div style={valueStyle}>{props.term.value}</div>
+            <div style={valueStyle}>{props.term.value}
+                at {props.term.visits}</div>
         </div>);
 }
 export default DefineFilters;
