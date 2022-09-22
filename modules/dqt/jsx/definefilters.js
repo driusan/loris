@@ -698,9 +698,14 @@ function valueInput(fielddict, op, value, setValue) {
                onChange={setValue}
            />;
        case 'URI':
+            return <TextboxElement
+               onUserInput={(name, value) => setValue(value)}
+               value={value} />;
+               /*
            return <input name="value" type="url" value={value || ''}
                onChange={setValue}
                />;
+               */
        case 'integer':
           return <NumericElement
              value={value}
@@ -763,7 +768,33 @@ function CriteriaTerm(props) {
     const valueStyle = {
         width: '33%',
         alignSelf: 'end',
+        display: 'flex',
+        alignItems: 'center',
     };
+
+    let visits;
+    if (props.term.visits) {
+        visits = 'at visit ';
+        if (props.term.visits.length == 1) {
+            visits += props.term.visits[0];
+        } else {
+            for (let i = 0; i < props.term.visits.length; i++) {
+                visits += props.term.visits[i];
+                if (i == props.term.visits.length-2) {
+                    visits += ' or ';
+                } else if (i < props.term.visits.length-2) {
+                    visits += ', ';
+                }
+            }
+        }
+    }
+
+    let value = props.term.value;
+    if (props.term.op == 'in') {
+        value = <ul>
+            {props.term.value.map((val) => <li>{val}</li>)}
+        </ul>;
+    }
     return (
         <div style={containerStyle}>
             <div style={fieldStyle}>
@@ -776,8 +807,10 @@ function CriteriaTerm(props) {
                 </div>
             </div>
             <div style={opStyle}>{op2str(props.term.op)}</div>
-            <div style={valueStyle}>{props.term.value}
-                at {props.term.visits}</div>
+            <div style={valueStyle}>
+                <div>{value}</div>
+                <div>{visits}</div>
+            </div>
         </div>);
 }
 export default DefineFilters;
