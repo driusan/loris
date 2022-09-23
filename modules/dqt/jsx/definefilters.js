@@ -717,19 +717,19 @@ function valueInput(fielddict, op, value, setValue) {
              value={value}
              onUserInput={(name, value) => setValue(value)} />;
        case 'time':
-           return <input name="value" type="time"
-               value={value || '12:00pm'}
-               onChange={setValue}
-           />;
+           // There's no time element type in LORIS, so use the HTML5
+           // one with bootstrap styling that matches the rest of our
+           // elements
+           return <TimeElement
+                    name="time"
+                    value={value}
+                    onUserInput={(name, value) => setValue(value)}
+                />;
        case 'URI':
+            // Should this be input type="url"?
             return <TextboxElement
                onUserInput={(name, value) => setValue(value)}
                value={value} />;
-               /*
-           return <input name="value" type="url" value={value || ''}
-               onChange={setValue}
-               />;
-               */
        case 'integer':
           return <NumericElement
              value={value}
@@ -832,7 +832,6 @@ function CriteriaTerm(props) {
     }
 
     let cardinalityWarning;
-    console.log(props.term);
     if (props.term.dictionary.cardinality == 'many') {
         cardinalityWarning = <i className="fas fa-exclamation-circle"
             style={{fontSize: '2em',
