@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {QueryGroup, QueryTerm} from './querydef';
 import AddFilterModal from './definefilters.addfiltermodal';
+import ImportCSVModal from './definefilters.importcsvmodal';
 
 /**
  * Alternate background colour for a QueryTree
@@ -212,6 +213,7 @@ function QueryTree(props) {
 function DefineFilters(props) {
     let displayquery = '';
     const [addModal, setAddModal] = useState(false);
+    const [csvModal, setCSVModal] = useState(false);
     // The subgroup used for the "Add Filter" modal window
     // to add to. Default to top level unless click from a
     // query group, in which case the callback changes it
@@ -257,6 +259,8 @@ function DefineFilters(props) {
                <i> a and (b or c)</i> it is easiest to start with
                <code>Add condition</code> instead of the nested groups.
             </p>
+            <p>You can also import a population from a CSV by clicking
+                the <code>Import from CSV</code> button.</p>
             </div>
             <form>
               <fieldset>
@@ -291,6 +295,15 @@ function DefineFilters(props) {
                            />
                       </div>
                    </div>
+                  <div style={bGroupStyle}>
+                      <ButtonElement
+                          label='Import from CSV'
+                          onUserInput={(e) => {
+                              e.preventDefault();
+                              setCSVModal(true);
+                          }}
+                       />
+                  </div>
                </fieldset>
             </form>
         </div>;
@@ -410,9 +423,15 @@ function DefineFilters(props) {
             category={props.category}
          />)
          : '';
+    const csvModalHTML = csvModal ? (
+        <ImportCSVModal
+            closeModal={() => setCSVModal(false)}
+            />
+    ) : '';
 
     return (<div>
           {modal}
+          {csvModalHTML}
           <h1>Current Query</h1>
           {displayquery}
       </div>
