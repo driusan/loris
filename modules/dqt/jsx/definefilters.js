@@ -52,11 +52,13 @@ function AddFilterModal(props) {
     let fieldSelect;
     let criteriaSelect;
     let visitSelect;
+    let cardinalityWarning;
     let [fieldDictionary, setFieldDictionary] = useState(false);
     let [fieldname, setFieldname] = useState(false);
     let [op, setOp] = useState(false);
     let [value, setValue] = useState('');
     let [selectedVisits, setSelectedVisits] = useState(false);
+
     if (props.displayedFields) {
         let options = {'Fields': {}};
         for (const [key, value] of Object.entries(props.displayedFields)) {
@@ -109,6 +111,27 @@ function AddFilterModal(props) {
                 />
         </div>;
     }
+    if (fieldDictionary.cardinality == 'many') {
+        cardinalityWarning = <div className="alert alert-info"
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginTop: '1em',
+                }}>
+            <i className="fas fa-exclamation-circle"
+                style={{fontSize: '2.5em',
+                    color: '#ffde2e',
+                    paddingLeft: '0.2em',
+                }}></i>
+            <div style={{
+                color: 'white',
+                padding: '1em',
+            }}>This field may exist multiple times for a
+            single {fieldDictionary.scope}. Adding a criteria
+            based on it means that it must match for <i>at least
+            one</i> of the data points.</div>
+        </div>;
+    }
 
     return <Modal title="Add criteria"
        show={true}
@@ -146,6 +169,7 @@ function AddFilterModal(props) {
                     {fieldSelect}
                     </div>
                 </div>
+                {cardinalityWarning}
                 {criteriaSelect}
                 {visitSelect}
             </div>
@@ -755,15 +779,15 @@ function CriteriaTerm(props) {
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         width: '100%',
+        alignItems: 'center',
     };
 
     const fieldStyle = {
         width: '33%',
-        alignSelf: 'start',
     };
     const opStyle = {
         width: '33%',
-        alignSelf: 'center',
+        textAlign: 'center',
     };
     const valueStyle = {
         width: '33%',
@@ -806,6 +830,21 @@ function CriteriaTerm(props) {
             {props.term.value.map((val) => <li>{val}</li>)}
         </ul>;
     }
+
+    let cardinalityWarning;
+    console.log(props.term);
+    if (props.term.dictionary.cardinality == 'many') {
+        cardinalityWarning = <i className="fas fa-exclamation-circle"
+            style={{fontSize: '2em',
+                color: 'rgb(58, 61, 255)',
+                paddingLeft: '0.2em',
+                cursor: 'help',
+            }}
+            title={'This field may exist multiple times for a single '
+                + props.term.dictionary.scope + ' and must match for *any*'
+                + ' of the data points'}
+        ></i>;
+    }
     return (
         <div style={containerStyle}>
             <div style={fieldStyle}>
@@ -821,6 +860,7 @@ function CriteriaTerm(props) {
             <div style={valueStyle}>
                 <div>{value}</div>
                 <div style={{padding: '2em'}}>{visits}</div>
+                {cardinalityWarning}
             </div>
         </div>);
 }
