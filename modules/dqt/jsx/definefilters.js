@@ -3,6 +3,7 @@ import FilterableSelectGroup from './components/filterableselectgroup';
 import {QueryGroup, QueryTerm} from './querydef';
 import Modal from 'jsx/Modal';
 import Select from 'react-select';
+import swal from 'sweetalert2';
 /**
  * Renders a selectable list of visits
  *
@@ -133,11 +134,55 @@ function AddFilterModal(props) {
         </div>;
     }
 
-    return <Modal title="Add criteria"
-       show={true}
-       throwWarning={true}
-       onClose={props.closeModal}
-       onSubmit={() => {
+    const submitPromise = () =>
+        new Promise((resolve, reject) => {
+            // Validate and reject if invalid
+           if (!fieldname) {
+               swal.fire({
+                   icon: 'error',
+                   title: 'Invalid field',
+                   text: 'You must select a field for the criteria.',
+               });
+               reject();
+               return;
+           }
+           if (!op) {
+               swal.fire({
+                   icon: 'error',
+                   title: 'Invalid operator',
+                   text: 'You must select an operator for the criteria.',
+               });
+               reject();
+               return;
+           }
+
+           if (!value) {
+               if (op != 'isnotnull' && op != 'isnull'
+                   && op != 'exists' && op != 'notexists') {
+                   swal.fire({
+                       icon: 'error',
+                       title: 'Invalid value',
+                       text: 'You must enter a value to compare the ' +
+                         'field against.',
+                   });
+                   reject();
+                   return;
+               }
+           }
+
+           if (fieldDictionary.scope == 'session') {
+               if (!selectedVisits || selectedVisits.length == 0) {
+                   swal.fire({
+                       icon: 'error',
+                       title: 'Invalid visits',
+                       text: 'No visits selected for criteria.',
+                   });
+                   reject();
+                   return;
+               }
+           }
+
+           // It's been validated, now save the data and resolve
            let crit = {
                    'Module': props.module,
                    'Category': props.category,
@@ -156,7 +201,15 @@ function AddFilterModal(props) {
            );
 
            props.closeModal();
-       }}>
+
+           resolve();
+        }
+    );
+    return <Modal title="Add criteria"
+       show={true}
+       throwWarning={true}
+       onClose={props.closeModal}
+       onSubmit={submitPromise}>
             <div style={{width: '100%', padding: '1em'}}>
                 <h3>Field</h3>
                 <div style={{display: 'flex', width: '100%'}}>
