@@ -774,7 +774,7 @@ function CriteriaTerm(props) {
 
     let visits;
     if (props.term.visits) {
-        visits = 'at visit ';
+        visits = '';
         if (props.term.visits.length == 1) {
             visits += props.term.visits[0];
         } else {
@@ -787,11 +787,22 @@ function CriteriaTerm(props) {
                 }
             }
         }
+        visits = <div>
+            <span style={{fontStyle: 'italic'}}>at visit</span>
+            <span> {visits}</span>
+        </div>;
     }
 
     let value = props.term.value;
     if (props.term.op == 'in') {
-        value = <ul>
+        const liststyle = {
+            margin: 0,
+            padding: 0,
+            listStylePosition: 'inside',
+            listStyleType: 'disc',
+        };
+
+        value = <ul style={liststyle}>
             {props.term.value.map((val) => <li>{val}</li>)}
         </ul>;
     }
@@ -809,7 +820,7 @@ function CriteriaTerm(props) {
             <div style={opStyle}>{op2str(props.term.op)}</div>
             <div style={valueStyle}>
                 <div>{value}</div>
-                <div>{visits}</div>
+                <div style={{padding: '2em'}}>{visits}</div>
             </div>
         </div>);
 }
