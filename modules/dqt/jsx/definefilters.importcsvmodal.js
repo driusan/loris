@@ -67,25 +67,44 @@ function ImportCSVModal(props) {
         const newQuery = new QueryGroup('or');
         for (let i = startLine; i < value.data.length; i++) {
             if (csvType === 'session') {
-                swal.fire({
-                    icon: 'error',
-                    title: 'Not implemented',
-                    text: 'Session CSV not implemented',
-                });
-                return;
+                const sessionGroup = new QueryGroup('and');
+                sessionGroup.addTerm(
+                    {
+                        Module: 'candidate_parameters',
+                        Category: 'Identifiers',
+                        Field: idType,
+                        Op: '=',
+                        Value: value.data[i][0],
+                    },
+                    null,
+                );
+                sessionGroup.addTerm(
+                    {
+                        Module: 'candidate_parameters',
+                        Category: 'Meta',
+                        Field: 'VisitLabel',
+                        Op: '=',
+                        Value: value.data[i][1],
+                    },
+                    null,
+                );
+                newQuery.group.push(sessionGroup);
+            } else {
+                newQuery.addTerm(
+                    {
+                        Module: 'candidate_parameters',
+                        Category: 'Identifiers',
+                        Field: idType,
+                        Op: '=',
+                        Value: value.data[i],
+                    },
+                    null,
+                );
             }
-            newQuery.addTerm(
-                {
-                    Module: 'candidate_parameters',
-                    Category: 'Identifiers',
-                    Field: idType,
-                    Op: '=',
-                    Value: value.data[i],
-                },
-                null,
-            );
         }
+
         props.setQuery(newQuery);
+        props.closeModal();
     };
 
     const dtstyle = {
@@ -171,6 +190,5 @@ function ImportCSVModal(props) {
         </div>
     </Modal>;
 }
-
 
 export default ImportCSVModal;
