@@ -59,6 +59,7 @@ function QueryTree(props) {
                             <CriteriaTerm term={item}
                                 mapModuleName={props.mapModuleName}
                                 mapCategoryName={props.mapCategoryName}
+                                fulldictionary={props.fulldictionary}
                             />
                             <div style={{alignSelf: 'center'}}><i
                                 title="Delete item"
@@ -98,6 +99,7 @@ function QueryTree(props) {
                                     onDeleteLeave={
                                             () => setDeleteItemIndex(null)
                                     }
+                                    fulldictionary={props.fulldictionary}
                                     />
                         </div>
                         <div style={operatorStyle}>{operator}</div>
@@ -300,6 +302,13 @@ function DefineFilters(props) {
                           label='Import from CSV'
                           onUserInput={(e) => {
                               e.preventDefault();
+                              // Need to be sure that we've loaded
+                              // candidate_parameters so it's in
+                              // fulldictionary
+                              props.getModuleFields(
+                                'candidate_parameters',
+                                'identifiers'
+                              );
                               setCSVModal(true);
                           }}
                        />
@@ -325,6 +334,7 @@ function DefineFilters(props) {
                             term={props.query.group[0]}
                             mapModuleName={mapModuleName}
                             mapCategoryName={mapCategoryName}
+                            fulldictionary={props.fulldictionary}
                         />
                         <div style={{alignSelf: 'center'}}><i
                             className="fas fa-trash-alt"
@@ -398,6 +408,7 @@ function DefineFilters(props) {
                 }}
                 backgroundColour='rgb(240, 240, 240)'
                 newGroup={props.addNewQueryGroup}
+                fulldictionary={props.fulldictionary}
                 />
         </fieldset>
       </form>
@@ -407,11 +418,10 @@ function DefineFilters(props) {
         <AddFilterModal
             query={modalQueryGroup}
             closeModal={() => setAddModal(false)}
-            addQueryGroupItem={(querygroup, condition, dictionary) => {
+            addQueryGroupItem={(querygroup, condition) => {
                 const newquery = props.addQueryGroupItem(
                     querygroup,
                     condition,
-                    dictionary
                 );
                 setModalGroup(newquery);
             }}
@@ -425,6 +435,7 @@ function DefineFilters(props) {
          : '';
     const csvModalHTML = csvModal ? (
         <ImportCSVModal
+            setQuery={props.setQuery}
             closeModal={() => setCSVModal(false)}
             />
     ) : '';
@@ -467,6 +478,20 @@ function op2str(op) {
     }
 };
 
+/**
+ * Get the dictionary for a given term
+ *
+ * @param {object} term - The term whose dictionary
+                          should be extracted
+ * @param {object} dict - all loaded dictionaries
+ *
+ * @return {object}
+ */
+function getDictionary(term, dict) {
+    console.log(term);
+    console.log(dict);
+    return dict[term.module][term.category][term.fieldname];
+}
 /**
  * Renders a single term of a condition
  *
@@ -534,7 +559,8 @@ function CriteriaTerm(props) {
     }
 
     let cardinalityWarning;
-    if (props.term.dictionary.cardinality == 'many') {
+    const dict = getDictionary(props.term, props.fulldictionary);
+    if (dict.cardinality == 'many') {
         cardinalityWarning = <i className="fas fa-exclamation-circle"
             style={{fontSize: '2em',
                 color: 'rgb(58, 61, 255)',
@@ -542,7 +568,7 @@ function CriteriaTerm(props) {
                 cursor: 'help',
             }}
             title={'This field may exist multiple times for a single '
-                + props.term.dictionary.scope + ' and must match for *any*'
+                + dict.scope + ' and must match for *any*'
                 + ' of the data points'}
         ></i>;
     }
@@ -550,7 +576,7 @@ function CriteriaTerm(props) {
         <div style={containerStyle}>
             <div style={fieldStyle}>
                 <div title={props.term.fieldname}>
-                    {props.term.dictionary.description}
+                    {dict.description}
                 </div>
                 <div style={{fontSize: '0.8em', color: '#aaa'}}>
                 {props.mapCategoryName(props.term.module, props.term.category)}

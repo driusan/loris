@@ -197,7 +197,6 @@ function AddFilterModal(props) {
            props.addQueryGroupItem(
                props.query,
                crit,
-               fieldDictionary,
            );
 
            props.closeModal();

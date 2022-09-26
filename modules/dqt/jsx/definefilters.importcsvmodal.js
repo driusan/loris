@@ -1,4 +1,5 @@
 import Modal from 'jsx/Modal';
+import {QueryGroup} from './querydef';
 import {useState} from 'react';
 import Papa from 'papaparse';
 import swal from 'sweetalert2';
@@ -37,7 +38,8 @@ function ImportCSVModal(props) {
         // If candidates: validate 1 column
         // If sessions: validate 2 columns
         const expectedLength = (csvType === 'session' ? 2 : 1);
-        for (let i = 0; i < value.data.length; i++) {
+        const startLine = csvHeader ? 1 : 0;
+        for (let i = startLine; i < value.data.length; i++) {
             if (value.data[i].length != expectedLength) {
                 swal.fire({
                     icon: 'error',
@@ -50,11 +52,6 @@ function ImportCSVModal(props) {
             };
             if (idType === 'CandID') {
                 if (candIDRegex.test(value.data[i][0]) !== true) {
-                    console.log(
-                        'invalid value',
-                        candIDRegex.test(value.data[i][0]),
-                        value.data[i][0]
-                    );
                     swal.fire({
                         icon: 'error',
                         title: 'Invalid DCC ID',
@@ -65,6 +62,30 @@ function ImportCSVModal(props) {
                 }
             }
         }
+
+        // Now that it's been validated, build a new query
+        const newQuery = new QueryGroup('or');
+        for (let i = startLine; i < value.data.length; i++) {
+            if (csvType === 'session') {
+                swal.fire({
+                    icon: 'error',
+                    title: 'Not implemented',
+                    text: 'Session CSV not implemented',
+                });
+                return;
+            }
+            newQuery.addTerm(
+                {
+                    Module: 'candidate_parameters',
+                    Category: 'Identifiers',
+                    Field: idType,
+                    Op: '=',
+                    Value: value.data[i],
+                },
+                null,
+            );
+        }
+        props.setQuery(newQuery);
     };
 
     const dtstyle = {
@@ -125,8 +146,14 @@ function ImportCSVModal(props) {
                                     setCSVFile(file);
                                     let papaparseConfig = {
                                         skipEmptyLines: true,
-                                        header: csvHeader,
                                         complete: csvParsed,
+                                        // Setting this to try would cause
+                                        // papaparse to return an object
+                                        // instead of string. We just skip
+                                        // the first row if the user says
+                                        // they have a header when parsing
+                                        // results.
+                                        header: false,
                                     };
                                     // Only 1 column, papaparse can't detect
                                     // the delimiter if it's not explicitly

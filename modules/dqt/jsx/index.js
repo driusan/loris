@@ -21,6 +21,7 @@ function DataQueryApp(props) {
     const [activeTab, setActiveTab] = useState('Info');
     const [selectedModule, setSelectedModule] = useState(false);
     const [moduleDictionary, setModuleDictionary] = useState(false);
+    const [fulldictionary, setDictionary] = useState({});
     const [selectedModuleCategory, setSelectedModuleCategory] = useState(false);
     const [categories, setCategories] = useState(false);
     const [selectedFields, setFields] = useState([]);
@@ -72,6 +73,11 @@ function DataQueryApp(props) {
         if (selectedModule === false) {
             return;
         }
+        if (fulldictionary[selectedModule]) {
+            // Use the cache
+            setModuleDictionary(fulldictionary[selectedModule]);
+            return;
+        }
         fetch('/dictionary/module/' + selectedModule,
             {credentials: 'same-origin'}
             )
@@ -81,6 +87,10 @@ function DataQueryApp(props) {
                 }
                 return resp.json();
                 }).then((result) => {
+                    let newdictcache = {...fulldictionary};
+                    newdictcache[selectedModule] = result;
+
+                    setDictionary(newdictcache);
                     setModuleDictionary(result);
                   }
           ).catch( (error) => {
@@ -185,13 +195,14 @@ function DataQueryApp(props) {
     };
 
 
-    const addQueryGroupItem = (querygroup, condition, dictionary) => {
+    const addQueryGroupItem = (querygroup, condition) => {
+        console.log(querygroup, condition);
         // clone the top level query to force
         // a new rendering
         let newquery = new QueryGroup(query.operator);
 
         // Add to this level of the tree
-        querygroup.addTerm(condition, dictionary);
+        querygroup.addTerm(condition);
 
 
         newquery.group = [...query.group];
@@ -311,6 +322,11 @@ function DataQueryApp(props) {
                 removeQueryGroupItem={removeQueryGroupItem}
                 addNewQueryGroup={addNewQueryGroup}
                 query={query}
+
+                setQuery={setQuery}
+
+                getModuleFields={getModuleFields}
+                fulldictionary={fulldictionary}
             />;
             break;
         case 'ViewData':
