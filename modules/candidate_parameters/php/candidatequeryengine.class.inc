@@ -278,9 +278,6 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
 
         error_log("Combining candidates");
         return $this->candidateCombine($items, $rows);
-        $val = $this->candidateCombine($items, $rows);
-        error_log("Combined candidates");
-        return $val;
     }
 
 

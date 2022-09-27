@@ -28,7 +28,7 @@ const NavigationStepper = (props) => {
       },
     },
     {
-      title: 'Run Query',
+      title: 'View Data',
       onClick: (e) => {
         e.preventDefault();
         props.stepperClicked('ViewData', 3);

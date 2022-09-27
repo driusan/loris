@@ -74,7 +74,7 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
         //
         // We walk the existing test names ordered by length to look for the longest prefix
         // match to find out what the instrument for the fieldname is.
-        $DB = \Database::singleton();
+        $DB = $this->loris->getDatabaseConnection();
         $rows = $DB->pselectCol("SELECT Test_name FROM test_names ORDER BY Length(Test_name) DESC", []);
 
         $testname = null;
@@ -87,7 +87,7 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
                 break;
             }
         }
-        if($testname=== null) {
+        if($testname === null) {
             throw new \DomainException("Field for unknown instrument");
         }
 
@@ -229,6 +229,49 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
     }
 
     public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
+        // We need to know what category the item is in to get the instrument, so get the
+        // full data dictionary and go through each to see if it's the same as $item
+        $field2instMap = [];
+
+        $fullDictionary = $this->getDataDictionary();
+        foreach($fullDictionary as $category) {
+            $instrument = $category->getName();
+            foreach ($category->getItems() as $dict) {
+                $field2instMap[$dict->getName()] = $instrument;
+                // error_log(print_r($dict, true));
+            }
+        }
+
+        $instruments = [];
+        foreach($items as $dict) {
+            $instr = $field2instMap[$dict->getName()];
+
+            if(!isset($instruments[$instr])) {
+                $instruments[] = $instr;
+            }
+
+        }
+        error_log(print_r($instruments, true));
+        $DB = $this->loris->getDatabaseConnection();
+
+        // Put candidates into a temporary table so that it can be used in a join
+        // clause. Directly using "c.CandID IN (candid1, candid2, candid3, etc)" is
+        // too slow.
+        $DB->run("DROP TEMPORARY TABLE IF EXISTS querycandidates");
+        $DB->run("CREATE TEMPORARY TABLE querycandidates (
+                    CandID int(6)
+                    );");
+        $insertstmt = "INSERT INTO querycandidates VALUES (" . join('),(', $candIDs) . ')';
+        $q = $DB->prepare($insertstmt);
+        $q->execute([]);
+
+        $rows = $DB->pselect("SELECT CommentID FROM flag f 
+                                                    JOIN session s ON (f.SessionID=s.ID)
+                                                    JOIN candidate c ON (s.CandID=c.CandID)
+                              WHERE f.CommentID NOT LIKE 'DDE%'
+                                    AND c.CandID IN (SELECT CandID FROM querycandidates)
+                                    AND f.Test_name IN (" . join(', ', $instruments). ")",
+        []);
         return [];
     }
 

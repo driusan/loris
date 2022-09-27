@@ -287,7 +287,7 @@ class Search extends \NDB_Page
 
                 // If the module has data for this candID, populate it,
                 // if not, don't advance the iterator.
-                if($modcandidate == $candID) {
+                if("$modcandidate" == "$candID") {
                     // Go through each field and put the data in the right
                     // index if applicable.
                     $data = $moduledata->current();
@@ -311,7 +311,7 @@ class Search extends \NDB_Page
 
             // We've went through all the module iterators and can
             // now yield the value for this row.
-            yield $candID => $val;
+            yield "$candID" => $val;
         }
     }
 

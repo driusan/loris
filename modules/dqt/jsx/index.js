@@ -1,12 +1,10 @@
-// import {Component} from 'react';
-// import PropTypes from 'prop-types';
-// import {StepperPanel} from './components/stepper';
-import ExpansionPanels from './components/expansionpanels';
 import {NavigationStepper} from './navigationstepper';
 import {useState, useEffect} from 'react';
 
+import Welcome from './welcome';
 import DefineFilters from './definefilters';
 import DefineFields from './definefields';
+import ViewData from './viewdata';
 
 import {QueryGroup} from './querydef';
 
@@ -196,7 +194,6 @@ function DataQueryApp(props) {
 
 
     const addQueryGroupItem = (querygroup, condition) => {
-        console.log(querygroup, condition);
         // clone the top level query to force
         // a new rendering
         let newquery = new QueryGroup(query.operator);
@@ -240,46 +237,7 @@ function DataQueryApp(props) {
 
     switch (activeTab) {
         case 'Info':
-            content = <div>
-                <h1 style={{
-                  color: '#0a3572',
-                  textAlign: 'center',
-                  padding: '30px 0 0 0',
-                }}>
-                  Welcome to the Data Query Tool
-                </h1>
-                <p style={{textAlign: 'center', margin: '10px 0 20px 0'}}>
-                  There is no data.
-                </p>
-                <ExpansionPanels
-                  panels={[
-                    {
-                      title: 'Instructions on how to create a query',
-                      content: (
-                        <>
-                          <p>
-                            To start a new query, use the above navigation
-                            and or click on <i style={{color: '#596978'}}>
-                            "Define Fields"</i>
-                            &nbsp;to begin building the fields for the query.
-                          </p>
-                          <p>
-                            You may choose to then click the navigation
-                            again for the <i style={{color: '#596978'}}>
-                            "Define Filters (Optional)"</i>
-                            &nbsp;and define how you will filter the query data.
-                          </p>
-                          <p>Lastly, navigate to the
-                          <i style={{color: '#596978'}}>"Run Query"</i> and
-                          run the query you built. 🙂</p>
-                        </>
-                      ),
-                      alwaysOpen: true,
-                    },
-                    ]
-                  }
-                  />
-              </div>;
+            content = <Welcome />;
             break;
         case 'DefineFields':
             content = <DefineFields allCategories={categories}
@@ -330,7 +288,10 @@ function DataQueryApp(props) {
             />;
             break;
         case 'ViewData':
-            content = <div>Unimplemented tab</div>;
+            content = <ViewData
+                fields={selectedFields}
+                filters={query}
+            />;
             break;
         default:
             content = <div>Invalid tab</div>;
