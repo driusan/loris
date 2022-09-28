@@ -2,6 +2,8 @@ import {useState} from 'react';
 import {QueryGroup, QueryTerm} from './querydef';
 import AddFilterModal from './definefilters.addfiltermodal';
 import ImportCSVModal from './definefilters.importcsvmodal';
+import FieldDisplay from './fielddisplay';
+
 
 /**
  * Alternate background colour for a QueryTree
@@ -577,13 +579,14 @@ function CriteriaTerm(props) {
     return (
         <div style={containerStyle}>
             <div style={fieldStyle}>
-                <div title={props.term.fieldname}>
-                    {dict.description}
-                </div>
-                <div style={{fontSize: '0.8em', color: '#aaa'}}>
-                {props.mapCategoryName(props.term.module, props.term.category)}
-                &nbsp;({props.mapModuleName(props.term.module)})
-                </div>
+                <FieldDisplay
+                    module={props.term.module}
+                    category={props.term.category}
+                    fieldname={props.term.fieldname}
+                    mapModuleName={props.mapModuleName}
+                    mapCategoryName={props.mapCategoryName}
+                    fulldictionary={props.fulldictionary}
+                    />
             </div>
             <div style={opStyle}>{op2str(props.term.op)}</div>
             <div style={valueStyle}>
