@@ -235,9 +235,50 @@ function DataQueryApp(props) {
 
     let content;
 
+    const mapModuleName = (name) => {
+        if (categories.modules) {
+            return categories.modules[name];
+        }
+        return name;
+    };
+    const mapCategoryName = (module, category) => {
+        if (categories.categories
+            && categories.categories[module]) {
+            return categories.categories[module][category];
+        }
+        return category;
+        // return props.categories.categories[name];
+    };
+
     switch (activeTab) {
         case 'Info':
-            content = <Welcome />;
+            content = <Welcome
+                        savedQueries={
+                            [{
+                                type: 'candidates',
+                                criteria: [],
+                                fields: [
+                                    {
+                                        module: 'candidate_parameters',
+                                        category: 'Identifiers',
+                                        field: 'PSCID',
+                                    },
+                                    {
+                                        module: 'candidate_parameters',
+                                        category: 'Demographics',
+                                        field: 'DoB',
+                                    },
+                                ],
+                            }]
+                        }
+
+                        // Need dictionary related stuff
+                        // to display saved queries
+                        getModuleFields={getModuleFields}
+                        mapModuleName={mapModuleName}
+                        mapCategoryName={mapCategoryName}
+                        fulldictionary={fulldictionary}
+                    />;
             break;
         case 'DefineFields':
             content = <DefineFields allCategories={categories}
@@ -260,6 +301,7 @@ function DataQueryApp(props) {
                 onAddAll={addManyFields}
                 onRemoveAll={removeManyFields}
                 onClearAll={clearAllFields}
+
                />;
             break;
         case 'DefineFilters':
@@ -285,6 +327,9 @@ function DataQueryApp(props) {
 
                 getModuleFields={getModuleFields}
                 fulldictionary={fulldictionary}
+
+                mapModuleName={mapModuleName}
+                mapCategoryName={mapCategoryName}
             />;
             break;
         case 'ViewData':

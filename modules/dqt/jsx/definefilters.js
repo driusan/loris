@@ -229,6 +229,9 @@ function DefineFilters(props) {
         marginTop: 10,
     };
 
+    const mapModuleName = props.mapModuleName;
+    const mapCategoryName = props.mapCategoryName;
+    /*
     const mapModuleName = (name) => {
         return props.categories.modules[name];
     };
@@ -236,6 +239,7 @@ function DefineFilters(props) {
         return props.categories.categories[module][category];
         // return props.categories.categories[name];
     };
+    */
 
     if (props.query.group.length == 0) {
         // Only 1 add condition button since "and" or "or"
@@ -488,8 +492,6 @@ function op2str(op) {
  * @return {object}
  */
 function getDictionary(term, dict) {
-    console.log(term);
-    console.log(dict);
     return dict[term.module][term.category][term.fieldname];
 }
 /**
@@ -591,4 +593,5 @@ function CriteriaTerm(props) {
             </div>
         </div>);
 }
+
 export default DefineFilters;
