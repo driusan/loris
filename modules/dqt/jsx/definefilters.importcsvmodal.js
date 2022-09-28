@@ -29,7 +29,7 @@ function ImportCSVModal(props) {
         if (value.errors && value.errors.length > 0) {
             console.error(value.errors);
             swal.fire({
-                icon: 'error',
+                type: 'error',
                 title: 'Invalid CSV',
                 text: 'Could not parse CSV file',
             });
@@ -42,7 +42,7 @@ function ImportCSVModal(props) {
         for (let i = startLine; i < value.data.length; i++) {
             if (value.data[i].length != expectedLength) {
                 swal.fire({
-                    icon: 'error',
+                    type: 'error',
                     title: 'Invalid CSV',
                     text: 'Expected ' + expectedLength + ' columns in CSV.'
                         + ' Got ' + value.data[i].length + ' on line ' +
@@ -53,7 +53,7 @@ function ImportCSVModal(props) {
             if (idType === 'CandID') {
                 if (candIDRegex.test(value.data[i][0]) !== true) {
                     swal.fire({
-                        icon: 'error',
+                        type: 'error',
                         title: 'Invalid DCC ID',
                         text: 'Invalid DCC ID (' + value.data[i][0]
                             + ') on line '

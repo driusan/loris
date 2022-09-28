@@ -4,6 +4,7 @@
 import {useState} from 'react';
 import Select from 'react-select';
 import FilterableSelectGroup from './components/filterableselectgroup';
+import getDictionaryDescription from './getdictionarydescription';
 
 
 /**
@@ -267,6 +268,7 @@ function DefineFields(props) {
             <SelectedFieldList
                 selected={props.selected}
                 removeField={props.removeField}
+                fulldictionary={props.fulldictionary}
             />
         </div>
       </div>
@@ -290,7 +292,12 @@ function SelectedFieldList(props) {
                 justifyContent: 'space-between'}}>
         <div>
             <dt>{item.field}</dt>
-            <dd>{item.dictionary.description}</dd>
+            <dd>{getDictionaryDescription(
+                    item.module,
+                    item.category,
+                    item.field,
+                    props.fulldictionary,
+                )}</dd>
         </div>
         <div><i
             className="fas fa-trash-alt" onClick={() => removeField(item)}

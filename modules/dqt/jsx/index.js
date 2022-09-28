@@ -27,6 +27,7 @@ function DataQueryApp(props) {
     const [allVisits, setAllVisits] = useState(false);
 
     const [searchType, setSearchType] = useState('candidates');
+    const [usedModules, setUsedModules] = useState({});
 
     const [query, setQuery] = useState(new QueryGroup('and'));
 
@@ -68,38 +69,57 @@ function DataQueryApp(props) {
     }, []);
 
     useEffect(() => {
+        Object.keys(usedModules).forEach((module) => {
+            if (!fulldictionary[module]) {
+                fetch('/dictionary/module/' + module,
+                    {credentials: 'same-origin'}
+                    )
+                .then((resp) => {
+                        if (!resp.ok) {
+                            throw new Error('Invalid response');
+                        }
+                        return resp.json();
+                        }).then((result) => {
+                            console.log(
+                                'retrieved',
+                                module,
+                                fulldictionary,
+                                result,
+                            );
+                            fulldictionary[module] = result;
+                            let newdictcache = {...fulldictionary};
+                            setDictionary(newdictcache);
+
+                            setSelectedModule(module);
+                          }
+                  ).catch( (error) => {
+                          console.error(error);
+                  });
+            }
+        });
+    }, [usedModules]);
+
+    useEffect(() => {
         if (selectedModule === false) {
             return;
         }
+        getModuleFields(selectedModule);
         if (fulldictionary[selectedModule]) {
             // Use the cache
             setModuleDictionary(fulldictionary[selectedModule]);
             return;
         }
-        fetch('/dictionary/module/' + selectedModule,
-            {credentials: 'same-origin'}
-            )
-        .then((resp) => {
-                if (!resp.ok) {
-                throw new Error('Invalid response');
-                }
-                return resp.json();
-                }).then((result) => {
-                    let newdictcache = {...fulldictionary};
-                    newdictcache[selectedModule] = result;
-
-                    setDictionary(newdictcache);
-                    setModuleDictionary(result);
-                  }
-          ).catch( (error) => {
-                  console.error(error);
-                  });
-    }, [selectedModule, selectedModuleCategory]);
+    }, [selectedModule, selectedModuleCategory, fulldictionary]);
 
     const getModuleFields = (module, category) => {
-        // console.log('get', module, category);
-        setSelectedModule(module);
+        console.log('Should get module fields', module);
+        if (!usedModules[module]) {
+            let newUsedModules = {...usedModules};
+            newUsedModules[module] = [module, category];
+            setUsedModules(newUsedModules);
+        }
         setSelectedModuleCategory(category);
+        return fulldictionary[module];
     };
 
     const removeField = (module, category, field) => {
@@ -250,13 +270,22 @@ function DataQueryApp(props) {
         // return props.categories.categories[name];
     };
 
+    const loadQuery = (fields, filters) => {
+        setFields(fields);
+        if (!filters) {
+            setQuery(new QueryGroup('and'));
+        } else {
+            setQuery(filters);
+        }
+    };
+
     switch (activeTab) {
         case 'Info':
             content = <Welcome
+                        loadQuery={loadQuery}
                         savedQueries={
                             [{
                                 type: 'candidates',
-                                criteria: [],
                                 fields: [
                                     {
                                         module: 'candidate_parameters',
@@ -269,7 +298,95 @@ function DataQueryApp(props) {
                                         field: 'DoB',
                                     },
                                 ],
-                            }]
+                            },
+                            {
+                                type: 'candidates',
+                                fields: [
+                                    {
+                                        module: 'candidate_parameters',
+                                        category: 'Demographics',
+                                        field: 'Sex',
+                                    },
+                                    {
+                                        module: 'candidate_parameters',
+                                        category: 'Demographics',
+                                        field: 'DoB',
+                                    },
+                                ],
+                                criteria: unserializeSavedQuery({
+                                    operator: 'and',
+                                    group: [
+                                        {
+                                            module: 'candidate_parameters',
+                                            category: 'Demographics',
+                                            fieldname: 'Sex',
+                                            op: 'eq',
+                                            value: 'Male',
+                                        },
+                                    ],
+                                }),
+                            },
+                            {
+                                'type': 'candidates',
+                                'fields': [
+                                    {
+                                        'module': 'instruments',
+                                        'category': 'aosi',
+                                        'field': 'aosi_Examiner',
+                                    },
+                                    {
+                                        'module': 'instruments',
+                                        'category': 'aosi',
+                                        'field': 'aosi_Window_Difference',
+                                    },
+                                ],
+                                'criteria': unserializeSavedQuery({
+                                    'operator': 'or',
+                                    'group': [
+                                        {
+                                            'module': 'candidate_parameters',
+                                            'category': 'Meta',
+                                            'fieldname': 'EntityType',
+                                            'op': 'in',
+                                            'value': ['Human'],
+                                        },
+                                        {
+                                            'operator': 'and',
+                                            'group': [
+                                                {
+                                                    'module': 'imaging_browser',
+                                                    'category': 'Images',
+                                                    'fieldname': 't1',
+                                                    'op': 'exists',
+                                                    'value': '',
+                                                    'visits': [
+                                                        'V1',
+                                                        'V2',
+                                                        'V3',
+                                                        'V4',
+                                                        'V5',
+                                                        'V6',
+                                                    ],
+                                                },
+                                                {
+                                                    'module': 'instruments',
+                                                    'category': 'aosi',
+                                                    'fieldname':
+                                                       'aosi_examiner_location',
+                                                    'op': 'eq',
+                                                    'value': 'in_room_observer',
+                                                    'visits': [
+                                                        'V1',
+                                                        'V2',
+                                                        'V3',
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                }),
+                            },
+                            ]
                         }
 
                         // Need dictionary related stuff
@@ -285,7 +402,7 @@ function DataQueryApp(props) {
                 displayedFields={moduleDictionary[selectedModuleCategory]}
 
                 defaultVisits={defaultVisits}
-                onChangeDefaultVisits={modifyDefaultVisits}
+                onChangeDefaultVisity={modifyDefaultVisits}
                 allVisits={allVisits}
 
                 module={selectedModule}
@@ -301,6 +418,8 @@ function DataQueryApp(props) {
                 onAddAll={addManyFields}
                 onRemoveAll={removeManyFields}
                 onClearAll={clearAllFields}
+
+                fulldictionary={fulldictionary}
 
                />;
             break;
@@ -351,11 +470,48 @@ function DataQueryApp(props) {
     </>);
 }
 
+/**
+ * Takes a saved query from a JSON object and marshal
+ * it into a QueryGroup object
+ *
+ * @param {object} query - the json object
+ *
+ * @return {QueryGroup}
+ */
+function unserializeSavedQuery(query) {
+    if (!query.operator) {
+        console.error('Invalid query tree', query);
+        return null;
+    }
+    const root = new QueryGroup(query.operator);
+    query.group.forEach((val) => {
+        if (val.operator) {
+            const childTree = unserializeSavedQuery(val);
+            root.group.push(childTree);
+            return;
+        }
+        if (!val.module
+            || !val.category
+            || !val.fieldname
+            || !val.op) {
+            console.error('Invalid criteria', val);
+            return;
+        }
+        root.addTerm({
+            Module: val.module,
+            Category: val.category,
+            Field: val.fieldname,
+            Op: val.op,
+            Value: val.value,
+        });
+    });
+    return root;
+}
+
 window.addEventListener('load', () => {
   ReactDOM.render(
     <DataQueryApp />,
     document.getElementById('lorisworkspace')
   );
 });
-
 export default DataQueryApp;

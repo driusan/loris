@@ -50,12 +50,10 @@ export class QueryGroup {
      * Adds a term to this group
      *
      * @param {object} condition - the term's conditions
-     * @param {object} dict - the field dictionary for the term, required for
-     *                        some renderings
      */
-    addTerm(condition, dict) {
+    addTerm(condition) {
         this.group.push(new QueryTerm(
-            dict,
+            null,
             condition.Module,
             condition.Category,
             condition.Field,

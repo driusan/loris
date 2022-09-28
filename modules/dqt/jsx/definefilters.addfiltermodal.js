@@ -139,7 +139,7 @@ function AddFilterModal(props) {
             // Validate and reject if invalid
            if (!fieldname) {
                swal.fire({
-                   icon: 'error',
+                   type: 'error',
                    title: 'Invalid field',
                    text: 'You must select a field for the criteria.',
                });
@@ -148,7 +148,7 @@ function AddFilterModal(props) {
            }
            if (!op) {
                swal.fire({
-                   icon: 'error',
+                   type: 'error',
                    title: 'Invalid operator',
                    text: 'You must select an operator for the criteria.',
                });
@@ -160,7 +160,7 @@ function AddFilterModal(props) {
                if (op != 'isnotnull' && op != 'isnull'
                    && op != 'exists' && op != 'notexists') {
                    swal.fire({
-                       icon: 'error',
+                       type: 'error',
                        title: 'Invalid value',
                        text: 'You must enter a value to compare the ' +
                          'field against.',
@@ -173,7 +173,7 @@ function AddFilterModal(props) {
            if (fieldDictionary.scope == 'session') {
                if (!selectedVisits || selectedVisits.length == 0) {
                    swal.fire({
-                       icon: 'error',
+                       type: 'error',
                        title: 'Invalid visits',
                        text: 'No visits selected for criteria.',
                    });
