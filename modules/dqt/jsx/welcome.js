@@ -67,6 +67,9 @@ function Welcome(props) {
                                 pinQuery={props.pinQuery}
                                 unpinQuery={props.unpinQuery}
 
+                                shareQuery={props.shareQuery}
+                                unshareQuery={props.unshareQuery}
+
                                 getModuleFields={props.getModuleFields}
                                 mapModuleName={props.mapModuleName}
                                 mapCategoryName={props.mapCategoryName}
@@ -127,6 +130,8 @@ function QueryList(props) {
         <tbody>
         {props.queries.map((query, idx) => {
                         let pinnedIcon;
+                        let sharedIcon;
+
                         if (query.Pinned) {
                           pinnedIcon = <span
                                 onClick={
@@ -151,6 +156,23 @@ function QueryList(props) {
                             <i className="far fa-star fa-stack-1x"/>
                             </span>;
                         }
+
+                        if (query.Shared) {
+                            sharedIcon = <i style={{color: 'blue'}}
+                                        onClick={
+                                            () =>
+                                               props.unshareQuery(query.QueryID)
+                                        }
+                                        className="fas fa-share-alt" />;
+                        } else {
+                            sharedIcon = <i style={{color: 'black'}}
+                                        onClick={
+                                            () =>
+                                               props.shareQuery(query.QueryID)
+                                        }
+                                    className="fas fa-share-alt" />;
+                        }
+
                         const loadQuery = () => {
                            props.loadQuery(
                              query.fields,
@@ -198,7 +220,7 @@ function QueryList(props) {
                             <td>
                                 <div>
                                     {pinnedIcon}
-                                    <i className="fas fa-share-alt" />
+                                    {sharedIcon}
                                 </div>
                             </td>
                         </tr>);

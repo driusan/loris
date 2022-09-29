@@ -41,6 +41,40 @@ function usePinnedQueries(onCompleteCallback) {
 }
 
 /**
+ * React hook for triggering toggling of shared queries
+ * on a LORIS server.
+ *
+ * @param {callback} onCompleteCallback - an action to perform after pinning
+ * @return {array}
+ */
+function useSharedQueries(onCompleteCallback) {
+    const [shareQueryID, setShareQueryID] = useState(null);
+    const [shareAction, setShareAction] = useState('share');
+    useEffect(() => {
+        console.log('shared effect', shareQueryID, shareAction);
+        if (shareQueryID == null) {
+            console.log('Abort');
+            return;
+        }
+
+        fetch(
+            '/dqt/queries/' + shareQueryID + '?share=' + shareAction,
+            {
+                method: 'PATCH',
+                credentials: 'same-origin',
+            },
+        ).then( () => {
+            setShareQueryID(null);
+            if (onCompleteCallback) {
+                onCompleteCallback();
+            }
+        }
+        );
+    }, [shareQueryID, shareAction]);
+    return [setShareQueryID, setShareAction];
+}
+
+/**
  * Return the main page for the DQT
  *
  * @param {object} props - React props
@@ -66,6 +100,10 @@ function DataQueryApp(props) {
     const [loadQueriesForce, setLoadQueriesForce] = useState(0);
 
     const [setPinQueryID, setPinAction] = usePinnedQueries(
+        () => setLoadQueriesForce(loadQueriesForce+1),
+    );
+
+    const [setShareQueryID, setShareAction] = useSharedQueries(
         () => setLoadQueriesForce(loadQueriesForce+1),
     );
 
@@ -126,6 +164,7 @@ function DataQueryApp(props) {
                 QueryID: query.QueryID,
                 RunTime: query.RunTime,
                 Pinned: query.Pinned,
+                Shared: query.Shared,
                 ...query.Query,
             });
           });
@@ -352,23 +391,37 @@ function DataQueryApp(props) {
     };
 
 
-    const pinQuery = (queryID) => {
-        setPinAction('pin');
-        setPinQueryID(queryID);
-    };
-    const unpinQuery = (queryID) => {
-        setPinAction('unpin');
-        setPinQueryID(queryID);
-    };
-
     switch (activeTab) {
         case 'Info':
             content = <Welcome
                         loadQuery={loadQuery}
                         savedQueries={savedQueries}
 
-                        pinQuery={pinQuery}
-                        unpinQuery={unpinQuery}
+                        pinQuery={
+                            (queryID) => {
+                                setPinAction('pin');
+                                setPinQueryID(queryID);
+                            }
+                        }
+                        unpinQuery={
+                            (queryID) => {
+                                setPinAction('unpin');
+                                setPinQueryID(queryID);
+                            }
+                        }
+
+                        shareQuery={
+                            (queryID) => {
+                                setShareAction('share');
+                                setShareQueryID(queryID);
+                            }
+                        }
+                        unshareQuery={
+                            (queryID) => {
+                                setShareAction('unshare');
+                                setShareQueryID(queryID);
+                            }
+                        }
                         // Need dictionary related stuff
                         // to display saved queries
                         getModuleFields={getModuleFields}
