@@ -71,7 +71,6 @@ function CriteriaTerm(props) {
     };
     const valueStyle = {
         width: '33%',
-        alignSelf: 'end',
         display: 'flex',
         alignItems: 'center',
     };

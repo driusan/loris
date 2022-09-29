@@ -28,8 +28,10 @@ function DataQueryApp(props) {
 
     const [searchType, setSearchType] = useState('candidates');
     const [usedModules, setUsedModules] = useState({});
+    const [savedQueries, setSavedQueries] = useState([]);
 
     const [query, setQuery] = useState(new QueryGroup('and'));
+    const [runNum, setRunNum] = useState(0);
 
     useEffect(() => {
         if (categories !== false) {
@@ -67,6 +69,35 @@ function DataQueryApp(props) {
                   console.error(error);
                   });
     }, []);
+
+    useEffect(() => {
+        fetch('/dqt/queries', {credentials: 'same-origin'})
+        .then((resp) => {
+          if (!resp.ok) {
+            throw new Error('Invalid response');
+          }
+          return resp.json();
+        }).then((result) => {
+          let converted = [];
+          if (result.queries) {
+            result.queries.forEach( (query) => {
+              if (query.Query.criteria) {
+                query.Query.criteria = unserializeSavedQuery(
+                  query.Query.criteria,
+                );
+              }
+            converted.push({
+                QueryID: query.QueryID,
+                RunTime: query.RunTime,
+                ...query.Query,
+            });
+          });
+        }
+      setSavedQueries(converted);
+    }).catch( (error) => {
+      console.error(error);
+    });
+    }, [runNum]);
 
     useEffect(() => {
         Object.keys(usedModules).forEach((module) => {
@@ -287,112 +318,7 @@ function DataQueryApp(props) {
         case 'Info':
             content = <Welcome
                         loadQuery={loadQuery}
-                        savedQueries={
-                            [{
-                                type: 'candidates',
-                                fields: [
-                                    {
-                                        module: 'candidate_parameters',
-                                        category: 'Identifiers',
-                                        field: 'PSCID',
-                                    },
-                                    {
-                                        module: 'candidate_parameters',
-                                        category: 'Demographics',
-                                        field: 'DoB',
-                                    },
-                                ],
-                            },
-                            {
-                                type: 'candidates',
-                                fields: [
-                                    {
-                                        module: 'candidate_parameters',
-                                        category: 'Demographics',
-                                        field: 'Sex',
-                                    },
-                                    {
-                                        module: 'candidate_parameters',
-                                        category: 'Demographics',
-                                        field: 'DoB',
-                                    },
-                                ],
-                                criteria: unserializeSavedQuery({
-                                    operator: 'and',
-                                    group: [
-                                        {
-                                            module: 'candidate_parameters',
-                                            category: 'Demographics',
-                                            fieldname: 'Sex',
-                                            op: 'eq',
-                                            value: 'Male',
-                                        },
-                                    ],
-                                }),
-                            },
-                            {
-                                'type': 'candidates',
-                                'fields': [
-                                    {
-                                        'module': 'instruments',
-                                        'category': 'aosi',
-                                        'field': 'aosi_Examiner',
-                                    },
-                                    {
-                                        'module': 'instruments',
-                                        'category': 'aosi',
-                                        'field': 'aosi_Window_Difference',
-                                    },
-                                ],
-                                'criteria': unserializeSavedQuery({
-                                    'operator': 'or',
-                                    'group': [
-                                        {
-                                            'module': 'candidate_parameters',
-                                            'category': 'Meta',
-                                            'fieldname': 'EntityType',
-                                            'op': 'in',
-                                            'value': ['Human'],
-                                        },
-                                        {
-                                            'operator': 'and',
-                                            'group': [
-                                                {
-                                                    'module': 'imaging_browser',
-                                                    'category': 'Images',
-                                                    'fieldname': 't1',
-                                                    'op': 'exists',
-                                                    'value': '',
-                                                    'visits': [
-                                                        'V1',
-                                                        'V2',
-                                                        'V3',
-                                                        'V4',
-                                                        'V5',
-                                                        'V6',
-                                                    ],
-                                                },
-                                                {
-                                                    'module': 'instruments',
-                                                    'category': 'aosi',
-                                                    'fieldname':
-                                                       'aosi_examiner_location',
-                                                    'op': 'eq',
-                                                    'value': 'in_room_observer',
-                                                    'visits': [
-                                                        'V1',
-                                                        'V2',
-                                                        'V3',
-                                                    ],
-                                                },
-                                            ],
-                                        },
-                                    ],
-                                }),
-                            },
-                            ]
-                        }
-
+                        savedQueries={savedQueries}
                         // Need dictionary related stuff
                         // to display saved queries
                         getModuleFields={getModuleFields}
@@ -459,6 +385,7 @@ function DataQueryApp(props) {
             content = <ViewData
                 fields={selectedFields}
                 filters={query}
+                onRun={() => setRunNum(runNum+1)}
             />;
             break;
         default:

@@ -164,7 +164,7 @@ function QueryList(props) {
                                     mapCategoryName={props.mapCategoryName}
                                 />
                             </td>
-                            <td>2022-09-26 4:30pm</td>
+                            <td>{query.RunTime}</td>
                             <td>
                                 <div>
                                     <i className="far fa-star" />

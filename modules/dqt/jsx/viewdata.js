@@ -19,7 +19,8 @@ function ViewData(props) {
             return;
         }
         let resultbuffer = [];
-        fetchDataStreamPost(loris.BaseURL + '/candidates/search',
+        props.onRun();
+        fetchDataStreamPost(loris.BaseURL + '/dqt/search',
             payload,
             (row) => {
                 resultbuffer.push(row);
@@ -51,9 +52,8 @@ function ViewData(props) {
             />
         );
     return <div>
-        <h2>Not that only candidates for which you have
-            access to are included</h2>
-        {queryTable}
+         <h2>This page is under construction</h2>
+          {queryTable}
     </div>;
 }
 
