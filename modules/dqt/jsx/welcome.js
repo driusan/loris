@@ -64,6 +64,9 @@ function Welcome(props) {
                                 queries={props.savedQueries}
                                 loadQuery={props.loadQuery}
 
+                                pinQuery={props.pinQuery}
+                                unpinQuery={props.unpinQuery}
+
                                 getModuleFields={props.getModuleFields}
                                 mapModuleName={props.mapModuleName}
                                 mapCategoryName={props.mapCategoryName}
@@ -123,20 +126,45 @@ function QueryList(props) {
         </thead>
         <tbody>
         {props.queries.map((query, idx) => {
-                        return (<tr key={idx}
-                                onClick={() => {
-                                    props.loadQuery(
-                                        query.fields,
-                                        query.criteria,
-                                    );
-                                    swal.fire({
-                                        type: 'success',
-                                        title: 'Query Loaded',
-                                        text: 'Successfully loaded query.',
-                                    });
-                                }}
-                            >
-                            <td style={{verticalAlign: 'middle'}}>
+                        let pinnedIcon;
+                        if (query.Pinned) {
+                          pinnedIcon = <span
+                                onClick={
+                                    () => props.unpinQuery(query.QueryID)
+                                }
+                                className="fa-stack">
+                            <i style={
+                                {color: 'yellow'}}
+                                className="fas fa-star fa-stack-1x"
+                                />
+                            <i style={
+                                {color: 'black'}}
+                                className="far fa-star fa-stack-1x"
+                                />
+                            </span>;
+                        } else {
+                          pinnedIcon = <span
+                                onClick={
+                                    () => props.pinQuery(query.QueryID)
+                                }
+                                className="fa-stack">
+                            <i className="far fa-star fa-stack-1x"/>
+                            </span>;
+                        }
+                        const loadQuery = () => {
+                           props.loadQuery(
+                             query.fields,
+                             query.criteria,
+                           );
+                           swal.fire({
+                             type: 'success',
+                             title: 'Query Loaded',
+                             text: 'Successfully loaded query.',
+                           });
+                        };
+                        return (<tr key={idx}>
+                            <td style={{verticalAlign: 'middle'}}
+                                onClick={loadQuery}>
                                 {query.fields.map(
                                     (fieldobj, fidx) => <FieldDisplay
                                                     key={fidx}
@@ -153,7 +181,9 @@ function QueryList(props) {
                                     )
                                 }
                             </td>
-                            <td style={{
+                            <td
+                                onClick={loadQuery}
+                                style={{
                                 textAlign: 'center',
                                 verticalAlign: 'middle',
                             }}>
@@ -167,7 +197,7 @@ function QueryList(props) {
                             <td>{query.RunTime}</td>
                             <td>
                                 <div>
-                                    <i className="far fa-star" />
+                                    {pinnedIcon}
                                     <i className="fas fa-share-alt" />
                                 </div>
                             </td>

@@ -9,6 +9,38 @@ import ViewData from './viewdata';
 import {QueryGroup} from './querydef';
 
 /**
+ * React hook for triggering toggling of pinned queries
+ * on a LORIS server.
+ *
+ * @param {callback} onCompleteCallback - an action to perform after pinning
+ * @return {array}
+ */
+function usePinnedQueries(onCompleteCallback) {
+    const [pinQueryID, setPinQueryID] = useState(null);
+    const [pinAction, setPinAction] = useState('pin');
+    useEffect(() => {
+        if (pinQueryID == null) {
+            return;
+        }
+
+        fetch(
+            '/dqt/queries/' + pinQueryID + '?pin=' + pinAction,
+            {
+                method: 'PATCH',
+                credentials: 'same-origin',
+            },
+        ).then( () => {
+            setPinQueryID(null);
+            if (onCompleteCallback) {
+                onCompleteCallback();
+            }
+        }
+        );
+    }, [pinQueryID, pinAction]);
+    return [setPinQueryID, setPinAction];
+}
+
+/**
  * Return the main page for the DQT
  *
  * @param {object} props - React props
@@ -31,7 +63,11 @@ function DataQueryApp(props) {
     const [savedQueries, setSavedQueries] = useState([]);
 
     const [query, setQuery] = useState(new QueryGroup('and'));
-    const [runNum, setRunNum] = useState(0);
+    const [loadQueriesForce, setLoadQueriesForce] = useState(0);
+
+    const [setPinQueryID, setPinAction] = usePinnedQueries(
+        () => setLoadQueriesForce(loadQueriesForce+1),
+    );
 
     useEffect(() => {
         if (categories !== false) {
@@ -89,6 +125,7 @@ function DataQueryApp(props) {
             converted.push({
                 QueryID: query.QueryID,
                 RunTime: query.RunTime,
+                Pinned: query.Pinned,
                 ...query.Query,
             });
           });
@@ -97,7 +134,7 @@ function DataQueryApp(props) {
     }).catch( (error) => {
       console.error(error);
     });
-    }, [runNum]);
+    }, [loadQueriesForce]);
 
     useEffect(() => {
         Object.keys(usedModules).forEach((module) => {
@@ -314,11 +351,24 @@ function DataQueryApp(props) {
         }
     };
 
+
+    const pinQuery = (queryID) => {
+        setPinAction('pin');
+        setPinQueryID(queryID);
+    };
+    const unpinQuery = (queryID) => {
+        setPinAction('unpin');
+        setPinQueryID(queryID);
+    };
+
     switch (activeTab) {
         case 'Info':
             content = <Welcome
                         loadQuery={loadQuery}
                         savedQueries={savedQueries}
+
+                        pinQuery={pinQuery}
+                        unpinQuery={unpinQuery}
                         // Need dictionary related stuff
                         // to display saved queries
                         getModuleFields={getModuleFields}
@@ -385,7 +435,7 @@ function DataQueryApp(props) {
             content = <ViewData
                 fields={selectedFields}
                 filters={query}
-                onRun={() => setRunNum(runNum+1)}
+                onRun={() => setLoadQueriesForce(loadQueriesForce+1)}
             />;
             break;
         default:
