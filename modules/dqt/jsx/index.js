@@ -112,13 +112,17 @@ function DataQueryApp(props) {
     }, [selectedModule, selectedModuleCategory, fulldictionary]);
 
     const getModuleFields = (module, category) => {
-        console.log('Should get module fields', module);
+        console.log('Should get module fields', module, category);
         if (!usedModules[module]) {
             let newUsedModules = {...usedModules};
             newUsedModules[module] = [module, category];
             setUsedModules(newUsedModules);
         }
-        setSelectedModuleCategory(category);
+
+        setSelectedModule(module);
+        if (category) {
+            setSelectedModuleCategory(category);
+        }
         return fulldictionary[module];
     };
 
