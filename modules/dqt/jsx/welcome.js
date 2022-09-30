@@ -62,7 +62,7 @@ function Welcome(props) {
                       content: (
                         <div>
                           <QueryList
-                                queries={props.savedQueries}
+                                queries={props.recentQueries}
                                 loadQuery={props.loadQuery}
 
                                 pinQuery={props.pinQuery}
@@ -70,6 +70,24 @@ function Welcome(props) {
 
                                 shareQuery={props.shareQuery}
                                 unshareQuery={props.unshareQuery}
+
+                                getModuleFields={props.getModuleFields}
+                                mapModuleName={props.mapModuleName}
+                                mapCategoryName={props.mapCategoryName}
+                                fulldictionary={props.fulldictionary}
+                            />
+                        </div>
+                      ),
+                      alwaysOpen: false,
+                      defaultOpen: true,
+                    },
+                    {
+                      title: 'Shared Queries',
+                      content: (
+                        <div>
+                          <QueryList
+                                queries={props.sharedQueries}
+                                loadQuery={props.loadQuery}
 
                                 getModuleFields={props.getModuleFields}
                                 mapModuleName={props.mapModuleName}
@@ -196,15 +214,24 @@ function QueryList(props) {
                                 <i className="fas fa-sync fa-stack-1x"></i>
                              </span>;
 
+            let msg = '';
+            if (query.RunTime) {
+                msg = <div><i>You ran this query at {query.RunTime}</i>
+                       &nbsp;{pinnedIcon}{sharedIcon}{loadIcon}
+                   </div>;
+            } else if (query.SharedBy) {
+                msg = <div><i>Query shared by {query.SharedBy}</i>
+                       &nbsp;{loadIcon}
+                    </div>;
+            } else {
+                console.error('Invalid query. Neither shared nor recent');
+            }
+
             return (<div key={idx} style={{
                     // border: 'thin solid black',
                     overflow: 'auto',
                 }}>
-                        <div><i>You ran this query at {query.RunTime}</i>
-                           &nbsp;{pinnedIcon} {sharedIcon} {loadIcon}
-
-
-                       </div>
+                        {msg}
                         <div style={{display: 'flex', flexWrap: 'wrap'}}>
                         <div>
                             <h3>Fields</h3>

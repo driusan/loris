@@ -85,13 +85,16 @@ class Queries extends \NDB_Page
 
         switch ($request->getMethod()) {
         case 'GET':
-                $queries = $this->getQueries($user);
-                return new \LORIS\Http\Response\JSON\OK(['queries' => $queries ]);
+                $shared = $this->getSharedQueries($user);
+                return new \LORIS\Http\Response\JSON\OK([
+                    'recent' => $this->getRecentQueries($user),
+                    'shared' => $this->getSharedQueries($user),
+                ]);
         }
         return new \LORIS\Http\Response\JSON\BadMethod('Request must be GET');
     }
 
-    public function getQueries(\User $user) : iterable {
+    public function getRecentQueries(\User $user) : iterable {
         $DB = $this->loris->getDatabaseConnection();
         $potentialQueries = $DB->pselect("
             SELECT dq.QueryID, RunTime, Query,
@@ -125,6 +128,34 @@ class Queries extends \NDB_Page
             } else {
                 $query['Shared'] = false;
             }
+            // Convert from string to PHP array so that it's not double
+            // escaped when json_encode is called.
+            $query['Query'] = json_decode($query['Query'], true);
+
+            $results[] = $query;
+            
+        }
+        return $results;
+    }
+    public function getSharedQueries(\User $user) : iterable {
+        $DB = $this->loris->getDatabaseConnection();
+        $potentialQueries = $DB->pselect("
+            SELECT dq.QueryID, Query, GROUP_CONCAT(u.UserID) as SharedBy
+            FROM dataquery_queries dq
+                LEFT JOIN dataquery_shared_queries_rel dsq ON
+                    (dq.QueryID=dsq.QueryID)
+                LEFT JOIN users u ON (dsq.SharedBy=u.ID)
+            WHERE dsq.SharedBy != :userid
+            GROUP BY QueryID
+            ORDER BY QueryID",
+            ['userid' => $user->getId()]
+        );
+
+        $results = [];
+        // FIXME: Filter out queries that aren't accessible by the
+        // user because of the fields/modules
+        // FIXME: Use a DataProvisioner?
+        foreach($potentialQueries as $query) {
             // Convert from string to PHP array so that it's not double
             // escaped when json_encode is called.
             $query['Query'] = json_decode($query['Query'], true);

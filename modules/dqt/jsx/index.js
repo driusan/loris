@@ -94,7 +94,8 @@ function DataQueryApp(props) {
 
     const [searchType, setSearchType] = useState('candidates');
     const [usedModules, setUsedModules] = useState({});
-    const [savedQueries, setSavedQueries] = useState([]);
+    const [recentQueries, setRecentQueries] = useState([]);
+    const [sharedQueries, setSharedQueries] = useState([]);
 
     const [query, setQuery] = useState(new QueryGroup('and'));
     const [loadQueriesForce, setLoadQueriesForce] = useState(0);
@@ -152,24 +153,40 @@ function DataQueryApp(props) {
           }
           return resp.json();
         }).then((result) => {
-          let converted = [];
-          if (result.queries) {
-            result.queries.forEach( (query) => {
+          let convertedrecent = [];
+          let convertedshared = [];
+          if (result.recent) {
+            result.recent.forEach( (query) => {
               if (query.Query.criteria) {
                 query.Query.criteria = unserializeSavedQuery(
                   query.Query.criteria,
                 );
               }
-            converted.push({
+              convertedrecent.push({
                 QueryID: query.QueryID,
                 RunTime: query.RunTime,
                 Pinned: query.Pinned,
                 Shared: query.Shared,
                 ...query.Query,
+              });
             });
-          });
-        }
-      setSavedQueries(converted);
+          }
+          if (result.shared) {
+            result.shared.forEach( (query) => {
+              if (query.Query.criteria) {
+                query.Query.criteria = unserializeSavedQuery(
+                  query.Query.criteria,
+                );
+              }
+              convertedshared.push({
+                QueryID: query.QueryID,
+                SharedBy: query.SharedBy,
+                ...query.Query,
+              });
+            });
+          }
+          setRecentQueries(convertedrecent);
+          setSharedQueries(convertedshared);
     }).catch( (error) => {
       console.error(error);
     });
@@ -395,7 +412,8 @@ function DataQueryApp(props) {
         case 'Info':
             content = <Welcome
                         loadQuery={loadQuery}
-                        savedQueries={savedQueries}
+                        recentQueries={recentQueries}
+                        sharedQueries={sharedQueries}
 
                         pinQuery={
                             (queryID) => {
