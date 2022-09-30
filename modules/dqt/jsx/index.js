@@ -435,7 +435,7 @@ function DataQueryApp(props) {
                 displayedFields={moduleDictionary[selectedModuleCategory]}
 
                 defaultVisits={defaultVisits}
-                onChangeDefaultVisity={modifyDefaultVisits}
+                onChangeDefaultVisits={modifyDefaultVisits}
                 allVisits={allVisits}
 
                 module={selectedModule}
