@@ -63,5 +63,6 @@ class Search extends \NDB_Page
                     'UserID'  => $user->getId(),
                 ],
         );
+        return $queryID;
     }
 }

@@ -33,65 +33,51 @@ class Queries extends \NDB_Page
         $pieces = [];
         $queryID = null;
         if (preg_match(
+                    "/queries$/",
+                    $url,
+                    $pieces
+                    ) === 1
+           ) {
+            switch ($request->getMethod()) {
+            case 'GET':
+                return new \LORIS\Http\Response\JSON\OK([
+                        'recent' => $this->getRecentQueries($user),
+                        'shared' => $this->getSharedQueries($user),
+                ]);
+            case 'POST':
+                $requestjson = (string) $request->getBody();
+                $requestdata = json_decode($requestjson, true);
+                if ($requestdata === false) {
+                    return new \LORIS\Http\Response\JSON\BadRequest('Invalid JSON data');
+                }
+                $user = $request->getAttribute('user');
+                // FIXME: Validate query before storing it. Must contain fields.
+                $queryID = $this->storeQueryRun($user, $requestjson);
+                return new \LORIS\Http\Response\JSON\OK([
+                        'QueryID' => $queryID
+                ]);
+            default:
+            }
+        }
+        if (preg_match(
                     "/queries\/([0-9]+)$/",
                     $url,
                     $pieces
                     ) === 1
            ) {
             $queryID = intval($pieces[1]);
+            return $this->handleQuery($queryID);
         }
-
-        if ($queryID !== null) {
-            $query = null;
-            try {
-                $query = new Query($this->loris, $queryID);
-            } catch (\NotFound $e) {
-                return new \LORIS\Http\Response\JSON\NotFound();
-            }
-            if (!$query->isAccessibleBy($user)) {
-                return new \LORIS\Http\Response\JSON\Forbidden();
-            }
-            switch($request->getMethod()) {
-            case 'GET':
-                return new \LORIS\Http\Response\JSON\OK($query->toArray());
-            case 'PATCH':
-                $params = $request->getQueryParams();
-                // Can only do 1 action at a time.
-                if (isset($params['pin']) && isset($params['share'])) {
-                        return new \LORIS\Http\Response\JSON\BadRequest();
-                }
-
-                if ($params['pin'] == 'unpin') {
-                    $query->unpin($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unpinned query']);
-                } else if ($params['pin'] == 'pin') {
-                    $query->pin($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Pinned query']);
-                }
-
-                if ($params['share'] == 'share') {
-                    $query->share($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Shared query']);
-                } else if ($params['share'] == 'unshare'){
-                    $query->unshare($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unshared query']);
-                }
-
-
-                return new \LORIS\Http\Response\JSON\OK($query->toArray());
-            }
-            return new \LORIS\Http\Response\JSON\BadMethod('Request must be GET');
+        if (preg_match(
+                    "/queries\/([0-9]+)\/run$/",
+                    $url,
+                    $pieces
+                    ) === 1
+           ) {
+            $queryID = intval($pieces[1]);
+            return new \LORIS\Http\Response\JSON\NotImplemented('Demo of UI only. Running queries not implemented.');
         }
-
-        switch ($request->getMethod()) {
-        case 'GET':
-                $shared = $this->getSharedQueries($user);
-                return new \LORIS\Http\Response\JSON\OK([
-                    'recent' => $this->getRecentQueries($user),
-                    'shared' => $this->getSharedQueries($user),
-                ]);
-        }
-        return new \LORIS\Http\Response\JSON\BadMethod('Request must be GET');
+        return new \LORIS\Http\Response\JSON\NotFound();
     }
 
     public function getRecentQueries(\User $user) : iterable {
@@ -164,5 +150,78 @@ class Queries extends \NDB_Page
             
         }
         return $results;
+    }
+
+    private function storeQueryRun(\User $user, string $requestjson) {
+        $DB = $this->loris->getDatabaseConnection();
+        $queryID = $DB->pselectOne(
+            "SELECT QueryID
+                FROM dataquery_queries
+             WHERE Query=:json",
+            [
+                'json' => $requestjson,
+            ],
+        );
+        if ($queryID === null) {
+            // Dealing with JSON need to use the unsafe wrapper
+            $DB->unsafeInsert(
+                'dataquery_queries',
+                [
+                    'Query'  => $requestjson,
+                ],
+            );
+            $queryID = $DB->getLastInsertId();
+        }
+
+        $DB->unsafeInsert(
+                'dataquery_run_queries',
+                [
+                    'QueryID'  => $queryID, 
+                    'UserID'  => $user->getId(),
+                ],
+        );
+        return intval($queryID);
+    }
+
+    public function handleQueryRequest($queryID) : ResponseInterface {
+        $query = null;
+        try {
+            $query = new Query($this->loris, $queryID);
+        } catch (\NotFound $e) {
+            return new \LORIS\Http\Response\JSON\NotFound();
+        }
+        if (!$query->isAccessibleBy($user)) {
+            return new \LORIS\Http\Response\JSON\Forbidden();
+        }
+        switch($request->getMethod()) {
+            case 'GET':
+                return new \LORIS\Http\Response\JSON\OK($query->toArray());
+            case 'PATCH':
+                $params = $request->getQueryParams();
+                // Can only do 1 action at a time.
+                if (isset($params['pin']) && isset($params['share'])) {
+                    return new \LORIS\Http\Response\JSON\BadRequest();
+                }
+
+                if ($params['pin'] == 'unpin') {
+                    $query->unpin($user);
+                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unpinned query']);
+                } else if ($params['pin'] == 'pin') {
+                    $query->pin($user);
+                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Pinned query']);
+                }
+
+                if ($params['share'] == 'share') {
+                    $query->share($user);
+                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Shared query']);
+                } else if ($params['share'] == 'unshare'){
+                    $query->unshare($user);
+                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unshared query']);
+                }
+
+
+                return new \LORIS\Http\Response\JSON\OK($query->toArray());
+        }
+        return new \LORIS\Http\Response\JSON\BadMethod('Request must be GET');
     }
 }

@@ -1,7 +1,10 @@
-import fetchDataStreamPost from 'jslib/fetchDataStreamPost';
 import swal from 'sweetalert2';
 import {useState, useEffect} from 'react';
-import 'jsx/StaticDataTable';
+
+import fetchDataStream from 'jslib/fetchDataStream';
+
+import StaticDataTable from 'jsx/StaticDataTable';
+
 /**
  * The View Data tab
  *
@@ -10,7 +13,7 @@ import 'jsx/StaticDataTable';
  * @return {ReactDOM}
  */
 function ViewData(props) {
-    const [resultData, setResultData] = useState(false);
+    const [resultData, setResultData] = useState([]);
     const [loading, setLoading] = useState(null);
     useEffect(() => {
         setLoading(true);
@@ -18,37 +21,60 @@ function ViewData(props) {
         if (payload == {}) {
             return;
         }
-        let resultbuffer = [];
-        props.onRun();
-        const response = fetchDataStreamPost(loris.BaseURL + '/dqt/search',
-            payload,
-            (row) => {
-                resultbuffer.push(row);
-            },
-            () => {
-                if (resultbuffer.length % 1000 == 0) {
-                    setResultData([...resultbuffer]);
+        props.onRun(); // forces query list to be reloaded
+        fetch(
+           loris.BaseURL + '/dqt/queries',
+           {
+             method: 'POST',
+             credentials: 'same-origin',
+             body: JSON.stringify(payload),
+           },
+        ).then(
+           (resp) => {
+               if (!resp.ok) {
+                   throw new Error('Error creating query.');
+               }
+               return resp.json();
+           }
+        ).then(
+            (data) => {
+                let resultbuffer = [];
+                const response = fetchDataStream(
+                    loris.BaseURL + '/dqt/queries/' + data.QueryID + '/run',
+                    (row) => {
+                        resultbuffer.push(row);
+                    },
+                    () => {
+                        if (resultbuffer.length % 1000 == 0) {
+                            setResultData([...resultbuffer]);
+                        }
+                    },
+                    () => {
+                        setResultData([...resultbuffer]);
+                        setLoading(false);
+                    },
+                );
+                if (!response.ok) {
+                    response.then(
+                        (resp) => resp.json()
+                    ).then(
+                        (data) => {
+                            swal.fire({
+                                type: 'error',
+                                text: data.error,
+                            });
+                        }
+                    );
                 }
-            },
-            () => {
-                setResultData([...resultbuffer]);
-                setLoading(false);
-            },
+            }
+        ).catch(
+            (msg) => {
+                swal.fire({
+                    type: 'error',
+                    text: msg,
+                });
+            }
         );
-        if (response && !response.ok) {
-            console.log('resp', response);
-            response.then(
-                (resp) => resp.json()
-            ).then(
-                (data) => {
-                    const msg = data.error || 'Error running query.';
-                    swal.fire({
-                        type: 'error',
-                        text: msg,
-                    });
-                }
-            );
-        }
     }, [props.fields, props.filters]);
     const queryTable = loading ? (
         <div>
