@@ -206,7 +206,7 @@ function QueryList(props) {
 
                        </div>
                         <div style={{display: 'flex', flexWrap: 'wrap'}}>
-                        <div style={{width: '40%'}}>
+                        <div>
                             <h3>Fields</h3>
                             {query.fields.map(
                                 (fieldobj, fidx) =>

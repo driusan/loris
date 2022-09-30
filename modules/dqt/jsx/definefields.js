@@ -283,13 +283,19 @@ function DefineFields(props) {
  * @return {ReactDOM}
  */
 function SelectedFieldList(props) {
+  const [removingIdx, setRemovingIdx] = useState(null);
+
   const fields = props.selected.map((item, i) => {
       const removeField = (item) => {
           props.removeField(item.module, item.category, item.field);
       };
-      return (<div key={i} style={{display: 'flex',
+      let style = {display: 'flex',
                 flexWrap: 'nowrap',
-                justifyContent: 'space-between'}}>
+                justifyContent: 'space-between'};
+      if (removingIdx === i) {
+          style.textDecoration = 'line-through';
+      }
+      return (<div key={i} style={style}>
         <div>
             <dt>{item.field}</dt>
             <dd>{getDictionaryDescription(
@@ -299,9 +305,12 @@ function SelectedFieldList(props) {
                     props.fulldictionary,
                 )}</dd>
         </div>
-        <div><i
-            className="fas fa-trash-alt" onClick={() => removeField(item)}
-            style={{cursor: 'pointer'}} />
+        <div
+            onMouseEnter={() => setRemovingIdx(i)}
+            onMouseLeave={() => setRemovingIdx(null)}>
+            <i
+                className="fas fa-trash-alt" onClick={() => removeField(item)}
+                style={{cursor: 'pointer'}} />
         </div>
       </div>);
   });
