@@ -29,98 +29,95 @@ function QueryTree(props) {
     let terms;
     const [deleteItemIndex, setDeleteItemIndex] = useState(null);
 
-    if (props.items.group.length > 0) {
-        const renderitem = (item, i) => {
-            const operator = i != props.items.group.length-1 ?
-                props.items.operator : '';
-            let style = {
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-            };
-            const operatorStyle = {
-                alignSelf: 'center',
-                fontWeight: 'bold',
-            };
-            if (deleteItemIndex == i) {
-                style.textDecoration = 'line-through';
+    const renderitem = (item, i) => {
+        const operator = i != props.items.group.length-1 ?
+            props.items.operator : '';
+        let style = {
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+        };
+        const operatorStyle = {
+            alignSelf: 'center',
+            fontWeight: 'bold',
+        };
+        if (deleteItemIndex == i) {
+            style.textDecoration = 'line-through';
+        }
+
+        const deleteItem = () => {
+            const newquery = props.removeQueryGroupItem(
+                    props.items,
+                    i,
+            );
+            if (props.setModalGroup) {
+                props.setModalGroup(newquery);
             }
+        };
+        if (item instanceof QueryTerm) {
+            const deleteIcon = props.removeQueryGroupItem ? (
+                <div style={{alignSelf: 'center'}}>
+                    <i title="Delete item"
+                        className="fas fa-trash-alt"
+                        onClick={deleteItem}
+                        onMouseEnter={() => setDeleteItemIndex(i)}
+                        onMouseLeave={() => setDeleteItemIndex(null)}
+                        style={{cursor: 'pointer'}}
+                    />
+                </div>
+            ) : '';
 
-            const deleteItem = () => {
-                const newquery = props.removeQueryGroupItem(
-                        props.items,
-                        i,
-                );
-                if (props.setModalGroup) {
-                    props.setModalGroup(newquery);
-                }
-            };
-            if (item instanceof QueryTerm) {
-                const deleteIcon = props.removeQueryGroupItem ? (
-                    <div style={{alignSelf: 'center'}}>
-                        <i title="Delete item"
-                            className="fas fa-trash-alt"
-                            onClick={deleteItem}
-                            onMouseEnter={() => setDeleteItemIndex(i)}
-                            onMouseLeave={() => setDeleteItemIndex(null)}
-                            style={{cursor: 'pointer'}}
+            return <li key={i} style={style}>
+                    <div style={{display: 'flex'}}>
+                        <CriteriaTerm term={item}
+                            mapModuleName={props.mapModuleName}
+                            mapCategoryName={props.mapCategoryName}
+                            fulldictionary={props.fulldictionary}
                         />
+                        {deleteIcon}
                     </div>
-                ) : '';
+                    <div style={operatorStyle}>{operator}</div>
+                </li>;
+        } else if (item instanceof QueryGroup) {
+            const buttonStyle = deleteItemIndex == i ? {
+                textDecoration: 'line-through',
+            } : {};
 
-                return <li key={i} style={style}>
-                        <div style={{display: 'flex'}}>
-                            <CriteriaTerm term={item}
+            return (<li key={i} style={style}>
+                    <div style={{background: props.backgroundColour}}>
+                            <QueryTree items={item}
+                                buttonGroupStyle={props.buttonGroupStyle}
                                 mapModuleName={props.mapModuleName}
                                 mapCategoryName={props.mapCategoryName}
+                                removeQueryGroupItem={
+                                        props.removeQueryGroupItem
+                                    }
+                                activeGroup={props.activeGroup}
+                                newItem={props.newItem}
+                                newGroup={props.newGroup}
+                                backgroundColour={
+                                    alternateColour(props.backgroundColour)
+                                }
+                                deleteItem={deleteItem}
+                                buttonStyle={buttonStyle}
+                                onDeleteHover={() => setDeleteItemIndex(i)}
+                                onDeleteLeave={
+                                        () => setDeleteItemIndex(null)
+                                }
+                                subtree={true}
                                 fulldictionary={props.fulldictionary}
-                            />
-                            {deleteIcon}
-                        </div>
-                        <div style={operatorStyle}>{operator}</div>
-                    </li>;
-            } else if (item instanceof QueryGroup) {
-                const buttonStyle = deleteItemIndex == i ? {
-                    textDecoration: 'line-through',
-                } : {};
 
-                return (<li key={i} style={style}>
-                        <div style={{background: props.backgroundColour}}>
-                                <QueryTree items={item}
-                                    buttonGroupStyle={props.buttonGroupStyle}
-                                    mapModuleName={props.mapModuleName}
-                                    mapCategoryName={props.mapCategoryName}
-                                    removeQueryGroupItem={
-                                            props.removeQueryGroupItem
-                                        }
-                                    activeGroup={props.activeGroup}
-                                    newItem={props.newItem}
-                                    newGroup={props.newGroup}
-                                    backgroundColour={
-                                        alternateColour(props.backgroundColour)
-                                    }
-                                    deleteItem={deleteItem}
-                                    buttonStyle={buttonStyle}
-                                    onDeleteHover={() => setDeleteItemIndex(i)}
-                                    onDeleteLeave={
-                                            () => setDeleteItemIndex(null)
-                                    }
-                                    fulldictionary={props.fulldictionary}
-                                    />
-                        </div>
-                        <div style={operatorStyle}>{operator}</div>
-                </li>);
-            } else {
-                console.error('Invalid tree');
-            }
-            return <li>{i}</li>;
-        };
-        terms = (
-            <ul>
-                {props.items.group.map(renderitem)}
-            </ul>
-        );
-    }
+                                />
+                    </div>
+                    <div style={operatorStyle}>{operator}</div>
+            </li>);
+        } else {
+            console.error('Invalid tree');
+        }
+        return <li>{i}</li>;
+    };
+
+    terms = props.items.group.map(renderitem);
     let warning;
     switch (props.items.group.length) {
     case 0:
@@ -182,11 +179,17 @@ function QueryTree(props) {
             </div>
         );
     }
+    const marginStyle = props.subtree === true ? {} : {
+      margin: 0,
+      padding: 0,
+    };
     return (
        <div style={style}>
-          {terms}
+          <ul style={marginStyle}>
+              {terms}
 
-          <div style={props.buttonGroupStyle}>
+          <li style={{display: 'flex', width: '100%'}}>
+            <div style={{...props.buttonGroupStyle, width: '100%'}}>
               <div style={{margin: 5}}>
                   <ButtonElement
                     label={'Add "' + props.items.operator
@@ -206,7 +209,8 @@ function QueryTree(props) {
               </div>
               {warning}
               {deleteGroupHTML}
-          </div>
+          </div></li>
+          </ul>
        </div>
     );
 }
