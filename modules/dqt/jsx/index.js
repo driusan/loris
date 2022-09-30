@@ -83,7 +83,6 @@ function useSharedQueries(onCompleteCallback) {
 function DataQueryApp(props) {
     const [activeTab, setActiveTab] = useState('Info');
     const [selectedModule, setSelectedModule] = useState(false);
-    const [moduleDictionary, setModuleDictionary] = useState(false);
     const [fulldictionary, setDictionary] = useState({});
     const [selectedModuleCategory, setSelectedModuleCategory] = useState(false);
     const [categories, setCategories] = useState(false);
@@ -222,8 +221,7 @@ function DataQueryApp(props) {
         }
         getModuleFields(selectedModule);
         if (fulldictionary[selectedModule]) {
-            // Use the cache
-            setModuleDictionary(fulldictionary[selectedModule]);
+            // Already cached
             return;
         }
     }, [selectedModule, selectedModuleCategory, fulldictionary]);
@@ -400,6 +398,7 @@ function DataQueryApp(props) {
     };
 
 
+    const moduleDict = fulldictionary[selectedModule];
     switch (activeTab) {
         case 'Info':
             content = <Welcome
@@ -442,7 +441,7 @@ function DataQueryApp(props) {
             break;
         case 'DefineFields':
             content = <DefineFields allCategories={categories}
-                displayedFields={moduleDictionary[selectedModuleCategory]}
+                displayedFields={moduleDict[selectedModuleCategory]}
 
                 defaultVisits={defaultVisits}
                 onChangeDefaultVisits={modifyDefaultVisits}
@@ -474,8 +473,8 @@ function DataQueryApp(props) {
                 module={selectedModule}
                 category={selectedModuleCategory}
 
-                dictionary={moduleDictionary[selectedModuleCategory]}
-                displayedFields={moduleDictionary[selectedModuleCategory]}
+                dictionary={moduleDict[selectedModuleCategory]}
+                displayedFields={moduleDict[selectedModuleCategory]}
 
                 categories={categories}
                 onCategoryChange={getModuleFields}
