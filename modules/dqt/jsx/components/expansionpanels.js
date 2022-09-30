@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 
 const Panel = (props) => {
-  const [active, setActive] = useState(props.alwaysOpen);
+  const [active, setActive] = useState(props.defaultOpen);
 
   const styles = {
     accordion: {
@@ -78,6 +78,7 @@ const ExpansionPanels = (props) => {
           title={panel.title}
           content={panel.content}
           alwaysOpen={panel.alwaysOpen}
+          defaultOpen={panel.defaultOpen || props.alwaysOpen}
         />
       ))}
     </div>
