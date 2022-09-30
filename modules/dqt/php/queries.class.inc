@@ -66,7 +66,7 @@ class Queries extends \NDB_Page
                     ) === 1
            ) {
             $queryID = intval($pieces[1]);
-            return $this->handleQuery($queryID);
+            return $this->handleQueryRequest($request, $queryID);
         }
         if (preg_match(
                     "/queries\/([0-9]+)\/run$/",
@@ -75,7 +75,7 @@ class Queries extends \NDB_Page
                     ) === 1
            ) {
             $queryID = intval($pieces[1]);
-            return new \LORIS\Http\Response\JSON\NotImplemented('Demo of UI only. Running queries not implemented.');
+            return $this->runQuery($user, $queryID);
         }
         return new \LORIS\Http\Response\JSON\NotFound();
     }
@@ -183,7 +183,9 @@ class Queries extends \NDB_Page
         return intval($queryID);
     }
 
-    public function handleQueryRequest($queryID) : ResponseInterface {
+    public function handleQueryRequest($request, int $queryID) : ResponseInterface {
+        $user = $request->getAttribute('user');
+
         $query = null;
         try {
             $query = new Query($this->loris, $queryID);
@@ -223,5 +225,24 @@ class Queries extends \NDB_Page
                 return new \LORIS\Http\Response\JSON\OK($query->toArray());
         }
         return new \LORIS\Http\Response\JSON\BadMethod('Request must be GET');
+    }
+
+    public function runQuery(\User $user, int $queryID) : ResponseInterface {
+        try {
+            $query = new Query($this->loris, $queryID);
+            $data = $query->getQueryDataProvisioner();
+
+            $table = (new \LORIS\Data\Table())
+                ->withDataFrom($data);
+            $rows  = $table->getRows($user);
+            $stream = new \LORIS\Http\DataIteratorBinaryStream($rows);
+            return (new \LORIS\Http\Response())
+                ->withHeader("Content-Type", "text/plain")
+                //->withHeader("Content-Type", "application/octet-stream")
+                ->withBody($stream);
+        } catch (\LorisException $e) {
+            return new \LORIS\Http\Response\JSON\NotImplemented($e->getMessage());
+
+        }
     }
 }

@@ -29,7 +29,14 @@ class Search extends \NDB_Page
             }
             $user = $request->getAttribute('user');
             // FIXME: Validate query before storing it. Must contain fields.
-            $this->storeQueryRun($user, $requestjson);
+            $queryID = $this->storeQueryRun($user, $requestjson);
+            $query = new Query($queryID);
+
+            $results = $query->getQueryDataProvisioner();
+
+            $table = (new \LORIS\Data\Table())
+                ->withDataFrom($query->getQueryDataProvisioner());
+
             return new \LORIS\Http\Response\JSON\NotImplemented('Demo for UI purposes only, no search performed.');
         }
         return new \LORIS\Http\Response\JSON\BadMethod('Must POST search criteria');

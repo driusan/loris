@@ -70,5 +70,17 @@ class Query implements \LORIS\StudyEntities\AccessibleResource {
             ]
         );
     }
+
+    public function getCriteria() : ?array {
+        return $this->data['criteria'] ?? null;
+    }
+
+    public function getFields() : ?array {
+        return $this->data['fields'] ?? null;
+    }
+
+    public function getQueryDataProvisioner() {
+        return new QueryDataProvisioner($this->loris, $this);
+    }
 }
 ?>
