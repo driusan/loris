@@ -1,5 +1,5 @@
 import fetchDataStreamPost from 'jslib/fetchDataStreamPost';
-// import swal from 'sweetalert2';
+import swal from 'sweetalert2';
 import {useState, useEffect} from 'react';
 import 'jsx/StaticDataTable';
 /**
@@ -20,7 +20,7 @@ function ViewData(props) {
         }
         let resultbuffer = [];
         props.onRun();
-        fetchDataStreamPost(loris.BaseURL + '/dqt/search',
+        const response = fetchDataStreamPost(loris.BaseURL + '/dqt/search',
             payload,
             (row) => {
                 resultbuffer.push(row);
@@ -35,9 +35,21 @@ function ViewData(props) {
                 setLoading(false);
             },
         );
-        },
-        [props.fields, props.filters],
-    );
+        if (response && !response.ok) {
+            console.log('resp', response);
+            response.then(
+                (resp) => resp.json()
+            ).then(
+                (data) => {
+                    const msg = data.error || 'Error running query.';
+                    swal.fire({
+                        type: 'error',
+                        text: msg,
+                    });
+                }
+            );
+        }
+    }, [props.fields, props.filters]);
     const queryTable = loading ? (
         <div>
             <h2>Query not yet run</h2>

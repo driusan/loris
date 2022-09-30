@@ -1,6 +1,7 @@
-import {NavigationStepper} from './navigationstepper';
 import {useState, useEffect} from 'react';
+import swal from 'sweetalert2';
 
+import {NavigationStepper} from './navigationstepper';
 import Welcome from './welcome';
 import DefineFilters from './definefilters';
 import DefineFields from './definefields';
@@ -51,9 +52,7 @@ function useSharedQueries(onCompleteCallback) {
     const [shareQueryID, setShareQueryID] = useState(null);
     const [shareAction, setShareAction] = useState('share');
     useEffect(() => {
-        console.log('shared effect', shareQueryID, shareAction);
         if (shareQueryID == null) {
-            console.log('Abort');
             return;
         }
 
@@ -204,12 +203,6 @@ function DataQueryApp(props) {
                         }
                         return resp.json();
                         }).then((result) => {
-                            console.log(
-                                'retrieved',
-                                module,
-                                fulldictionary,
-                                result,
-                            );
                             fulldictionary[module] = result;
                             let newdictcache = {...fulldictionary};
                             setDictionary(newdictcache);
@@ -236,7 +229,6 @@ function DataQueryApp(props) {
     }, [selectedModule, selectedModuleCategory, fulldictionary]);
 
     const getModuleFields = (module, category) => {
-        console.log('Should get module fields', module, category);
         if (!usedModules[module]) {
             let newUsedModules = {...usedModules};
             newUsedModules[module] = [module, category];
@@ -516,7 +508,19 @@ function DataQueryApp(props) {
     return (<>
         <NavigationStepper
           setIndex={activeTab}
-          stepperClicked={setActiveTab}
+          stepperClicked={(tab) => {
+              if (tab == 'ViewData' &&
+                  (!selectedFields || selectedFields.length == 0)) {
+                  swal.fire({
+                      type: 'error',
+                      title: 'No fields',
+                      text: 'At least one field must be selected before '
+                        + 'running a query.',
+                  });
+              } else {
+                  setActiveTab(tab);
+              }
+          }}
         />
         {content}
     </>);

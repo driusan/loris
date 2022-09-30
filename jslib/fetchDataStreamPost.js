@@ -54,6 +54,8 @@ async function processLines(data, rowcb, endstreamcb) {
  *                             read from the stream.
  * @param {function} endstreamcb - A callback to call when the final
  *                             byte is read from the stream.
+ *
+ * @return {Response}|null
  */
 async function fetchDataStreamPost(
     dataURL,
@@ -70,6 +72,9 @@ async function fetchDataStreamPost(
             body: JSON.stringify(payload),
         },
     );
+    if (!response.ok) {
+        return response;
+    }
 
     const reader = response.body.getReader();
 
