@@ -719,7 +719,6 @@ class Database implements LoggerAwareInterface
         array $params,
         array $options = []
     ): array {
-
         $execRun = $prepared->execute($params);
         if ($execRun === false) {
             $err = $prepared->errorInfo();

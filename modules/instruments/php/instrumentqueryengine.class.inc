@@ -261,18 +261,50 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
         $DB->run("CREATE TEMPORARY TABLE querycandidates (
                     CandID int(6)
                     );");
-        $insertstmt = "INSERT INTO querycandidates VALUES (" . join('),(', $candIDs) . ')';
+        $insertstmt = "INSERT INTO querycandidates VALUES (" . join('),(', $candidates) . ')';
         $q = $DB->prepare($insertstmt);
         $q->execute([]);
 
-        $rows = $DB->pselect("SELECT CommentID FROM flag f 
+        $rows = $DB->pselect("SELECT c.CandID, CommentID FROM flag f 
                                                     JOIN session s ON (f.SessionID=s.ID)
                                                     JOIN candidate c ON (s.CandID=c.CandID)
                               WHERE f.CommentID NOT LIKE 'DDE%'
                                     AND c.CandID IN (SELECT CandID FROM querycandidates)
-                                    AND f.Test_name IN (" . join(', ', $instruments). ")",
+                                    AND f.Test_name IN ('" . join("', '", $instruments). "')",
         []);
-        return [];
+
+        $data = [];
+        foreach ($candidates as $candidate) {
+            $data["$candidate"] = [];
+            $data["$candidate"] = array_fill(0, count($items), null);
+        }
+
+        $commentID2CandID = [];
+        foreach ($rows as $row) {
+            $commentID2CandID[$row['CommentID']] = $row['CandID'];
+        }
+
+        foreach($instruments as $instrument) {
+            $inst = \NDB_BVL_Instrument::factory($this->loris, $instrument);
+            $values = $inst->bulkLoadInstanceData(array_map(function($row) {
+                        return $row['CommentID'];
+            }, $rows));
+            foreach($values as $instrumentData) {
+                $candID = $commentID2CandID[$instrumentData->getCommentID()];
+                foreach($items as $idx => $dict) {
+                    $fieldinst = $field2instMap[$dict->getName()];
+                    if ($fieldinst  == $instrument) {
+                        $fieldName = substr($dict->getName(), strlen($inst->testName)+1, null);
+
+                        $data[$candID][$dict->getName()] = $instrumentData->getFieldValue($fieldName);
+                    }
+                }
+            }
+        }
+
+        foreach ($data as $candID => $val) {
+            yield $candID => $val;
+        }
     }
 
 }
