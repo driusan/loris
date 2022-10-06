@@ -251,9 +251,7 @@ class Search extends \NDB_Page
 
 
         $response = (new \LORIS\Http\Response())
-            //->withHeader("Content-Type", "application/octet-stream")
             ->withHeader("Content-Type", "text/plain")
-            //->withBody(new \LORIS\Http\DataIteratorBinaryStream($this->mergeIterators([], $dataiterators)));
             ->withBody(new \LORIS\Http\DataIteratorBinaryStream($this->mergeIterators($candidates, $dataiterators, $fieldsarray)));
         error_log("Results matches used " . (memory_get_usage() - $startMemory) . " bytes of memory");
         return $response;

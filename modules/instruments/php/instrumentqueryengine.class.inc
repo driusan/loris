@@ -233,12 +233,12 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
         // full data dictionary and go through each to see if it's the same as $item
         $field2instMap = [];
 
+
         $fullDictionary = $this->getDataDictionary();
         foreach($fullDictionary as $category) {
             $instrument = $category->getName();
             foreach ($category->getItems() as $dict) {
                 $field2instMap[$dict->getName()] = $instrument;
-                // error_log(print_r($dict, true));
             }
         }
 
@@ -246,12 +246,11 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
         foreach($items as $dict) {
             $instr = $field2instMap[$dict->getName()];
 
-            if(!isset($instruments[$instr])) {
+            if(!in_array($instr, $instruments, true)) {
                 $instruments[] = $instr;
             }
 
         }
-        error_log(print_r($instruments, true));
         $DB = $this->loris->getDatabaseConnection();
 
         // Put candidates into a temporary table so that it can be used in a join
@@ -270,13 +269,14 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
                                                     JOIN candidate c ON (s.CandID=c.CandID)
                               WHERE f.CommentID NOT LIKE 'DDE%'
                                     AND c.CandID IN (SELECT CandID FROM querycandidates)
-                                    AND f.Test_name IN ('" . join("', '", $instruments). "')",
+                                    AND f.Test_name IN ('" . join("', '", $instruments). "')
+                                    AND c.Active='Y' AND s.Active='Y'
+                              ORDER BY c.CandID",
         []);
 
         $data = [];
         foreach ($candidates as $candidate) {
             $data["$candidate"] = [];
-            $data["$candidate"] = array_fill(0, count($items), null);
         }
 
         $commentID2CandID = [];
@@ -284,27 +284,64 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
             $commentID2CandID[$row['CommentID']] = $row['CandID'];
         }
 
+        $instrumentIterators = [];
         foreach($instruments as $instrument) {
+            $mStartMemory = memory_get_usage();
+            $now = microtime(true);
             $inst = \NDB_BVL_Instrument::factory($this->loris, $instrument);
             $values = $inst->bulkLoadInstanceData(array_map(function($row) {
                         return $row['CommentID'];
             }, $rows));
-            foreach($values as $instrumentData) {
-                $candID = $commentID2CandID[$instrumentData->getCommentID()];
-                foreach($items as $idx => $dict) {
-                    $fieldinst = $field2instMap[$dict->getName()];
-                    if ($fieldinst  == $instrument) {
-                        $fieldName = substr($dict->getName(), strlen($inst->testName)+1, null);
+            $instrumentIterators[$instrument] = $this->dataToIterator($values, $commentID2CandID, $items, $field2instMap);
+        }
+        return $this->mergeIterators($candidates, $instrumentIterators);
+    }
 
-                        $data[$candID][$dict->getName()] = $instrumentData->getFieldValue($fieldName);
-                    }
+    private function mergeIterators ($candidates, $iterators) {
+        foreach($candidates as $candID) {
+            // Go through each module, if it has data for this candidate
+            // put it in the appropriate columns.
+            $candidateData = [];
+            foreach($iterators as $instrumentName => $instrData ) {
+                if(!$instrData->valid()) {
+                    continue;
+                }
+                $instCandidate = $instrData->key();
+                // The candidate data must have been sorted by 
+                // CandID for our logic to work.
+                // Coerce to string for the comparison so that <=
+                // works. (We can't do a <= comparison on a CandID
+                // object)
+                assert("$candID" <= "$instCandidate");
+
+                // If the module has data for this candID, populate it,
+                // if not, don't advance the iterator.
+                while ("$instCandidate" == "$candID" && $instrData->valid()) {
+                    // Go through each field and put the data in the right
+                    // index if applicable.
+                    $data = $instrData->current();
+                    $candidateData = array_merge($candidateData, $data);
+                    $instrData->next();
                 }
             }
-        }
-
-        foreach ($data as $candID => $val) {
-            yield $candID => $val;
+            yield "$candID" => $candidateData;
         }
     }
 
+    private function dataToIterator($values, $commentID2CandID, $items, $field2instMap) {
+        foreach ($values as $loadedInstrument) {
+            $candData = [];
+            $iCandID = $commentID2CandID[$loadedInstrument->getCommentID()];
+
+            foreach($items as $idx => $dict) {
+                $fieldinst = $field2instMap[$dict->getName()];
+                if ($fieldinst  == $loadedInstrument->testName) {
+                    $fieldName = substr($dict->getName(), strlen($loadedInstrument->testName)+1, null);
+
+                    $candData[$dict->getName()] = $loadedInstrument->getFieldValue($fieldName);
+                }
+            }
+            yield "$iCandID" => $candData;
+        }
+    }
 }
