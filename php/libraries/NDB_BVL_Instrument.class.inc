@@ -1413,6 +1413,7 @@ abstract class NDB_BVL_Instrument extends NDB_Page
         $allValues  = $this->getInstanceData();
         $dictionary = $this->getDataDictionary();
 
+        return $allValues[$field];
         foreach ($dictionary as $item) {
             // The Field name to compare to in the data dictionary is
             // prefixed with the testname
@@ -1424,6 +1425,15 @@ abstract class NDB_BVL_Instrument extends NDB_Page
         throw new \OutOfBoundsException(
             "Invalid field $field for instrument $this->testName"
         );
+    }
+
+    function getDictionaryValue(LORIS\Data\Dictionary\DictionaryItem $field) {
+        $allValues  = $this->getInstanceData();
+        $fieldName = substr($field->getName(), strlen($this->testName)+1, null);
+
+        // var_dump($allValues);
+        return $allValues[$fieldName];
+        // var_dump($field->getName(), $allValues);
     }
 
 

@@ -1,0 +1,52 @@
+DROP TABLE IF EXISTS dataquery_run_results;
+DROP TABLE IF EXISTS dataquery_run_queries;
+DROP TABLE IF EXISTS dataquery_shared_queries_rel;
+DROP TABLE IF EXISTS dataquery_pinned_queries_rel;
+DROP TABLE IF EXISTS dataquery_queries;
+
+CREATE TABLE dataquery_queries (
+    QueryID int(10) unsigned NOT NULL AUTO_INCREMENT,
+    -- Owner int(10) unsigned,
+    Query JSON NOT NULL,
+    -- Public enum('yes', 'no'),
+    PRIMARY KEY (QueryID)
+    -- FOREIGN KEY (Owner) REFERENCES users(ID)
+);
+
+
+CREATE TABLE dataquery_run_queries (
+    RunID int(10) unsigned NOT NULL AUTO_INCREMENT,
+    QueryID int(10) unsigned,
+    UserID int(10) unsigned,
+    RunTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- Add status? Complete/incomplete/etc?
+    PRIMARY KEY (RunID),
+    FOREIGN KEY (QueryID) REFERENCES dataquery_queries(QueryID),
+    FOREIGN KEY (UserID) REFERENCES users(ID)
+);
+CREATE TABLE dataquery_shared_queries_rel (
+    QueryID int(10) unsigned,
+    SharedBy int(10) unsigned,
+    FOREIGN KEY (QueryID) REFERENCES dataquery_queries(QueryID),
+    FOREIGN KEY (SharedBy) REFERENCES users(ID),
+    CONSTRAINT unique_share UNIQUE (QueryID, SharedBy)
+);
+
+CREATE TABLE dataquery_pinned_queries_rel (
+    QueryID int(10) unsigned,
+    PinnedBy int(10) unsigned,
+    FOREIGN KEY (QueryID) REFERENCES dataquery_queries(QueryID),
+    FOREIGN KEY (PinnedBy) REFERENCES users(ID),
+    CONSTRAINT unique_pin UNIQUE (QueryID, PinnedBy)
+);
+
+CREATE TABLE dataquery_run_results (
+    RunID int(10) unsigned NOT NULL AUTO_INCREMENT,
+    CandID int(6) NOT NULL,
+    -- JSON or same format that's streamed in?
+    RowData LONGTEXT DEFAULT NULL,
+
+    PRIMARY KEY (RunID, CandID),
+    FOREIGN KEY (CandID) REFERENCES candidate(CandID),
+    FOREIGN KEY (RunID) REFERENCES dataquery_run_queries(RunID)
+);

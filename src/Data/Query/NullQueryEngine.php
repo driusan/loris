@@ -43,7 +43,7 @@ class NullQueryEngine implements QueryEngine {
      *
      * @return DataInstance[]
      */
-    public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
+    public function getCandidateData(array $items, iterable $candidates, ?array $visitlist) : iterable {
         return [];
     }
 

@@ -147,7 +147,7 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         }, $rows);
     }
 
-    public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
+    public function getCandidateData(array $items, iterable $candidates, ?array $visitlist) : iterable {
         if (count($candidates) == 0) {
             return [];
         }
@@ -193,11 +193,22 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
     }
 
     private function getFieldNameFromDict(\LORIS\Data\Dictionary\DictionaryItem $item) : string {
+        $scantypes = \Utility::getScanTypeList();
+        foreach ($scantypes as $ScanType) {
+            if ($item->getName() == $ScanType) {
+                $DB = $this->loris->getDatabaseConnection();
+                $tableName = $DB->escape($ScanType);
+                $this->addTable('candidate c');
+                $this->addTable('JOIN session s ON (s.CandID=c.CandID)');
+                $this->addTable("JOIN files $tableName ON (s.ID=f.SessionID)");
+                return "$tableName.File";
+            }
+        }
         switch($item->getName()) {
         case 'ScanDone':
             return 's.Scan_Done';
         default:
-            throw new \DomainException("Invalid field " . $dict->getName());
+            throw new \DomainException("Invalid field " . $item->getName());
         }
     }
 }

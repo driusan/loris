@@ -113,7 +113,7 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
 
     }
 
-    public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
+    public function getCandidateData(array $items, iterable $candidates, ?array $visitlist) : iterable {
         if (count($candidates) == 0) {
             return [];
         }

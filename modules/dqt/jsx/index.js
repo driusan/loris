@@ -398,7 +398,7 @@ function DataQueryApp(props) {
     };
 
 
-    const moduleDict = fulldictionary[selectedModule];
+    const moduleDict = fulldictionary[selectedModule] || {};
     switch (activeTab) {
         case 'Info':
             content = <Welcome

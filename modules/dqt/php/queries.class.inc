@@ -230,7 +230,10 @@ class Queries extends \NDB_Page
     public function runQuery(\User $user, int $queryID) : ResponseInterface {
         try {
             $query = new Query($this->loris, $queryID);
-            $data = $query->getQueryDataProvisioner();
+
+            $queryRun = $query->newRun($user);
+            $queryRun->matchCandidates($user);
+            $data = $queryRun->getQueryDataProvisioner();
 
             $table = (new \LORIS\Data\Table())
                 ->withDataFrom($data);

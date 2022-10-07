@@ -79,8 +79,25 @@ class Query implements \LORIS\StudyEntities\AccessibleResource {
         return $this->data['fields'] ?? null;
     }
 
+    /*
     public function getQueryDataProvisioner() {
         return new QueryDataProvisioner($this->loris, $this);
+    }
+    */
+
+    public function newRun(\User $user) : QueryRun {
+        $DB = $this->loris->getDatabaseConnection();
+        $DB->insert(
+            "dataquery_run_queries",
+            [
+                'QueryID' => $this->queryID,
+                'UserID' => $user->getId(),
+
+            ]
+        );
+        $queryRunID = $DB->getLastInsertId();
+
+        return new QueryRun($this->loris, $this, $queryRunID);
     }
 }
 ?>

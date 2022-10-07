@@ -228,7 +228,7 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
         return $visits;
     }
 
-    public function getCandidateData(array $items, array $candidates, ?array $visitlist) : iterable {
+    public function getCandidateData(array $items, iterable $candidates, ?array $visitlist) : iterable {
         // We need to know what category the item is in to get the instrument, so get the
         // full data dictionary and go through each to see if it's the same as $item
         $field2instMap = [];
@@ -302,6 +302,7 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
             // Go through each module, if it has data for this candidate
             // put it in the appropriate columns.
             $candidateData = [];
+            $candIDStr = "$candID";
             foreach($iterators as $instrumentName => $instrData ) {
                 if(!$instrData->valid()) {
                     continue;
@@ -312,19 +313,26 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
                 // Coerce to string for the comparison so that <=
                 // works. (We can't do a <= comparison on a CandID
                 // object)
-                assert("$candID" <= "$instCandidate");
+                assert($candIDStr <= $instCandidate);
 
                 // If the module has data for this candID, populate it,
                 // if not, don't advance the iterator.
-                while ("$instCandidate" == "$candID" && $instrData->valid()) {
+                while ($instCandidate == $candIDStr && $instrData->valid()) {
+                // while ("$instCandidate" == "$candID" && $instrData->valid()) {
                     // Go through each field and put the data in the right
                     // index if applicable.
                     $data = $instrData->current();
-                    $candidateData = array_merge($candidateData, $data);
+                    foreach ($data as $key => $val) {
+                        $candidateData[$key][] = $val;
+                    }
+                    // $candidateData = array_merge($candidateData, $data);
                     $instrData->next();
+                    $instCandidate = $instrData->key();
                 }
             }
-            yield "$candID" => $candidateData;
+            if (!empty($candidateData)) {
+                    yield $candIDStr => $candidateData;
+            }
         }
     }
 
@@ -336,9 +344,10 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
             foreach($items as $idx => $dict) {
                 $fieldinst = $field2instMap[$dict->getName()];
                 if ($fieldinst  == $loadedInstrument->testName) {
-                    $fieldName = substr($dict->getName(), strlen($loadedInstrument->testName)+1, null);
-
-                    $candData[$dict->getName()] = $loadedInstrument->getFieldValue($fieldName);
+                    if (!isset($candData[$dict->getName()])) {
+                        $candData[$dict->getName()] = [];
+                    } 
+                    $candData[$dict->getName()][] = $loadedInstrument->getDictionaryValue($dict);
                 }
             }
             yield "$iCandID" => $candData;
