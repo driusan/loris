@@ -1,9 +1,10 @@
 import ExpansionPanels from './components/expansionpanels';
 import swal from 'sweetalert2';
 import FieldDisplay from './fielddisplay';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import QueryTree from './querytree';
 import {QueryGroup} from './querydef';
+import NameQueryModal from './welcome.namequerymodal';
 
 
 /**
@@ -52,6 +53,9 @@ function Welcome(props) {
                              Time Run</code> cell of a query will reload
                              the data that was returned at that time, without
                              re-running the query.</p>
+                           <ButtonElement
+                                onUserInput={props.onContinue}
+                                label="Continue to Define Fields" />
                         </div>
                       ),
                       alwaysOpen: true,
@@ -70,6 +74,8 @@ function Welcome(props) {
 
                                 shareQuery={props.shareQuery}
                                 unshareQuery={props.unshareQuery}
+
+                                reloadQueries={props.reloadQueries}
 
                                 getModuleFields={props.getModuleFields}
                                 mapModuleName={props.mapModuleName}
@@ -114,6 +120,8 @@ function Welcome(props) {
  * @return {ReactDOM}
  */
 function QueryList(props) {
+    const [nameModalID, setNameModalID] = useState(null);
+    const [queryName, setQueryName] = useState(null);
     useEffect(() => {
         const modules = new Set();
         props.queries.forEach((query) => {
@@ -137,7 +145,35 @@ function QueryList(props) {
                 props.getModuleFields(module);
         });
     }, [props.queries]);
+    useEffect(() => {
+        console.log('quername effect', queryName);
+        if (!nameModalID || !nameModalID) {
+            return;
+        }
+        fetch(
+            '/dqt/queries/' + nameModalID
+                + '?name=' + encodeURIComponent(queryName),
+            {
+                method: 'PATCH',
+                credentials: 'same-origin',
+            },
+        ).then((response) => {
+            if (response.ok) {
+                setNameModalID(null);
+                setQueryName(null);
+                props.reloadQueries();
+            }
+        });
+    }, [queryName]);
+
+    const nameModal = nameModalID == null ? '' :
+        <NameQueryModal
+            onSubmit={(name) => setQueryName(name)}
+            closeModal={() => setNameModalID(null)}
+            QueryID={nameModalID}
+        />;
     return (<div>
+        {nameModal}
         {props.queries.map((query, idx) => {
             let pinnedIcon;
             let sharedIcon;
@@ -216,11 +252,31 @@ function QueryList(props) {
 
             let msg = '';
             if (query.RunTime) {
-                msg = <div><i>You ran this query at {query.RunTime}</i>
-                       &nbsp;{pinnedIcon}{sharedIcon}{loadIcon}
+                const desc = query.Name
+                    ? <span>
+                        <b>{query.Name}</b>
+                        &nbsp;<i>(Run at {query.RunTime})</i>
+                      </span>
+                    : <i>You ran this query at {query.RunTime}</i>;
+                const nameIcon = <span title="Name query"
+                                style={{cursor: 'pointer'}}
+                                className="fa-stack"
+                                onClick={() => setNameModalID(query.QueryID)}>
+                                   <i
+                                    className="fas fa-pencil-alt fa-stack-1x">
+                                   </i>
+                                </span>;
+                msg = <div>{desc}
+                       &nbsp;{pinnedIcon}{sharedIcon}{loadIcon}{nameIcon}
                    </div>;
             } else if (query.SharedBy) {
-                msg = <div><i>Query shared by {query.SharedBy}</i>
+                const desc = query.Name
+                    ? <span>
+                        <b>{query.Name}</b>
+                        &nbsp;<i>(Shared by {query.SharedBy})</i>
+                      </span>
+                    : <i>Query shared by {query.SharedBy}</i>;
+                msg = <div>{desc}
                        &nbsp;{loadIcon}
                     </div>;
             } else {

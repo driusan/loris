@@ -50,7 +50,14 @@ class Modal extends Component {
         showCancelButton: true,
         confirmButtonText: 'Proceed',
         cancelButtonText: 'Cancel',
-      }).then((result) => result.value && this.props.onClose());
+      }).then((result) => {
+          if (this.props.onCancel) {
+              this.props.onCancel();
+          } else {
+              this.props.onClose();
+          }
+          return result.value;
+        });
     } else {
       this.props.onClose();
     }

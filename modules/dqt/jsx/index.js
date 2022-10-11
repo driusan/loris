@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
-import swal from 'sweetalert2';
+// import swal from 'sweetalert2';
 
-import {NavigationStepper} from './navigationstepper';
+// import {NavigationStepper} from './navigationstepper';
 import Welcome from './welcome';
 import DefineFilters from './definefilters';
 import DefineFields from './definefields';
@@ -142,6 +142,57 @@ function DataQueryApp(props) {
                   console.error(error);
                   });
     }, []);
+    // update breadcrumbs breadcrumbs
+    useEffect(() => {
+        let breadcrumbs = [
+            {
+                text: 'Data Query Tool (Alpha)',
+                onClick: (e) => {
+                    e.preventDefault();
+                    setActiveTab('Info');
+                },
+            },
+        ];
+        if (activeTab == 'DefineFields'
+                || activeTab == 'DefineFilters'
+                || activeTab == 'ViewData') {
+            breadcrumbs.push({
+                text: 'Define Fields',
+                onClick: (e) => {
+                    e.preventDefault();
+                    setActiveTab('DefineFields');
+                },
+            });
+        }
+        if (activeTab == 'DefineFilters'
+                || activeTab == 'ViewData') {
+            breadcrumbs.push({
+                text: 'Define Filters',
+                onClick: (e) => {
+                    e.preventDefault();
+                    setActiveTab('DefineFilters');
+                },
+            });
+        }
+
+        if (activeTab == 'ViewData') {
+            breadcrumbs.push({
+                text: 'View Data',
+                onClick: (e) => {
+                    e.preventDefault();
+                    setActiveTab('View Data');
+                },
+            });
+        }
+
+        ReactDOM.render(
+            <Breadcrumbs
+                breadcrumbs={breadcrumbs}
+                baseURL={loris.BaseURL}
+            />,
+            document.getElementById('breadcrumbs')
+      );
+    }, [activeTab]);
 
     useEffect(() => {
         fetch('/dqt/queries', {credentials: 'same-origin'})
@@ -165,6 +216,7 @@ function DataQueryApp(props) {
                 RunTime: query.RunTime,
                 Pinned: query.Pinned,
                 Shared: query.Shared,
+                Name: query.Name,
                 ...query.Query,
               });
             });
@@ -179,6 +231,7 @@ function DataQueryApp(props) {
               convertedshared.push({
                 QueryID: query.QueryID,
                 SharedBy: query.SharedBy,
+                Name: query.Name,
                 ...query.Query,
               });
             });
@@ -431,12 +484,17 @@ function DataQueryApp(props) {
                                 setShareQueryID(queryID);
                             }
                         }
+
+                        reloadQueries={
+                            () => setLoadQueriesForce(loadQueriesForce+1)
+                        }
                         // Need dictionary related stuff
                         // to display saved queries
                         getModuleFields={getModuleFields}
                         mapModuleName={mapModuleName}
                         mapCategoryName={mapCategoryName}
                         fulldictionary={fulldictionary}
+                        onContinue={() => setActiveTab('DefineFields')}
                     />;
             break;
         case 'DefineFields':
@@ -462,6 +520,9 @@ function DataQueryApp(props) {
                 onClearAll={clearAllFields}
 
                 fulldictionary={fulldictionary}
+
+                gotoDefineFilters={() => setActiveTab('DefineFilters') }
+                gotoViewData={() => setActiveTab('ViewData') }
 
                />;
             break;
@@ -503,7 +564,8 @@ function DataQueryApp(props) {
         default:
             content = <div>Invalid tab</div>;
     }
-    // Define Fields tab.
+    return content;
+    /*
     return (<>
         <NavigationStepper
           setIndex={activeTab}
@@ -523,6 +585,7 @@ function DataQueryApp(props) {
         />
         {content}
     </>);
+    */
 }
 
 /**

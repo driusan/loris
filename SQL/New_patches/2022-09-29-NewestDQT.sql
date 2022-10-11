@@ -13,6 +13,14 @@ CREATE TABLE dataquery_queries (
     -- FOREIGN KEY (Owner) REFERENCES users(ID)
 );
 
+CREATE TABLE dataquery_query_names (
+    QueryID int(10) unsigned NOT NULL,
+    UserID int(10) unsigned NOT NULL,
+    Name varchar(255) NOT NULL,
+    PRIMARY KEY (QueryID, UserID),
+    FOREIGN KEY (QueryID) REFERENCES dataquery_queries(QueryID),
+    FOREIGN KEY (UserID) REFERENCES users(ID)
+);
 
 CREATE TABLE dataquery_run_queries (
     RunID int(10) unsigned NOT NULL AUTO_INCREMENT,

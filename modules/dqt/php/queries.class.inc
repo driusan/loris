@@ -77,6 +77,16 @@ class Queries extends \NDB_Page
             $queryID = intval($pieces[1]);
             return $this->runQuery($user, $queryID);
         }
+        if (preg_match(
+                    "/queries\/([0-9]+)\/run\/([0-9]+)$/",
+                    $url,
+                    $pieces
+                    ) === 1
+           ) {
+            $queryID = intval($pieces[1]);
+            $runID = intval($pieces[2]);
+            return $this->queryRun($user, $queryID, $runID);
+        }
         return new \LORIS\Http\Response\JSON\NotFound();
     }
 
@@ -85,13 +95,16 @@ class Queries extends \NDB_Page
         $potentialQueries = $DB->pselect("
             SELECT dq.QueryID, RunTime, Query,
                IF(dpq.QueryID IS NULL, 'Unpinned', 'Pinned') as Pinned,
-               IF(dsq.QueryID IS NULL, 'Unshared', 'Shared') as Shared
+               IF(dsq.QueryID IS NULL, 'Unshared', 'Shared') as Shared,
+               name.Name
             FROM dataquery_queries dq
                 JOIN dataquery_run_queries drq ON (dq.QueryID=drq.QueryID)
                 LEFT JOIN dataquery_pinned_queries_rel dpq ON
                     (dq.QueryID=dpq.QueryID AND dpq.PinnedBy=:userid)
                 LEFT JOIN dataquery_shared_queries_rel dsq ON
                     (dq.QueryID=dsq.QueryID AND dsq.SharedBy=:userid)
+                LEFT JOIN dataquery_query_names name ON 
+                    (dq.QueryID=name.QueryID AND name.UserID=:userid)
                 
             WHERE drq.UserID=:userid
             ORDER BY drq.RunTime DESC",
@@ -114,6 +127,9 @@ class Queries extends \NDB_Page
             } else {
                 $query['Shared'] = false;
             }
+            if (empty($query['Name'])) {
+                unset($query['Name']);
+            }
             // Convert from string to PHP array so that it's not double
             // escaped when json_encode is called.
             $query['Query'] = json_decode($query['Query'], true);
@@ -126,11 +142,13 @@ class Queries extends \NDB_Page
     public function getSharedQueries(\User $user) : iterable {
         $DB = $this->loris->getDatabaseConnection();
         $potentialQueries = $DB->pselect("
-            SELECT dq.QueryID, Query, GROUP_CONCAT(u.UserID) as SharedBy
+            SELECT dq.QueryID, Query, GROUP_CONCAT(u.UserID) as SharedBy, name.Name
             FROM dataquery_queries dq
                 LEFT JOIN dataquery_shared_queries_rel dsq ON
                     (dq.QueryID=dsq.QueryID)
                 LEFT JOIN users u ON (dsq.SharedBy=u.ID)
+                LEFT JOIN dataquery_query_names name ON 
+                    (dsq.QueryID=name.QueryID AND name.UserID=dsq.SharedBy)
             WHERE dsq.SharedBy != :userid
             GROUP BY QueryID
             ORDER BY QueryID",
@@ -221,8 +239,12 @@ class Queries extends \NDB_Page
                     return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unshared query']);
                 }
 
+                if (!empty($params['name'])) {
+                    $query->setQueryName($user, $params['name']);
+                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'named query']);
+                }
 
-                return new \LORIS\Http\Response\JSON\OK($query->toArray());
+                return new \LORIS\Http\Response\JSON\BadRequest('Unhandled PATCH action');
         }
         return new \LORIS\Http\Response\JSON\BadMethod('Request must be GET');
     }

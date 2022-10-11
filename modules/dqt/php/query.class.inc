@@ -71,6 +71,17 @@ class Query implements \LORIS\StudyEntities\AccessibleResource {
         );
     }
 
+    public function setQueryName(\User $user, string $name) {
+        $DB = $this->loris->getDatabaseConnection();
+        $DB->replace('dataquery_query_names',
+            [
+                'QueryID' => $this->queryID,
+                'UserID' => $user->getId(),
+                'Name' => $name,
+        ]);
+
+    }
+
     public function getCriteria() : ?array {
         return $this->data['criteria'] ?? null;
     }

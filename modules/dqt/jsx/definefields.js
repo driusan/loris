@@ -8,7 +8,7 @@ import getDictionaryDescription from './getdictionarydescription';
 
 
 /**
-* Displays a singae field to be selected for querying
+* Displays a single field to be selected for querying
  *
  * @param {object} props - react props
  *
@@ -235,6 +235,7 @@ function DefineFields(props) {
   }
 
   return (
+    <div>
     <div style={{display: 'flex', flexWrap: 'nowrap'}}>
        <div style={{width: '80vw', padding: '1em'}}>
             <h1>Available Fields</h1>
@@ -272,6 +273,19 @@ function DefineFields(props) {
             />
         </div>
       </div>
+   </div>
+
+       <div>
+            <h1>Next Steps</h1>
+            <div style={{display: 'flex'}}>
+                <ButtonElement label='Define Filters'
+                    onUserInput={props.gotoDefineFilters}
+                />
+                <ButtonElement label='Run query'
+                    onUserInput={props.gotoViewData}
+                />
+                </div>
+        </div>
    </div>);
 }
 
