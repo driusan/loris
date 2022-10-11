@@ -52,7 +52,7 @@ class Queries extends \NDB_Page
                 }
                 $user = $request->getAttribute('user');
                 // FIXME: Validate query before storing it. Must contain fields.
-                $queryID = $this->storeQueryRun($user, $requestjson);
+                $queryID = $this->storeQuery($user, $requestjson);
                 return new \LORIS\Http\Response\JSON\OK([
                         'QueryID' => $queryID
                 ]);
@@ -170,7 +170,7 @@ class Queries extends \NDB_Page
         return $results;
     }
 
-    private function storeQueryRun(\User $user, string $requestjson) {
+    private function storeQuery(\User $user, string $requestjson) {
         $DB = $this->loris->getDatabaseConnection();
         $queryID = $DB->pselectOne(
             "SELECT QueryID
@@ -190,14 +190,6 @@ class Queries extends \NDB_Page
             );
             $queryID = $DB->getLastInsertId();
         }
-
-        $DB->unsafeInsert(
-                'dataquery_run_queries',
-                [
-                    'QueryID'  => $queryID, 
-                    'UserID'  => $user->getId(),
-                ],
-        );
         return intval($queryID);
     }
 

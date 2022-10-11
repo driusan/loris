@@ -129,6 +129,7 @@ function QueryList(props) {
     const [onlyNamed, setOnlyNamed] = useState(false);
     const [noDuplicates, setNoDuplicates] = useState(false);
     const [queryFilter, setQueryFilter] = useState('');
+    const [fullQuery, setFullQuery] = useState(true);
 
     useEffect(() => {
         const modules = new Set();
@@ -313,7 +314,11 @@ function QueryList(props) {
                 : <span />;
     return (<div>
         {nameModal}
-        <div>
+        <div style={{
+            borderBottom: 'thin solid black',
+            marginBottom: '1em',
+            paddingBottom: '1ex',
+        }}>
             <TextboxElement name='filter'
                 label='Filter'
                 value={queryFilter}
@@ -328,6 +333,11 @@ function QueryList(props) {
                    (name, value) => setOnlyNamed(value)
                 }/>
             {duplicateFilter}
+            <CheckboxElement name='fullquery' label='Collapse queries'
+                value={!fullQuery}
+                onUserInput={
+                   (name, value) => setFullQuery(!value)
+                }/>
         </div>
         {displayedQueries.map((query, idx) => {
             let pinnedIcon;
@@ -446,12 +456,8 @@ function QueryList(props) {
                 console.error('Invalid query. Neither shared nor recent');
             }
 
-            return (<div key={idx} style={{
-                    // border: 'thin solid black',
-                    overflow: 'auto',
-                }}>
-                        {msg}
-                        <div style={{display: 'flex', flexWrap: 'wrap'}}>
+            const queryDisplay = !fullQuery ? <div /> :
+                    <div style={{display: 'flex', flexWrap: 'wrap'}}>
                         <div>
                             <h3>Fields</h3>
                             {query.fields.map(
@@ -482,7 +488,15 @@ function QueryList(props) {
                             />
                         </div> : <div/>
                         }
-                        </div>
+                        </div>;
+
+
+            return (<div key={idx} style={{
+                    // border: 'thin solid black',
+                    overflow: 'auto',
+                }}>
+                        {msg}
+                        {queryDisplay}
                         <hr />
                     </div>);
            })
