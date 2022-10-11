@@ -5,6 +5,7 @@ import {useEffect, useState} from 'react';
 import QueryTree from './querytree';
 import {QueryGroup} from './querydef';
 import NameQueryModal from './welcome.namequerymodal';
+import getDictionaryDescription from './getdictionarydescription';
 
 
 /**
@@ -122,6 +123,13 @@ function Welcome(props) {
 function QueryList(props) {
     const [nameModalID, setNameModalID] = useState(null);
     const [queryName, setQueryName] = useState(null);
+
+    const [onlyStarred, setOnlyStarred] = useState(false);
+    const [onlyShared, setOnlyShared] = useState(false);
+    const [onlyNamed, setOnlyNamed] = useState(false);
+    const [noDuplicates, setNoDuplicates] = useState(false);
+    const [queryFilter, setQueryFilter] = useState('');
+
     useEffect(() => {
         const modules = new Set();
         props.queries.forEach((query) => {
@@ -172,9 +180,156 @@ function QueryList(props) {
             closeModal={() => setNameModalID(null)}
             QueryID={nameModalID}
         />;
+
+    let displayedQueries = props.queries;
+    if (onlyStarred === true) {
+        displayedQueries = displayedQueries.filter(
+            (val) => val.Pinned
+        );
+    }
+    if (onlyShared === true) {
+        displayedQueries = displayedQueries.filter(
+            (val) => val.Shared
+        );
+    }
+    if (onlyNamed === true) {
+        displayedQueries = displayedQueries.filter(
+            (val) => {
+                if (val.Name || val.Name == '') {
+                    return true;
+                }
+                return false;
+            }
+        );
+    }
+    if (noDuplicates === true) {
+        let queryList = {};
+        let newDisplayedQueries = [];
+        displayedQueries.forEach((val) => {
+            if (queryList.hasOwnProperty(val.QueryID)) {
+                console.log('Duplicate found');
+                return;
+            }
+            queryList[val.QueryID] = val;
+            newDisplayedQueries.push(val);
+        });
+        displayedQueries = newDisplayedQueries;
+    }
+    if (queryFilter != '') {
+        displayedQueries = displayedQueries.filter(
+            (val) => {
+                const lowerQF = queryFilter.toLowerCase();
+                const nameContains = val.Name
+                    && val.Name.toLowerCase().includes(lowerQF);
+                const runTimeContains = val.RunTime &&
+                    val.RunTime.includes(lowerQF);
+                const sharedByContains = val.SharedBy &&
+                    val.SharedBy.toLowerCase().includes(lowerQF);
+                let anyFieldMatches = false;
+                let anyFilterMatches = false;
+                if (val.fields) {
+                    for (let field of val.fields) {
+                        if (field.field.toLowerCase().includes(lowerQF)) {
+                            anyFieldMatches = true;
+                            break;
+                        }
+                        const description = getDictionaryDescription(
+                            field.module,
+                            field.category,
+                            field.field,
+                            props.fulldictionary,
+                        );
+                        if (description.toLowerCase().includes(lowerQF)) {
+                            anyFieldMatches = true;
+                            break;
+                        }
+                    }
+                }
+                if (val.criteria) {
+                    const itemInGroupMatches = (group) => {
+                        console.log(group);
+                        for (let field of group.group) {
+                            console.log(field);
+                            if (field.fieldname.toLowerCase().includes(
+                                lowerQF
+                            )) {
+                                anyFieldMatches = true;
+                                return;
+                            }
+                            const description = getDictionaryDescription(
+                                field.module,
+                                field.category,
+                                field.fieldname,
+                                props.fulldictionary,
+                            );
+                            if (description.toLowerCase().includes(lowerQF)) {
+                                anyFilterMatches = true;
+                                return;
+                            }
+                        }
+                    };
+                    itemInGroupMatches(val.criteria);
+                }
+
+    /*
+    const description = getDictionaryDescription(
+        props.module,
+        props.category,
+        props.fieldname,
+        props.fulldictionary,
+    );
+    */
+                return nameContains
+                    || runTimeContains
+                    || sharedByContains
+                    || anyFieldMatches
+                    || anyFilterMatches;
+                });
+        console.log(displayedQueries);
+    }
+    const starFilter = props.pinQuery ?
+            <CheckboxElement name='onlystar' label='Starred Only'
+                value={onlyStarred}
+                onUserInput={
+                   (name, value) => setOnlyStarred(value)
+                }/> : <span />;
+    const shareFilter = props.shareQuery ?
+            <CheckboxElement name='onlyshare' label='Shared Only'
+                value={onlyShared}
+                onUserInput={
+                   (name, value) => setOnlyShared(value)
+                }/>
+                : <span />;
+    // Use whether shareQuery prop is defined as proxy
+    // to determine if this is a shared query or a recent
+    // query list
+    const duplicateFilter = props.shareQuery ?
+            <CheckboxElement name='noduplicate'
+                label='No run times (eliminate duplicates)'
+                value={noDuplicates}
+                onUserInput={
+                   (name, value) => setNoDuplicates(value)
+                }/>
+                : <span />;
     return (<div>
         {nameModal}
-        {props.queries.map((query, idx) => {
+        <div>
+            <TextboxElement name='filter'
+                label='Filter'
+                value={queryFilter}
+                onUserInput={
+                   (name, value) => setQueryFilter(value)
+                }/>
+            {starFilter}
+            {shareFilter}
+            <CheckboxElement name='onlynamed' label='Named Only'
+                value={onlyNamed}
+                onUserInput={
+                   (name, value) => setOnlyNamed(value)
+                }/>
+            {duplicateFilter}
+        </div>
+        {displayedQueries.map((query, idx) => {
             let pinnedIcon;
             let sharedIcon;
 
@@ -252,12 +407,20 @@ function QueryList(props) {
 
             let msg = '';
             if (query.RunTime) {
-                const desc = query.Name
+                let desc = query.Name
                     ? <span>
                         <b>{query.Name}</b>
                         &nbsp;<i>(Run at {query.RunTime})</i>
                       </span>
                     : <i>You ran this query at {query.RunTime}</i>;
+                if (noDuplicates) {
+                    desc = query.Name
+                    ? <span>
+                        <b>{query.Name}</b>
+                      </span>
+                    : <i>You ran this query</i>;
+                }
+
                 const nameIcon = <span title="Name query"
                                 style={{cursor: 'pointer'}}
                                 className="fa-stack"
