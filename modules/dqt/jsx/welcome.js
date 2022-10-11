@@ -339,6 +339,7 @@ function QueryList(props) {
                    (name, value) => setFullQuery(!value)
                 }/>
         </div>
+        <Pager>
         {displayedQueries.map((query, idx) => {
             let pinnedIcon;
             let sharedIcon;
@@ -501,6 +502,7 @@ function QueryList(props) {
                     </div>);
            })
         }
+        </Pager>
     </div>);
 }
 
@@ -526,4 +528,34 @@ function QueryListCriteria(props) {
     />);
 }
 
+/**
+ * Paginate the results
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function Pager(props) {
+    const [pageNum, setPageNum] = useState(1);
+    const rowsPerPage = 5;
+
+    const start = (pageNum-1)*rowsPerPage;
+    const end = (pageNum)*rowsPerPage;
+    const displayedRange = props.children.slice(start, end);
+    return <div>
+              <PaginationLinks
+                Total={props.children.length}
+                onChangePage={setPageNum}
+                RowsPerPage={rowsPerPage}
+                Active={pageNum}
+              />
+              {displayedRange}
+              <PaginationLinks
+                Total={props.children.length}
+                onChangePage={setPageNum}
+                RowsPerPage={rowsPerPage}
+                Active={pageNum}
+              />
+      </div>;
+}
 export default Welcome;
