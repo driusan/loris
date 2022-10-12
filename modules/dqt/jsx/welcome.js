@@ -332,10 +332,20 @@ function QueryList(props) {
         <Pager>
             {displayedQueries.map((query, idx) => {
                 return <SingleQueryDisplay key={idx} query={query}
-                            showFullQuery={fullQuery}
+                            includeRuns={!noDuplicates}
+                            showFullQueryDefault={fullQuery}
                             mapCategoryName={props.mapCategoryName}
                             mapModuleName={props.mapModuleName}
-                            includeRuns={!noDuplicates}
+
+                            loadQuery={props.loadQuery}
+
+                            pinQuery={props.pinQuery}
+                            unpinQuery={props.unpinQuery}
+
+                            shareQuery={props.shareQuery}
+                            unshareQuery={props.unshareQuery}
+
+                            setNameModalID={setNameModalID}
                             />;
             })}
         </Pager>
@@ -403,6 +413,13 @@ function Pager(props) {
  * @return {ReactDOM}
  */
 function SingleQueryDisplay(props) {
+    const [showFullQuery, setShowFullQuery] =
+        useState(props.showFullQueryDefault);
+    // Reset the collapsed state if the checkbox gets toggled
+    useEffect(() => {
+        setShowFullQuery(props.showFullQueryDefault);
+    }, [props.showFullQueryDefault]);
+
     let pinnedIcon;
     let sharedIcon;
     const query = props.query;
@@ -498,7 +515,7 @@ function SingleQueryDisplay(props) {
          const nameIcon = <span title="Name query"
              style={{cursor: 'pointer'}}
              className="fa-stack"
-            onClick={() => setNameModalID(query.QueryID)}>
+            onClick={() => props.setNameModalID(query.QueryID)}>
                 <i className="fas fa-pencil-alt fa-stack-1x"> </i>
             </span>;
          msg = <div>{desc}
@@ -518,7 +535,7 @@ function SingleQueryDisplay(props) {
          console.error('Invalid query. Neither shared nor recent');
      }
 
-     const queryDisplay = !props.showFullQuery? <div /> :
+     const queryDisplay = !showFullQuery ? <div /> :
          <div style={{display: 'flex', flexWrap: 'wrap'}}>
              <div>
                  <h3>Fields</h3>
@@ -553,13 +570,28 @@ function SingleQueryDisplay(props) {
              }
      </div>;
 
+     const expandIcon = <i style={{
+            paddingRight: '1ex',
+            cursor: 'pointer',
+         }}
+         className={'fas fa-chevron-' + (showFullQuery ? 'down' : 'right')}
+         onClick={() => setShowFullQuery(!showFullQuery)}
+      ></i>;
      return (<div style={{
-        // border: 'thin solid black',
-        overflow: 'auto',
-        }}>
-        {msg}
-        {queryDisplay}
-        <hr />
-    </div>);
+                // border: 'thin solid black',
+                overflow: 'auto',
+                }}
+            >
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'start',
+            }}>
+                {expandIcon}
+                {msg}
+            </div>
+            {queryDisplay}
+            <hr />
+        </div>);
 }
 export default Welcome;
