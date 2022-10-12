@@ -381,12 +381,14 @@ function QueryList(props) {
     const starFilter = props.pinQuery ?
             <CheckboxElement name='onlystar' label='Starred Only'
                 value={onlyStarred}
+                offset=''
                 onUserInput={
                    (name, value) => setOnlyStarred(value)
                 }/> : <span />;
     const shareFilter = props.shareQuery ?
             <CheckboxElement name='onlyshare' label='Shared Only'
                 value={onlyShared}
+                offset=''
                 onUserInput={
                    (name, value) => setOnlyShared(value)
                 }/>
@@ -398,6 +400,7 @@ function QueryList(props) {
             <CheckboxElement name='noduplicate'
                 label='No run times (eliminate duplicates)'
                 value={noDuplicates}
+                offset=''
                 onUserInput={
                    (name, value) => setNoDuplicates(value)
                 }/>
@@ -416,17 +419,23 @@ function QueryList(props) {
                 onUserInput={
                    (name, value) => setQueryFilter(value)
                 }/>
-                <div>
+                <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                }}>
                     {starFilter}
                     {shareFilter}
                     <CheckboxElement name='onlynamed' label='Named Only'
                         value={onlyNamed}
+                        offset=''
                         onUserInput={
                            (name, value) => setOnlyNamed(value)
                         }/>
                     {duplicateFilter}
                     <CheckboxElement name='fullquery' label='Collapse queries'
                         value={!fullQuery}
+                        offset=''
                         onUserInput={
                            (name, value) => setFullQuery(!value)
                         }/>
