@@ -271,22 +271,12 @@ function QueryList(props) {
                     };
                     itemInGroupMatches(val.criteria);
                 }
-
-    /*
-    const description = getDictionaryDescription(
-        props.module,
-        props.category,
-        props.fieldname,
-        props.fulldictionary,
-    );
-    */
                 return nameContains
                     || runTimeContains
                     || sharedByContains
                     || anyFieldMatches
                     || anyFilterMatches;
                 });
-        console.log(displayedQueries);
     }
     const starFilter = props.pinQuery ?
             <CheckboxElement name='onlystar' label='Starred Only'
@@ -340,168 +330,14 @@ function QueryList(props) {
                 }/>
         </div>
         <Pager>
-        {displayedQueries.map((query, idx) => {
-            let pinnedIcon;
-            let sharedIcon;
-
-            if (query.Pinned) {
-              pinnedIcon = <span
-                    style={{cursor: 'pointer'}}
-                    onClick={
-                        () => props.unpinQuery(query.QueryID)
-                    }
-                    title="Unstar"
-                    className="fa-stack">
-                <i style={
-                    {color: 'yellow'}}
-                    className="fas fa-star fa-stack-1x"
-                    />
-                <i style={
-                    {color: 'black'}}
-                    className="far fa-star fa-stack-1x"
-                    />
-                </span>;
-            } else {
-              pinnedIcon = <span
-                    style={{cursor: 'pointer'}}
-                    title="Star"
-                    onClick={
-                        () => props.pinQuery(query.QueryID)
-                    }
-                    className="fa-stack">
-                <i className="far fa-star fa-stack-1x"/>
-                </span>;
-            }
-
-            if (query.Shared) {
-                sharedIcon = <span className="fa-stack"
-                                style={{cursor: 'pointer'}}
-                                title="Unshare"
-                                onClick={
-                                    () =>
-                                       props.unshareQuery(query.QueryID)
-                                }>
-                                <i style={{color: 'blue'}}
-                                    className="fas fa-share-alt fa-stack-1x" />
-                          </span>;
-            } else {
-                sharedIcon = <span className="fa-stack"
-                                style={{cursor: 'pointer'}}
-                                title="Share"
-                                onClick={
-                                    () =>
-                                       props.shareQuery(query.QueryID)
-                                }>
-                                <i style={{color: 'black'}}
-                                    className="fas fa-share-alt fa-stack-1x" />
-                            </span>;
-            }
-
-            const loadQuery = () => {
-               props.loadQuery(
-                 query.fields,
-                 query.criteria,
-               );
-               swal.fire({
-                 type: 'success',
-                 title: 'Query Loaded',
-                 text: 'Successfully loaded query.',
-               });
-            };
-
-            const loadIcon = <span onClick={loadQuery}
-                                title="Reload query"
-                                style={{cursor: 'pointer'}}
-                                className="fa-stack">
-                                <i className="fas fa-sync fa-stack-1x"></i>
-                             </span>;
-
-            let msg = '';
-            if (query.RunTime) {
-                let desc = query.Name
-                    ? <span>
-                        <b>{query.Name}</b>
-                        &nbsp;<i>(Run at {query.RunTime})</i>
-                      </span>
-                    : <i>You ran this query at {query.RunTime}</i>;
-                if (noDuplicates) {
-                    desc = query.Name
-                    ? <span>
-                        <b>{query.Name}</b>
-                      </span>
-                    : <i>You ran this query</i>;
-                }
-
-                const nameIcon = <span title="Name query"
-                                style={{cursor: 'pointer'}}
-                                className="fa-stack"
-                                onClick={() => setNameModalID(query.QueryID)}>
-                                   <i
-                                    className="fas fa-pencil-alt fa-stack-1x">
-                                   </i>
-                                </span>;
-                msg = <div>{desc}
-                       &nbsp;{pinnedIcon}{sharedIcon}{loadIcon}{nameIcon}
-                   </div>;
-            } else if (query.SharedBy) {
-                const desc = query.Name
-                    ? <span>
-                        <b>{query.Name}</b>
-                        &nbsp;<i>(Shared by {query.SharedBy})</i>
-                      </span>
-                    : <i>Query shared by {query.SharedBy}</i>;
-                msg = <div>{desc}
-                       &nbsp;{loadIcon}
-                    </div>;
-            } else {
-                console.error('Invalid query. Neither shared nor recent');
-            }
-
-            const queryDisplay = !fullQuery ? <div /> :
-                    <div style={{display: 'flex', flexWrap: 'wrap'}}>
-                        <div>
-                            <h3>Fields</h3>
-                            {query.fields.map(
-                                (fieldobj, fidx) =>
-                                        <div key={fidx} >
-                                            <FieldDisplay
-                                               fieldname={fieldobj.field}
-                                               module={fieldobj.module}
-                                               category={fieldobj.category}
-                                               fulldictionary=
-                                                {props.fulldictionary}
-                                               mapModuleName=
-                                                {props.mapModuleName}
-                                               mapCategoryName=
-                                                {props.mapCategoryName}
-                                            />
-                                        </div>
-                            )}
-                        </div>
-                        {query.criteria ?
-                        <div>
-                            <h3>Filters</h3>
-                            <QueryListCriteria
-                                criteria={query.criteria}
-                                fulldictionary={props.fulldictionary}
-                                mapModuleName={props.mapModuleName}
-                                mapCategoryName={props.mapCategoryName}
-                            />
-                        </div> : <div/>
-                        }
-                        </div>;
-
-
-            return (<div key={idx} style={{
-                    // border: 'thin solid black',
-                    overflow: 'auto',
-                }}>
-                        {msg}
-                        {queryDisplay}
-                        <hr />
-                    </div>);
-           })
-        }
+            {displayedQueries.map((query, idx) => {
+                return <SingleQueryDisplay key={idx} query={query}
+                            showFullQuery={fullQuery}
+                            mapCategoryName={props.mapCategoryName}
+                            mapModuleName={props.mapModuleName}
+                            includeRuns={!noDuplicates}
+                            />;
+            })}
         </Pager>
     </div>);
 }
@@ -557,5 +393,173 @@ function Pager(props) {
                 Active={pageNum}
               />
       </div>;
+}
+
+/**
+ * Display a single query in a QueryList
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function SingleQueryDisplay(props) {
+    let pinnedIcon;
+    let sharedIcon;
+    const query = props.query;
+
+    if (query.Pinned) {
+        pinnedIcon = <span
+            style={{cursor: 'pointer'}}
+        onClick={
+            () => props.unpinQuery(query.QueryID)
+        }
+        title="Unstar"
+            className="fa-stack">
+            <i style={
+                {color: 'yellow'}}
+        className="fas fa-star fa-stack-1x"
+            />
+            <i style={
+                {color: 'black'}}
+        className="far fa-star fa-stack-1x"
+            />
+            </span>;
+    } else {
+        pinnedIcon = <span
+            style={{cursor: 'pointer'}}
+        title="Star"
+            onClick={
+                () => props.pinQuery(query.QueryID)
+            }
+        className="fa-stack">
+            <i className="far fa-star fa-stack-1x"/>
+            </span>;
+    }
+
+    if (query.Shared) {
+        sharedIcon = <span className="fa-stack"
+            style={{cursor: 'pointer'}}
+        title="Unshare"
+            onClick={
+                () =>
+                    props.unshareQuery(query.QueryID)
+            }>
+        <i style={{color: 'blue'}}
+        className="fas fa-share-alt fa-stack-1x" />
+            </span>;
+    } else {
+        sharedIcon = <span className="fa-stack"
+            style={{cursor: 'pointer'}}
+        title="Share"
+            onClick={
+                () =>
+                    props.shareQuery(query.QueryID)
+            }>
+        <i style={{color: 'black'}}
+        className="fas fa-share-alt fa-stack-1x" />
+            </span>;
+    }
+
+    const loadQuery = () => {
+        props.loadQuery(
+                query.fields,
+                query.criteria,
+                );
+        swal.fire({
+            type: 'success',
+            title: 'Query Loaded',
+            text: 'Successfully loaded query.',
+        });
+    };
+
+    const loadIcon = <span onClick={loadQuery}
+                        title="Reload query"
+                        style={{cursor: 'pointer'}}
+                        className="fa-stack">
+                        <i className="fas fa-sync fa-stack-1x"></i>
+                     </span>;
+
+     let msg = '';
+     if (query.RunTime) {
+         let desc = query.Name
+             ? <span>
+             <b>{query.Name}</b>
+             &nbsp;<i>(Run at {query.RunTime})</i>
+             </span>
+             : <i>You ran this query at {query.RunTime}</i>;
+         if (!props.includeRuns) {
+             desc = query.Name
+                 ? <span>
+                 <b>{query.Name}</b>
+                 </span>
+                 : <i>You ran this query</i>;
+         }
+
+         const nameIcon = <span title="Name query"
+             style={{cursor: 'pointer'}}
+             className="fa-stack"
+            onClick={() => setNameModalID(query.QueryID)}>
+                <i className="fas fa-pencil-alt fa-stack-1x"> </i>
+            </span>;
+         msg = <div>{desc}
+            &nbsp;{pinnedIcon}{sharedIcon}{loadIcon}{nameIcon}
+            </div>;
+     } else if (query.SharedBy) {
+         const desc = query.Name
+            ? <span>
+                <b>{query.Name}</b>
+                &nbsp;<i>(Shared by {query.SharedBy})</i>
+              </span>
+            : <i>Query shared by {query.SharedBy}</i>;
+         msg = <div>{desc}
+             &nbsp;{loadIcon}
+             </div>;
+     } else {
+         console.error('Invalid query. Neither shared nor recent');
+     }
+
+     const queryDisplay = !props.showFullQuery? <div /> :
+         <div style={{display: 'flex', flexWrap: 'wrap'}}>
+             <div>
+                 <h3>Fields</h3>
+                 {query.fields.map(
+                         (fieldobj, fidx) =>
+                         <div key={fidx} >
+                         <FieldDisplay
+                         fieldname={fieldobj.field}
+                         module={fieldobj.module}
+                         category={fieldobj.category}
+                         fulldictionary=
+                         {props.fulldictionary}
+                         mapModuleName=
+                         {props.mapModuleName}
+                         mapCategoryName=
+                         {props.mapCategoryName}
+                         />
+                         </div>
+                 )}
+             </div>
+             {query.criteria ?
+                 <div>
+                     <h3>Filters</h3>
+                     <QueryListCriteria
+                         criteria={query.criteria}
+                         fulldictionary={props.fulldictionary}
+                         mapModuleName={props.mapModuleName}
+                         mapCategoryName={props.mapCategoryName}
+                     />
+                 </div>
+             : <div/>
+             }
+     </div>;
+
+     return (<div style={{
+        // border: 'thin solid black',
+        overflow: 'auto',
+        }}>
+        {msg}
+        {queryDisplay}
+        <hr />
+    </div>);
 }
 export default Welcome;
