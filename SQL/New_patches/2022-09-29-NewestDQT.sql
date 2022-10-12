@@ -58,3 +58,16 @@ CREATE TABLE dataquery_run_results (
     FOREIGN KEY (CandID) REFERENCES candidate(CandID),
     FOREIGN KEY (RunID) REFERENCES dataquery_run_queries(RunID)
 );
+
+CREATE TABLE dataquery_study_queries_rel (
+    QueryID int(10) unsigned,
+    PinnedBy int(10) unsigned,
+    -- A top query shows on the top of the dataquery tool similarly
+    -- to a saved query but is chosen by admins, a dashboard query
+    -- shows the number of matching results on the LORIS dashboard.
+    Name varchar(255) NOT NULL,
+    PinType enum('topquery', 'dashboard'),
+    FOREIGN KEY (QueryID) REFERENCES dataquery_queries(QueryID),
+    FOREIGN KEY (PinnedBy) REFERENCES users(ID),
+    CONSTRAINT unique_pin UNIQUE (QueryID, PinType)
+);

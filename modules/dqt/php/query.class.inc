@@ -110,5 +110,18 @@ class Query implements \LORIS\StudyEntities\AccessibleResource {
 
         return new QueryRun($this->loris, $this, $queryRunID);
     }
+
+    public function setAdminPinnedQuery(\User $user, string $name, string $type) {
+        $DB = $this->loris->getDatabaseConnection();
+        $DB->insertIgnore('dataquery_study_queries_rel',
+            [
+                'QueryID' => $this->queryID,
+                'PinnedBy' => $user->getId(),
+                'Name' => $name,
+                'PinType' => $type,
+            ]
+        );
+    }
 }
+
 ?>

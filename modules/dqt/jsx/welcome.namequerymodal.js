@@ -10,7 +10,7 @@ import {useState} from 'react';
  * @return {ReactDOM}
  */
 function NameQueryModal(props) {
-    const [queryName, setQueryName] = useState('');
+    const [queryName, setQueryName] = useState(props.defaultName || '');
     const submitPromise = () => {
         let sbmt = new Promise((resolve, reject) => {
            if (queryName == '') {

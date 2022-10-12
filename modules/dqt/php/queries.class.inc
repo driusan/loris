@@ -43,6 +43,7 @@ class Queries extends \NDB_Page
                 return new \LORIS\Http\Response\JSON\OK([
                         'recent' => $this->getRecentQueries($user),
                         'shared' => $this->getSharedQueries($user),
+                        'topqueries' => $this->getTopQueries($user),
                 ]);
             case 'POST':
                 $requestjson = (string) $request->getBody();
@@ -139,6 +140,7 @@ class Queries extends \NDB_Page
         }
         return $results;
     }
+
     public function getSharedQueries(\User $user) : iterable {
         $DB = $this->loris->getDatabaseConnection();
         $potentialQueries = $DB->pselect("
@@ -153,6 +155,34 @@ class Queries extends \NDB_Page
             GROUP BY QueryID
             ORDER BY QueryID",
             ['userid' => $user->getId()]
+        );
+
+        $results = [];
+        // FIXME: Filter out queries that aren't accessible by the
+        // user because of the fields/modules
+        // FIXME: Use a DataProvisioner?
+        foreach($potentialQueries as $query) {
+            // Convert from string to PHP array so that it's not double
+            // escaped when json_encode is called.
+            $query['Query'] = json_decode($query['Query'], true);
+
+            $results[] = $query;
+            
+        }
+        return $results;
+    }
+
+    public function getTopQueries(\User $user) : iterable {
+        $DB = $this->loris->getDatabaseConnection();
+        $potentialQueries = $DB->pselect("
+            SELECT dq.QueryID, Query, dsq.Name
+            FROM dataquery_queries dq
+                LEFT JOIN dataquery_study_queries_rel dsq ON
+                    (dq.QueryID=dsq.QueryID)
+            WHERE dsq.PinType='topquery'
+            GROUP BY QueryID
+            ORDER BY QueryID",
+            [],
         );
 
         $results = [];
@@ -232,8 +262,18 @@ class Queries extends \NDB_Page
                 }
 
                 if (!empty($params['name'])) {
-                    $query->setQueryName($user, $params['name']);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'named query']);
+                    if (!empty($params['type'])) {
+                        if (str_contains($params['type'], 'top')) {
+                            $query->setAdminPinnedQuery($user, $params['name'], 'topquery');
+                        }
+                        if (str_contains($params['type'], 'dashboard')) {
+                            $query->setAdminPinnedQuery($user, $params['name'], 'dashboard');
+                        }
+                        return new \LORIS\Http\Response\JSON\OK(['msg' => 'Pinned query']);
+                    } else {
+                        $query->setQueryName($user, $params['name']);
+                        return new \LORIS\Http\Response\JSON\OK(['msg'=>'named query']);
+                    }
                 }
 
                 return new \LORIS\Http\Response\JSON\BadRequest('Unhandled PATCH action');

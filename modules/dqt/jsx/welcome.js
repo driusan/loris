@@ -5,6 +5,7 @@ import {useEffect, useState} from 'react';
 import QueryTree from './querytree';
 import {QueryGroup} from './querydef';
 import NameQueryModal from './welcome.namequerymodal';
+import AdminQueryModal from './welcome.adminquerymodal';
 import getDictionaryDescription from './getdictionarydescription';
 
 
@@ -16,6 +17,117 @@ import getDictionaryDescription from './getdictionarydescription';
  * @return {ReactDOM}
  */
 function Welcome(props) {
+    const panels = [];
+    if (props.topQueries.length > 0) {
+        panels.push({
+            title: 'Study Queries',
+            content: (
+                <div>
+                    <QueryList
+                        queries={props.topQueries}
+                        loadQuery={props.loadQuery}
+                        defaultCollapsed={true}
+
+                        getModuleFields={props.getModuleFields}
+                        mapModuleName={props.mapModuleName}
+                        mapCategoryName={props.mapCategoryName}
+                        fulldictionary={props.fulldictionary}
+
+                        queryAdmin={props.queryAdmin}
+                    />
+                </div>
+                ),
+            alwaysOpen: false,
+            defaultOpen: true,
+        });
+    }
+    panels.push({
+            title: 'Introduction',
+            content: (
+                <div>
+                  <p>The data query tool allows you to query data
+                  within LORIS. There are three steps to defining
+                  a query:
+                  </p>
+                  <ol>
+                    <li>First, you must select the fields that you're
+                        interested in on the <code>Define Fields</code>
+                        page.</li>
+                    <li>Next, you can optionally define filters on the
+                        <code>Define Filters</code> page to restrict
+                        the population that is returned.</li>
+                    <li>Finally, you view your query results on
+                        the <code>View Data</code> page</li>
+                  </ol>
+                  <p>Instead of building a query, you can reload a
+                    recently run query below.</p>
+                  <p>Clicking on on a table below cell in either the
+                     <code>Fields</code> or <code>Filters</code>
+                     cell will load the query fields and criteria
+                     of the recent query. Clicking on the <code>
+                     Time Run</code> cell of a query will reload
+                     the data that was returned at that time, without
+                     re-running the query.</p>
+                   <ButtonElement
+                        onUserInput={props.onContinue}
+                        label="Continue to Define Fields" />
+                </div>
+            ),
+            alwaysOpen: true,
+            defaultOpen: true,
+    });
+    panels.push({
+            title: 'Recent Queries',
+            content: (
+                <div>
+                  <QueryList
+                        queries={props.recentQueries}
+                        loadQuery={props.loadQuery}
+                        defaultCollapsed={false}
+
+                        pinQuery={props.pinQuery}
+                        unpinQuery={props.unpinQuery}
+
+                        shareQuery={props.shareQuery}
+                        unshareQuery={props.unshareQuery}
+
+                        reloadQueries={props.reloadQueries}
+
+                        getModuleFields={props.getModuleFields}
+                        mapModuleName={props.mapModuleName}
+                        mapCategoryName={props.mapCategoryName}
+                        fulldictionary={props.fulldictionary}
+                        queryAdmin={props.queryAdmin}
+                    />
+                </div>
+              ),
+            alwaysOpen: false,
+            defaultOpen: true,
+    });
+    if (props.sharedQueries.length > 0) {
+        panels.push({
+              title: 'Shared Queries',
+              content: (
+                <div>
+                  <QueryList
+                    queries={props.sharedQueries}
+                    loadQuery={props.loadQuery}
+                    defaultCollapsed={true}
+
+                    getModuleFields={props.getModuleFields}
+                    mapModuleName={props.mapModuleName}
+                    mapCategoryName={props.mapCategoryName}
+                    fulldictionary={props.fulldictionary}
+
+                    queryAdmin={props.queryAdmin}
+                  />
+                </div>
+              ),
+              alwaysOpen: false,
+              defaultOpen: true,
+        });
+    }
+
     return (
         <div>
            <h1 style={{
@@ -25,93 +137,7 @@ function Welcome(props) {
            }}>
                Welcome to the Data Query Tool
             </h1>
-            <ExpansionPanels
-                panels={[
-                    {
-                      title: 'Introduction',
-                      content: (
-                        <div>
-                          <p>The data query tool allows you to query data
-                          within LORIS. There are three steps to defining
-                          a query:
-                          </p>
-                          <ol>
-                            <li>First, you must select the fields that you're
-                                interested in on the <code>Define Fields</code>
-                                page.</li>
-                            <li>Next, you can optionally define filters on the
-                                <code>Define Filters</code> page to restrict
-                                the population that is returned.</li>
-                            <li>Finally, you view your query results on
-                                the <code>View Data</code> page</li>
-                          </ol>
-                          <p>Instead of building a query, you can reload a
-                            recently run query below.</p>
-                          <p>Clicking on on a table below cell in either the
-                             <code>Fields</code> or <code>Filters</code>
-                             cell will load the query fields and criteria
-                             of the recent query. Clicking on the <code>
-                             Time Run</code> cell of a query will reload
-                             the data that was returned at that time, without
-                             re-running the query.</p>
-                           <ButtonElement
-                                onUserInput={props.onContinue}
-                                label="Continue to Define Fields" />
-                        </div>
-                      ),
-                      alwaysOpen: true,
-                      defaultOpen: true,
-                    },
-                    {
-                      title: 'Recent Queries',
-                      content: (
-                        <div>
-                          <QueryList
-                                queries={props.recentQueries}
-                                loadQuery={props.loadQuery}
-
-                                pinQuery={props.pinQuery}
-                                unpinQuery={props.unpinQuery}
-
-                                shareQuery={props.shareQuery}
-                                unshareQuery={props.unshareQuery}
-
-                                reloadQueries={props.reloadQueries}
-
-                                getModuleFields={props.getModuleFields}
-                                mapModuleName={props.mapModuleName}
-                                mapCategoryName={props.mapCategoryName}
-                                fulldictionary={props.fulldictionary}
-                                queryAdmin={props.queryAdmin}
-                            />
-                        </div>
-                      ),
-                      alwaysOpen: false,
-                      defaultOpen: true,
-                    },
-                    {
-                      title: 'Shared Queries',
-                      content: (
-                        <div>
-                          <QueryList
-                                queries={props.sharedQueries}
-                                loadQuery={props.loadQuery}
-
-                                getModuleFields={props.getModuleFields}
-                                mapModuleName={props.mapModuleName}
-                                mapCategoryName={props.mapCategoryName}
-                                fulldictionary={props.fulldictionary}
-
-                                queryAdmin={props.queryAdmin}
-                            />
-                        </div>
-                      ),
-                      alwaysOpen: false,
-                      defaultOpen: true,
-                    },
-                    ]
-                  }
-                  />
+            <ExpansionPanels panels={panels} />
               </div>
           );
 }
@@ -125,14 +151,16 @@ function Welcome(props) {
  */
 function QueryList(props) {
     const [nameModalID, setNameModalID] = useState(null);
+    const [adminModalID, setAdminModalID] = useState(null);
     const [queryName, setQueryName] = useState(null);
+    const [defaultModalQueryName, setDefaultModalQueryName] = useState('');
 
     const [onlyStarred, setOnlyStarred] = useState(false);
     const [onlyShared, setOnlyShared] = useState(false);
     const [onlyNamed, setOnlyNamed] = useState(false);
     const [noDuplicates, setNoDuplicates] = useState(false);
     const [queryFilter, setQueryFilter] = useState('');
-    const [fullQuery, setFullQuery] = useState(true);
+    const [fullQuery, setFullQuery] = useState(!props.defaultCollapsed);
 
     useEffect(() => {
         const modules = new Set();
@@ -158,21 +186,56 @@ function QueryList(props) {
         });
     }, [props.queries]);
     useEffect(() => {
-        console.log('quername effect', queryName);
-        if (!nameModalID || !nameModalID) {
+        if (!nameModalID || !queryName) {
             return;
         }
+
+        // Prevent re-triggering by resetting the state
+        // before fetching, cache the values we need
+        // to build the URI before setting
+        const id = nameModalID;
+        const name = queryName;
+
+        setNameModalID(null);
+        setQueryName(null);
+
         fetch(
-            '/dqt/queries/' + nameModalID
-                + '?name=' + encodeURIComponent(queryName),
+            '/dqt/queries/' + id
+                + '?name=' + encodeURIComponent(name),
+            {
+                method: 'PATCH',
+                credentials: 'same-origin',
+            },
+        ).then((response) => {
+            setQueryName(null);
+            if (response.ok) {
+                props.reloadQueries();
+            }
+        });
+    }, [queryName]);
+    useEffect(() => {
+        if (!adminModalID || !queryName) {
+            return;
+        }
+
+        // Prevent re-triggering by resetting the state
+        // before fetching, cache the values we need
+        // to build the URI before setting
+        const id = adminModalID;
+        const name = queryName;
+
+        setAdminModalID(null);
+        setQueryName(null);
+
+        fetch(
+            '/dqt/queries/' + id
+                + '?type=top&name=' + encodeURIComponent(name),
             {
                 method: 'PATCH',
                 credentials: 'same-origin',
             },
         ).then((response) => {
             if (response.ok) {
-                setNameModalID(null);
-                setQueryName(null);
                 props.reloadQueries();
             }
         });
@@ -182,7 +245,15 @@ function QueryList(props) {
         <NameQueryModal
             onSubmit={(name) => setQueryName(name)}
             closeModal={() => setNameModalID(null)}
+            defaultName={defaultModalQueryName}
             QueryID={nameModalID}
+        />;
+    const adminModal = adminModalID == null ? '' :
+        <AdminQueryModal
+            onSubmit={(name, topQ, dashboardQ) => setQueryName(name)}
+            closeModal={() => setAdminModalID(null)}
+            defaultName={defaultModalQueryName}
+            QueryID={adminModalID}
         />;
 
     let displayedQueries = props.queries;
@@ -211,7 +282,6 @@ function QueryList(props) {
         let newDisplayedQueries = [];
         displayedQueries.forEach((val) => {
             if (queryList.hasOwnProperty(val.QueryID)) {
-                console.log('Duplicate found');
                 return;
             }
             queryList[val.QueryID] = val;
@@ -251,9 +321,7 @@ function QueryList(props) {
                 }
                 if (val.criteria) {
                     const itemInGroupMatches = (group) => {
-                        console.log(group);
                         for (let field of group.group) {
-                            console.log(field);
                             if (field.fieldname.toLowerCase().includes(
                                 lowerQF
                             )) {
@@ -307,6 +375,7 @@ function QueryList(props) {
                 : <span />;
     return (<div>
         {nameModal}
+        {adminModal}
         <div style={{
             borderBottom: 'thin solid black',
             marginBottom: '1em',
@@ -351,6 +420,8 @@ function QueryList(props) {
                             unshareQuery={props.unshareQuery}
 
                             setNameModalID={setNameModalID}
+                            setDefaultModalQueryName={setDefaultModalQueryName}
+                            setAdminModalID={setAdminModalID}
 
                             queryAdmin={props.queryAdmin}
                             />;
@@ -507,7 +578,11 @@ function SingleQueryDisplay(props) {
         ? <span title="Name query"
             style={{cursor: 'pointer'}}
             className="fa-stack"
-            onClick={() => props.setNameModalID(query.QueryID)}>
+            onClick={() => {
+                props.setDefaultModalQueryName(query.Name);
+                props.setAdminModalID(query.QueryID);
+                }
+            }>
                <i className="fas fa-thumbtack fa-stack-1x"> </i>
            </span>
        : <div />;
@@ -531,7 +606,10 @@ function SingleQueryDisplay(props) {
          const nameIcon = <span title="Name query"
              style={{cursor: 'pointer'}}
              className="fa-stack"
-            onClick={() => props.setNameModalID(query.QueryID)}>
+             onClick={() => {
+                props.setDefaultModalQueryName(query.Name);
+                props.setNameModalID(query.QueryID);
+             }}>
                 <i className="fas fa-pencil-alt fa-stack-1x"> </i>
             </span>;
          msg = <div>{desc}
@@ -547,6 +625,8 @@ function SingleQueryDisplay(props) {
          msg = <div>{desc}
              &nbsp;{loadIcon}{pinIcon}
              </div>;
+     } else if (query.Name) {
+         msg = <div><b>{query.Name}</b>&nbsp;{loadIcon}{pinIcon}</div>;
      } else {
          console.error('Invalid query. Neither shared nor recent');
      }

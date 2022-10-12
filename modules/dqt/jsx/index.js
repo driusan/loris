@@ -94,6 +94,7 @@ function DataQueryApp(props) {
     const [usedModules, setUsedModules] = useState({});
     const [recentQueries, setRecentQueries] = useState([]);
     const [sharedQueries, setSharedQueries] = useState([]);
+    const [topQueries, setTopQueries] = useState([]);
 
     const [query, setQuery] = useState(new QueryGroup('and'));
     const [loadQueriesForce, setLoadQueriesForce] = useState(0);
@@ -204,6 +205,7 @@ function DataQueryApp(props) {
         }).then((result) => {
           let convertedrecent = [];
           let convertedshared = [];
+          let convertedtop = [];
           if (result.recent) {
             result.recent.forEach( (query) => {
               if (query.Query.criteria) {
@@ -236,8 +238,23 @@ function DataQueryApp(props) {
               });
             });
           }
+          if (result.topqueries) {
+            result.topqueries.forEach( (query) => {
+              if (query.Query.criteria) {
+                query.Query.criteria = unserializeSavedQuery(
+                  query.Query.criteria,
+                );
+              }
+              convertedtop.push({
+                QueryID: query.QueryID,
+                Name: query.Name,
+                ...query.Query,
+              });
+            });
+          }
           setRecentQueries(convertedrecent);
           setSharedQueries(convertedshared);
+          setTopQueries(convertedtop);
     }).catch( (error) => {
       console.error(error);
     });
@@ -458,6 +475,7 @@ function DataQueryApp(props) {
                         loadQuery={loadQuery}
                         recentQueries={recentQueries}
                         sharedQueries={sharedQueries}
+                        topQueries={topQueries}
 
                         pinQuery={
                             (queryID) => {
