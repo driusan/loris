@@ -82,6 +82,7 @@ function Welcome(props) {
                                 mapModuleName={props.mapModuleName}
                                 mapCategoryName={props.mapCategoryName}
                                 fulldictionary={props.fulldictionary}
+                                queryAdmin={props.queryAdmin}
                             />
                         </div>
                       ),
@@ -100,6 +101,8 @@ function Welcome(props) {
                                 mapModuleName={props.mapModuleName}
                                 mapCategoryName={props.mapCategoryName}
                                 fulldictionary={props.fulldictionary}
+
+                                queryAdmin={props.queryAdmin}
                             />
                         </div>
                       ),
@@ -315,19 +318,21 @@ function QueryList(props) {
                 onUserInput={
                    (name, value) => setQueryFilter(value)
                 }/>
-            {starFilter}
-            {shareFilter}
-            <CheckboxElement name='onlynamed' label='Named Only'
-                value={onlyNamed}
-                onUserInput={
-                   (name, value) => setOnlyNamed(value)
-                }/>
-            {duplicateFilter}
-            <CheckboxElement name='fullquery' label='Collapse queries'
-                value={!fullQuery}
-                onUserInput={
-                   (name, value) => setFullQuery(!value)
-                }/>
+                <div>
+                    {starFilter}
+                    {shareFilter}
+                    <CheckboxElement name='onlynamed' label='Named Only'
+                        value={onlyNamed}
+                        onUserInput={
+                           (name, value) => setOnlyNamed(value)
+                        }/>
+                    {duplicateFilter}
+                    <CheckboxElement name='fullquery' label='Collapse queries'
+                        value={!fullQuery}
+                        onUserInput={
+                           (name, value) => setFullQuery(!value)
+                        }/>
+                </div>
         </div>
         <Pager>
             {displayedQueries.map((query, idx) => {
@@ -346,6 +351,8 @@ function QueryList(props) {
                             unshareQuery={props.unshareQuery}
 
                             setNameModalID={setNameModalID}
+
+                            queryAdmin={props.queryAdmin}
                             />;
             })}
         </Pager>
@@ -496,6 +503,15 @@ function SingleQueryDisplay(props) {
                         <i className="fas fa-sync fa-stack-1x"></i>
                      </span>;
 
+    const pinIcon = props.queryAdmin
+        ? <span title="Name query"
+            style={{cursor: 'pointer'}}
+            className="fa-stack"
+            onClick={() => props.setNameModalID(query.QueryID)}>
+               <i className="fas fa-thumbtack fa-stack-1x"> </i>
+           </span>
+       : <div />;
+
      let msg = '';
      if (query.RunTime) {
          let desc = query.Name
@@ -519,7 +535,7 @@ function SingleQueryDisplay(props) {
                 <i className="fas fa-pencil-alt fa-stack-1x"> </i>
             </span>;
          msg = <div>{desc}
-            &nbsp;{pinnedIcon}{sharedIcon}{loadIcon}{nameIcon}
+            &nbsp;{pinnedIcon}{sharedIcon}{loadIcon}{nameIcon}{pinIcon}
             </div>;
      } else if (query.SharedBy) {
          const desc = query.Name
@@ -529,7 +545,7 @@ function SingleQueryDisplay(props) {
               </span>
             : <i>Query shared by {query.SharedBy}</i>;
          msg = <div>{desc}
-             &nbsp;{loadIcon}
+             &nbsp;{loadIcon}{pinIcon}
              </div>;
      } else {
          console.error('Invalid query. Neither shared nor recent');
@@ -569,7 +585,6 @@ function SingleQueryDisplay(props) {
              : <div/>
              }
      </div>;
-
      const expandIcon = <i style={{
             paddingRight: '1ex',
             cursor: 'pointer',

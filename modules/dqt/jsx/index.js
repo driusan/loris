@@ -495,6 +495,8 @@ function DataQueryApp(props) {
                         mapCategoryName={mapCategoryName}
                         fulldictionary={fulldictionary}
                         onContinue={() => setActiveTab('DefineFields')}
+
+                        queryAdmin={props.queryAdmin}
                     />;
             break;
         case 'DefineFields':
@@ -628,7 +630,7 @@ function unserializeSavedQuery(query) {
 
 window.addEventListener('load', () => {
   ReactDOM.render(
-    <DataQueryApp />,
+    <DataQueryApp queryAdmin={loris.userHasPermission('dataquery_admin')}/>,
     document.getElementById('lorisworkspace')
   );
 });
