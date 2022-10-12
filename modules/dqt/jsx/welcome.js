@@ -34,6 +34,7 @@ function Welcome(props) {
                         fulldictionary={props.fulldictionary}
 
                         queryAdmin={props.queryAdmin}
+                        reloadQueries={props.reloadQueries}
                     />
                 </div>
                 ),
@@ -161,6 +162,7 @@ function QueryList(props) {
     const [noDuplicates, setNoDuplicates] = useState(false);
     const [queryFilter, setQueryFilter] = useState('');
     const [fullQuery, setFullQuery] = useState(!props.defaultCollapsed);
+    const [unpinAdminQuery, setUnpinAdminQuery] = useState(null);
 
     useEffect(() => {
         const modules = new Set();
@@ -185,6 +187,7 @@ function QueryList(props) {
                 props.getModuleFields(module);
         });
     }, [props.queries]);
+
     useEffect(() => {
         if (!nameModalID || !queryName) {
             return;
@@ -213,6 +216,7 @@ function QueryList(props) {
             }
         });
     }, [queryName]);
+
     useEffect(() => {
         if (!adminModalID || !queryName) {
             return;
@@ -240,6 +244,31 @@ function QueryList(props) {
             }
         });
     }, [queryName]);
+
+    useEffect(() => {
+        if (!unpinAdminQuery) {
+            return;
+        }
+
+        // Prevent re-triggering by resetting the state
+        // before fetching, cache the values we need
+        // to build the URI before setting
+        const id = unpinAdminQuery;
+        setUnpinAdminQuery(null);
+
+        fetch(
+            '/dqt/queries/' + id + '?type=untop',
+            {
+                method: 'PATCH',
+                credentials: 'same-origin',
+            },
+        ).then((response) => {
+            console.log(response);
+            if (response.ok) {
+                props.reloadQueries();
+            }
+        });
+    }, [unpinAdminQuery]);
 
     const nameModal = nameModalID == null ? '' :
         <NameQueryModal
@@ -424,6 +453,7 @@ function QueryList(props) {
                             setAdminModalID={setAdminModalID}
 
                             queryAdmin={props.queryAdmin}
+                            unpinAdminQuery={setUnpinAdminQuery}
                             />;
             })}
         </Pager>
@@ -631,8 +661,7 @@ function SingleQueryDisplay(props) {
                  style={{cursor: 'pointer'}}
             className="fa-stack"
             onClick={() => {
-                props.setDefaultModalQueryName(query.Name);
-                props.setAdminModalID(query.QueryID);
+                props.unpinAdminQuery(query.QueryID);
                 }
             }>
                <i className="fas fa-slash fa-stack-1x"></i>

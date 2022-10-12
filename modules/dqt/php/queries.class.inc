@@ -261,19 +261,20 @@ class Queries extends \NDB_Page
                     return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unshared query']);
                 }
 
-                if (!empty($params['name'])) {
-                    if (!empty($params['type'])) {
-                        if (str_contains($params['type'], 'top')) {
+                if (!empty($params['type'])) {
+                        if (str_contains($params['type'], 'untop')) {
+                            $query->removeAdminPinnedQuery('topquery');
+                        } else if (str_contains($params['type'], 'top')) {
                             $query->setAdminPinnedQuery($user, $params['name'], 'topquery');
                         }
+
                         if (str_contains($params['type'], 'dashboard')) {
                             $query->setAdminPinnedQuery($user, $params['name'], 'dashboard');
                         }
                         return new \LORIS\Http\Response\JSON\OK(['msg' => 'Pinned query']);
-                    } else {
-                        $query->setQueryName($user, $params['name']);
-                        return new \LORIS\Http\Response\JSON\OK(['msg'=>'named query']);
-                    }
+                } else if (!empty($params['name'])) {
+                    $query->setQueryName($user, $params['name']);
+                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'named query']);
                 }
 
                 return new \LORIS\Http\Response\JSON\BadRequest('Unhandled PATCH action');
