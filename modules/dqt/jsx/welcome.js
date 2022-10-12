@@ -512,11 +512,11 @@ function SingleQueryDisplay(props) {
             className="fa-stack">
             <i style={
                 {color: 'yellow'}}
-        className="fas fa-star fa-stack-1x"
+                className="fas fa-star fa-stack-1x"
             />
             <i style={
                 {color: 'black'}}
-        className="far fa-star fa-stack-1x"
+                className="far fa-star fa-stack-1x"
             />
             </span>;
     } else {
@@ -575,7 +575,7 @@ function SingleQueryDisplay(props) {
                      </span>;
 
     const pinIcon = props.queryAdmin
-        ? <span title="Name query"
+        ? <span title="Pin Study Query"
             style={{cursor: 'pointer'}}
             className="fa-stack"
             onClick={() => {
@@ -626,7 +626,20 @@ function SingleQueryDisplay(props) {
              &nbsp;{loadIcon}{pinIcon}
              </div>;
      } else if (query.Name) {
-         msg = <div><b>{query.Name}</b>&nbsp;{loadIcon}{pinIcon}</div>;
+         const unpinIcon = props.queryAdmin
+             ? <span title="Name query"
+                 style={{cursor: 'pointer'}}
+            className="fa-stack"
+            onClick={() => {
+                props.setDefaultModalQueryName(query.Name);
+                props.setAdminModalID(query.QueryID);
+                }
+            }>
+               <i className="fas fa-slash fa-stack-1x"></i>
+               <i className="fas fa-thumbtack fa-stack-1x"> </i>
+           </span>
+       : <div />;
+         msg = <div><b>{query.Name}</b>&nbsp;{loadIcon}{unpinIcon}</div>;
      } else {
          console.error('Invalid query. Neither shared nor recent');
      }
@@ -637,8 +650,8 @@ function SingleQueryDisplay(props) {
                  <h3>Fields</h3>
                  {query.fields.map(
                          (fieldobj, fidx) =>
-                         <div key={fidx} >
                          <FieldDisplay
+                         key={fidx}
                          fieldname={fieldobj.field}
                          module={fieldobj.module}
                          category={fieldobj.category}
@@ -649,7 +662,6 @@ function SingleQueryDisplay(props) {
                          mapCategoryName=
                          {props.mapCategoryName}
                          />
-                         </div>
                  )}
              </div>
              {query.criteria ?
