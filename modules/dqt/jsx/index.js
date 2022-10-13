@@ -528,6 +528,7 @@ function DataQueryApp(props) {
                 module={selectedModule}
                 category={selectedModuleCategory}
                 selected={selectedFields}
+                setSelected={setFields}
 
                 onCategoryChange={getModuleFields}
                 onFieldToggle={addRemoveField}
@@ -541,8 +542,6 @@ function DataQueryApp(props) {
 
                 fulldictionary={fulldictionary}
 
-                gotoDefineFilters={() => setActiveTab('DefineFilters') }
-                gotoViewData={() => setActiveTab('ViewData') }
 
                />;
             break;

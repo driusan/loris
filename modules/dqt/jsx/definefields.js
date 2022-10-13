@@ -270,6 +270,7 @@ function DefineFields(props) {
                 selected={props.selected}
                 removeField={props.removeField}
                 fulldictionary={props.fulldictionary}
+                setSelected={props.setSelected}
             />
         </div>
       </div>
@@ -287,17 +288,62 @@ function DefineFields(props) {
 function SelectedFieldList(props) {
   const [removingIdx, setRemovingIdx] = useState(null);
 
+  const [draggingIdx, setDraggingIdx] = useState(null);
+  const [droppingIdx, setDroppingIdx] = useState(null);
+
+  const moveSelected = (src, dst) => {
+      let newSelected = props.selected;
+
+      const removed = newSelected.splice(draggingIdx, 1)[0];
+      const newIdx = (droppingIdx <= draggingIdx)
+          ? droppingIdx
+          : (droppingIdx - 1);
+
+      newSelected.splice(
+              newIdx,
+              0,
+              removed,
+              );
+      props.setSelected([...newSelected]);
+      setDroppingIdx(null);
+      setDraggingIdx(null);
+  };
+
   const fields = props.selected.map((item, i) => {
       const removeField = (item) => {
           props.removeField(item.module, item.category, item.field);
       };
       let style = {display: 'flex',
                 flexWrap: 'nowrap',
+                cursor: 'grab',
                 justifyContent: 'space-between'};
       if (removingIdx === i) {
           style.textDecoration = 'line-through';
       }
-      return (<div key={i} style={style}>
+      if (droppingIdx === i) {
+          style.borderTop = 'thin solid black';
+      }
+      return (<div key={i} style={style}
+                draggable="true"
+                onDragStart={(e) => {
+                    setDraggingIdx(i);
+                }}
+
+                onDragEnd={() => {
+                    setDraggingIdx(null);
+                    setDroppingIdx(null);
+                }}
+
+                onDragEnter={(e) => {
+                    setDroppingIdx(i);
+                }}
+
+                onDragOver ={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }}
+                onDrop={(e) => moveSelected(draggingIdx, droppingIdx)}
+                >
         <div>
             <dt>{item.field}</dt>
             <dd>{getDictionaryDescription(
@@ -316,7 +362,29 @@ function SelectedFieldList(props) {
         </div>
       </div>);
   });
+  if (draggingIdx !== null) {
+      // Add a sink after the last element, so that we can drop on
+      // the end
+      let style = {height: 50};
+      const nItems = fields.length;
+      if (droppingIdx === nItems) {
+          style.borderTop = 'thin solid black';
+      }
+      console.log(fields.length, nItems, droppingIdx);
+      console.log(style);
+      fields.push(<div
+        key={nItems} style={style}
+        onDragEnter={(e) => setDroppingIdx(nItems)}
+        onDragOver ={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+        }}
+        onDrop={(e) => moveSelected(draggingIdx, droppingIdx)}>&nbsp;
+        </div>);
+  }
+
   return <div className="list-group">{fields}</div>;
 }
+
 
 export default DefineFields;
