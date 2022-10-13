@@ -584,28 +584,10 @@ function DataQueryApp(props) {
         default:
             content = <div>Invalid tab</div>;
     }
-    return content;
-    /*
-    return (<>
-        <NavigationStepper
-          setIndex={activeTab}
-          stepperClicked={(tab) => {
-              if (tab == 'ViewData' &&
-                  (!selectedFields || selectedFields.length == 0)) {
-                  swal.fire({
-                      type: 'error',
-                      title: 'No fields',
-                      text: 'At least one field must be selected before '
-                        + 'running a query.',
-                  });
-              } else {
-                  setActiveTab(tab);
-              }
-          }}
-        />
-        {content}
-    </>);
-    */
+    return <div>
+        <div>{content}</div>
+        <NextSteps page={activeTab} fields={selectedFields} />
+    </div>;
 }
 
 /**
@@ -644,6 +626,57 @@ function unserializeSavedQuery(query) {
         });
     });
     return root;
+}
+
+/**
+ * Next steps options for query navigation
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function NextSteps(props) {
+    const [expanded, setExpanded] = useState(true);
+    const steps = [];
+
+    if (!props.fields || props.fields.length == 0
+        || props.page == 'Info') {
+        steps.push(<li key='fields'>Define Fields</li>);
+    } else if (props.Page == 'DefineFields' || props.Page == 'ViewData') {
+        steps.push(<li key='fields'>Modify Fields</li>);
+    }
+
+    if (props.Page == 'DefineFields') {
+        steps.push(<li key='filters'>Define Filters</li>);
+    }
+    if (props.fields && props.fields.length > 0) {
+        steps.push(<li key='run'>Run Query</li>);
+    }
+
+    const expandIcon = <i
+            style={{transform: 'scaleY(2)', fontSize: '2em'}}
+            className='fas fa-chevron-left'
+            onClick={() => setExpanded(!expanded)}
+        ></i>;
+    const style = expanded ? {}: {
+        visibility: 'hidden',
+    };
+
+    return (
+        <div style={{position: 'fixed', bottom: 0, right: 10}}>
+          <div style={{display: 'flex', alignItems: 'stretch'}}>
+              <div style={style}>
+                <h3>Next Steps</h3>
+                <ul>
+                    {steps}
+                </ul>
+              </div>
+              <div
+                  style={{alignSelf: 'center'}}
+              >{expandIcon}</div>
+          </div>
+        </div>
+    );
 }
 
 window.addEventListener('load', () => {
