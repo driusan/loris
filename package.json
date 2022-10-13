@@ -62,7 +62,7 @@
     "tests:unit:debug": "DEBUG=true ./test/dockerized-unit-tests.sh",
     "tests:integration": "./test/dockerized-integration-tests.sh",
     "tests:integration:debug": "DEBUG=true ./test/dockerized-integration-tests.sh",
-    "compile": "export NODE_OPTIONS=--openssl-legacy-provider && webpack",
+    "compile": "webpack",
     "watch": "webpack --watch",
     "postinstall": "cd modules/electrophysiology_browser/jsx/react-series-data-viewer && npm install"
   },
