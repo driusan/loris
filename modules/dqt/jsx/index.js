@@ -586,7 +586,12 @@ function DataQueryApp(props) {
     }
     return <div>
         <div>{content}</div>
-        <NextSteps page={activeTab} fields={selectedFields} />
+        <NextSteps page={activeTab} fields={selectedFields}
+            filters={query}
+            changePage={
+                // FIXME: Validate page is valid
+                (page) => setActiveTab(page)
+        }/>
     </div>;
 }
 
@@ -639,18 +644,86 @@ function NextSteps(props) {
     const [expanded, setExpanded] = useState(true);
     const steps = [];
 
-    if (!props.fields || props.fields.length == 0
-        || props.page == 'Info') {
-        steps.push(<li key='fields'>Define Fields</li>);
-    } else if (props.Page == 'DefineFields' || props.Page == 'ViewData') {
-        steps.push(<li key='fields'>Modify Fields</li>);
-    }
-
-    if (props.Page == 'DefineFields') {
-        steps.push(<li key='filters'>Define Filters</li>);
-    }
-    if (props.fields && props.fields.length > 0) {
-        steps.push(<li key='run'>Run Query</li>);
+    const canRun = (props.fields && props.fields.length > 0);
+    switch (props.page) {
+    case 'Info':
+        if (canRun) {
+            // A previous query was loaded, it can be either
+            // modified or run
+            steps.push(<ButtonElement
+                    label='Modify Fields'
+                    columnSize='col-sm-12'
+                    key='fields'
+                    onUserInput={() => props.changePage('DefineFields')}
+            />);
+            steps.push(<ButtonElement
+                    label='Modify Filters'
+                    columnSize='col-sm-12'
+                    key='filters'
+                    onUserInput={() => props.changePage('DefineFilters')}
+            />);
+            steps.push(<ButtonElement
+                    label='Run Query'
+                    columnSize='col-sm-12'
+                    key='runquery'
+                    onUserInput={() => props.changePage('ViewData')}
+            />);
+        } else {
+            // No query loaded, must define fields
+            steps.push(<ButtonElement
+                    label='Define Fields'
+                    columnSize='col-sm-12'
+                    key='fields'
+                    onUserInput={() => props.changePage('DefineFields')}
+            />);
+        }
+        break;
+    case 'DefineFields':
+        steps.push(<ButtonElement
+                label='Define Filters'
+                columnSize='col-sm-12'
+                key='filters'
+                onUserInput={() => props.changePage('DefineFilters')}
+        />);
+        if (canRun) {
+            steps.push(<ButtonElement
+                    label='Run Query'
+                    columnSize='col-sm-12'
+                    key='runquery'
+                    onUserInput={() => props.changePage('ViewData')}
+            />);
+        }
+        break;
+    case 'DefineFilters':
+        if (canRun) {
+            steps.push(<ButtonElement
+                    label='Run Query'
+                    key='runquery'
+                    columnSize='col-sm-12'
+                    onUserInput={() => props.changePage('ViewData')}
+            />);
+        }
+        steps.push(<ButtonElement
+                label='Modify Fields'
+                key='fields'
+                columnSize='col-sm-12'
+                onUserInput={() => props.changePage('DefineFields')}
+        />);
+        break;
+    case 'ViewData':
+        steps.push(<ButtonElement
+                label='Modify Fields'
+                key='fields'
+                columnSize='col-sm-12'
+                onUserInput={() => props.changePage('DefineFields')}
+        />);
+        steps.push(<ButtonElement
+                label='Modify Filters'
+                key='filters'
+                columnSize='col-sm-12'
+                onUserInput={() => props.changePage('DefineFilters')}
+        />);
+        break;
     }
 
     const expandIcon = <i
@@ -663,13 +736,19 @@ function NextSteps(props) {
     };
 
     return (
-        <div style={{position: 'fixed', bottom: 0, right: 10}}>
+        <div style={{
+            position: 'fixed',
+            bottom: 0,
+            right: 10,
+            // Make sure we're on top of the footer
+            zIndex: 300,
+        }}>
           <div style={{display: 'flex', alignItems: 'stretch'}}>
               <div style={style}>
                 <h3>Next Steps</h3>
-                <ul>
+                <div style={{display: 'flex'}}>
                     {steps}
-                </ul>
+                </div>
               </div>
               <div
                   style={{alignSelf: 'center'}}

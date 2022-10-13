@@ -274,18 +274,6 @@ function DefineFields(props) {
         </div>
       </div>
    </div>
-
-       <div>
-            <h1>Next Steps</h1>
-            <div style={{display: 'flex'}}>
-                <ButtonElement label='Define Filters'
-                    onUserInput={props.gotoDefineFilters}
-                />
-                <ButtonElement label='Run query'
-                    onUserInput={props.gotoViewData}
-                />
-                </div>
-        </div>
    </div>);
 }
 
