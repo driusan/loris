@@ -1,7 +1,7 @@
 // import {Component} from 'react';
 // import PropTypes from 'prop-types';
 // import {StepperPanel} from './components/stepper';
-import {useState} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import Select from 'react-select';
 import FilterableSelectGroup from './components/filterableselectgroup';
 import getDictionaryDescription from './getdictionarydescription';
@@ -20,6 +20,15 @@ function QueryField(props) {
     'list-group-item active' :
     'list-group-item';
   const value=props.value;
+  const scrollRef = useRef(null);
+  useEffect(() => {
+      if (props.scrollTo == true) {
+          scrollRef.current.scrollIntoView({
+              behavior: 'smooth',
+          });
+          props.resetScrollTo();
+      }
+  }, [props.scrollTo]);
 
   let visits;
   let selectedVisits;
@@ -66,6 +75,7 @@ function QueryField(props) {
     <i className="fas fa-download" /> : null;
   return (
     <div className={className}
+       ref={scrollRef}
        style={{
        cursor: 'pointer',
        display: 'flex',
@@ -94,6 +104,7 @@ function QueryField(props) {
  */
 function DefineFields(props) {
   const [activeFilter, setActiveFilter] = useState('');
+  const [zoomTo, setZoomTo] = useState(null);
   const displayed = Object.keys(props.displayedFields || {}).filter((value) => {
       if (activeFilter === '') {
           // No filter set
@@ -116,6 +127,8 @@ function DefineFields(props) {
       };
       const selobj = props.selected.find(equalField);
       return <QueryField
+                scrollTo={item == zoomTo}
+                resetScrollTo={() => setZoomTo(null)}
                 key={item}
                 item={item}
                 value={props.displayedFields[item]}
@@ -271,6 +284,10 @@ function DefineFields(props) {
                 removeField={props.removeField}
                 fulldictionary={props.fulldictionary}
                 setSelected={props.setSelected}
+                snapToView={(module, category, item) => {
+                    setZoomTo(item);
+                    props.onCategoryChange(module, category);
+                }}
             />
         </div>
       </div>
@@ -325,6 +342,9 @@ function SelectedFieldList(props) {
       }
       return (<div key={i} style={style}
                 draggable="true"
+                onClick={() => {
+                    props.snapToView(item.module, item.category, item.field);
+                }}
                 onDragStart={(e) => {
                     setDraggingIdx(i);
                 }}
@@ -370,8 +390,6 @@ function SelectedFieldList(props) {
       if (droppingIdx === nItems) {
           style.borderTop = 'thin solid black';
       }
-      console.log(fields.length, nItems, droppingIdx);
-      console.log(style);
       fields.push(<div
         key={nItems} style={style}
         onDragEnter={(e) => setDroppingIdx(nItems)}
