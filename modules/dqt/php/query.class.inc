@@ -2,6 +2,22 @@
 
 namespace LORIS\dqt;
 use \LORIS\StudyEntities\Candidate\CandID;
+use \LORIS\Data\Query\QueryTerm;
+use \LORIS\Data\Query\Criteria\Equal;
+use \LORIS\Data\Query\Criteria\NotEqual;
+use \LORIS\Data\Query\Criteria\In;
+use \LORIS\Data\Query\Criteria\LessThan;
+use \LORIS\Data\Query\Criteria\LessThanOrEqual;
+use \LORIS\Data\Query\Criteria\GreaterThan;
+use \LORIS\Data\Query\Criteria\GreaterThanOrEqual;
+
+use \LORIS\Data\Query\Criteria\IsNull;
+use \LORIS\Data\Query\Criteria\NotNull;
+
+use \LORIS\Data\Query\Criteria\StartsWith;
+use \LORIS\Data\Query\Criteria\Substring;
+use \LORIS\Data\Query\Criteria\EndsWith;
+
 
 class Query implements \LORIS\StudyEntities\AccessibleResource {
     protected $data;
@@ -91,12 +107,6 @@ class Query implements \LORIS\StudyEntities\AccessibleResource {
         return $this->data['fields'] ?? null;
     }
 
-    /*
-    public function getQueryDataProvisioner() {
-        return new QueryDataProvisioner($this->loris, $this);
-    }
-    */
-
     public function newRun(\User $user) : QueryRun {
         $DB = $this->loris->getDatabaseConnection();
         $DB->insert(
@@ -134,15 +144,21 @@ class Query implements \LORIS\StudyEntities\AccessibleResource {
     }
 
     public function matchCandidates(\User $user) : iterable {
-        if ($this->getCriteria()) {
-            throw new \LorisException("Filters not implemented");
-        }
-        $allCandidates = $this->allCandidates();
+        $criteria = $this->getCriteria();
 
-        return $this->filterInaccessibleCandidates($allCandidates, $user);
+        if ($criteria) {
+            // FIXME: Do filter
+            $candidates = $this->candidateMatches($criteria);
+        } else {
+            $candidates = $this->allCandidates();
+        }
+        return $this->filterInaccessibleCandidates($candidates, $user);
     }
 
     private function filterInaccessibleCandidates(array $candIDs, \User $user) : iterable {
+        if (count($candIDs) == 0) {
+            return [];
+        }
         $DB = $this->loris->getDatabaseConnection();
 
         // Put candidates into a temporary table so that it can be used in a join
@@ -206,14 +222,12 @@ class Query implements \LORIS\StudyEntities\AccessibleResource {
                 continue;
             }
         }
-        $candidates = $DB->pselectCol("SELECT * from accesscandidates", []);
+
+        $candidates = $DB->pselectCol("SELECT CandID from accesscandidates", []);
         $DB->run("DROP TEMPORARY TABLE accesscandidates");
-        return $candidates;
-        /*
         return array_map(function($row) {
             return new CandID($row);
         }, $candidates);
-        */
     }
 
     private function allCandidates() : array {
@@ -224,4 +238,120 @@ class Query implements \LORIS\StudyEntities\AccessibleResource {
             return new CandID($row);
         }, $results);
     }
+
+    public function candidateMatches(array $criteria) : array {
+        $results = [];
+        $startMemory = memory_get_usage();
+        if (!$criteria['operator']) {
+            throw new \LorisException("Bad criteria");
+        }
+
+        foreach($criteria['group'] as $crit) {
+            if (isset($crit['group'])) {
+                $subresults = $this->candidateMatches($crit);
+                if (is_array($subresults)) {
+                    $results[] = $subresults;
+                } else {
+                    $results[] = iterator_to_array($subresults);
+                }
+                continue;
+            }
+            $modulename = $crit['module'];
+            $mStartMemory = memory_get_usage();
+            $now = time();
+            $engine = \Module::factoryWithInstance($modulename, $this->loris)->getQueryEngine();
+
+            $fulldict = $this->getFlattenedDictionary($engine);
+            $dictitem = $fulldict[$crit['fieldname']];
+            // var_dump($dict);
+            
+            // Get a new engine for each term to reset the internal state
+            switch ($crit['op']) {
+                case 'lt':
+                    $term = new QueryTerm($dictitem, new LessThan($crit['value']));
+                    break;
+                case 'lte':
+                    $term = new QueryTerm($dictitem, new LessThanOrEqual($crit['value']));
+                    break;
+                case 'eq':
+                    $term = new QueryTerm($dictitem, new Equal($crit['value']));
+                    break;
+                case 'neq':
+                    $term = new QueryTerm($dictitem, new NotEqual($crit['value']));
+                    break;
+                case 'gte':
+                    $term = new QueryTerm($dictitem, new GreaterThanOrEqual($crit['value']));
+                    break;
+                case 'gt':
+                    $term = new QueryTerm($dictitem, new GreaterThan($crit['value']));
+                    break;
+                case 'startsWith':
+                    $term = new QueryTerm($dictitem, new StartsWith($crit['value']));
+                    break;
+                case 'endsWith':
+                    $term = new QueryTerm($dictitem, new EndsWith($crit['value']));
+                    break;
+                case 'contains':
+                    $term = new QueryTerm($dictitem, new Substring($crit['value']));
+                    break;
+                case 'isnotnull':
+                    $term = new QueryTerm($dictitem, new NotNull());
+                    break;
+                case 'isnull':
+                    $term = new QueryTerm($dictitem, new IsNull());
+                    break;
+                case 'in':
+                    $term = new QueryTerm($dictitem, new In(...$crit['value']));
+                    break;
+                default:
+                    throw new \Exception("Unhandled operator: " . $crit['op']);
+            }
+
+            // FIXME: Verify visits, test was done with candidate scope data
+            $visitlist = null;
+            if (isset($query['visits'])) {
+                $visitlist = $query['visits'];
+            }
+
+            $matches = $engine->getCandidateMatches($term , $visitlist);
+            if (is_array($matches)) {
+                $results[] = $matches;
+            } else {
+                $results[] = iterator_to_array($matches);
+            }
+        }
+        error_log("Before intersection used " . (memory_get_usage() - $startMemory) . " bytes of memory");
+        $combinedresult = [];
+        var_dump($results);
+        if (count($results) == 1) {
+            // Doesn't matter if it's 'and' or 'or', there's only 1 criteria
+            $combinedresult = $results[0];
+        } else {
+            if ($criteria['operator'] == 'and') {
+                $combinedresult = array_intersect(...$results);
+            } else if ($criteria['operator'] == 'or') {
+                $combinedresult = array_merge(...$results);
+            }
+
+        }
+        $candidates = array_values(array_unique($combinedresult));
+
+        error_log("Candidate matches used " . (memory_get_usage() - $startMemory) . " bytes of memory");
+        return $candidates;
+    }
+
+    public function getFlattenedDictionary(\LORIS\Data\Query\QueryEngine $engine) {
+        $rawdict = $engine->getDataDictionary();
+
+        // Flattened dictionary without categories
+        $dict = [];
+
+        foreach ($rawdict as $cat) {
+            foreach ($cat->getItems() as $item) {
+                $dict[$item->getName()] = $item;
+            }
+        }
+        return $dict;
+    }
+
 }

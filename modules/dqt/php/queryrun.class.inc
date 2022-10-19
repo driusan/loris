@@ -19,6 +19,9 @@ class QueryRun implements \LORIS\StudyEntities\AccessibleResource {
     public function insertCandidates(\User $user) : void {
         $DB = $this->loris->getDatabaseConnection();
         $candIDs = $this->query->matchCandidates($user);
+        if (count($candIDs) == 0) {
+            return;
+        }
         $insertstmt = "INSERT INTO dataquery_run_results (RunID, CandID) VALUES ($this->RunID, " . join("),($this->RunID, ", $candIDs) . ')';
         $q = $DB->prepare($insertstmt);
         $q->execute([]);
@@ -30,9 +33,6 @@ class QueryRun implements \LORIS\StudyEntities\AccessibleResource {
     }
 
     public function getCandidates() : array {
-        if ($this->query->getCriteria()) {
-            throw new \LorisException("Filters not implemented");
-        }
         $DB = $this->loris->getDatabaseConnection();
         $candIDs = $DB->pselectCol("SELECT CandID FROM dataquery_run_results WHERE RunID=:run", ['run' => $this->RunID]);
 
