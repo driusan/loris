@@ -263,7 +263,6 @@ function QueryList(props) {
                 credentials: 'same-origin',
             },
         ).then((response) => {
-            console.log(response);
             if (response.ok) {
                 props.reloadQueries();
             }

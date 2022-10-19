@@ -104,7 +104,31 @@ function QueryField(props) {
  */
 function DefineFields(props) {
   const [activeFilter, setActiveFilter] = useState('');
+  const [syncVisits, setSyncVisits] = useState(false);
   const [zoomTo, setZoomTo] = useState(null);
+  useEffect(() => {
+      if (!syncVisits) {
+          return;
+      }
+      // FIXME: Go through each selected field, get the dictionary,
+      // and take the intersection with default visits
+      let modifiedvisits = false;
+      props.selected.forEach( (field) => {
+          // Valid visits according to the dictionary
+          const dict = field.dictionary;
+
+          const newvisits = dict.visits.filter((visit) => {
+              return props.defaultVisits.includes(visit);
+          }).map((vl) => {
+                  return {value: vl, label: vl};
+          });
+          field.visits = newvisits;
+          modifiedvisits = true;
+      });
+      if (modifiedvisits) {
+          props.setSelected([...props.selected]);
+      }
+  }, [syncVisits, props.defaultVisits]);
   const displayed = Object.keys(props.displayedFields || {}).filter((value) => {
       if (activeFilter === '') {
           // No filter set
@@ -202,6 +226,12 @@ function DefineFields(props) {
                     value={selectedVisits}
                     closeMenuOnSelect={false}
                 />
+                <div>
+                <CheckboxElement label='Sync with selected fields'
+                    name="syncVisits"
+                    value={syncVisits}
+                    onUserInput={(name, value) => setSyncVisits(value)} />
+                </div>
             </div>;
       }
 
@@ -340,6 +370,21 @@ function SelectedFieldList(props) {
       if (droppingIdx === i) {
           style.borderTop = 'thin solid black';
       }
+      if (draggingIdx == i) {
+          style.background = '#f5f5f5';
+      }
+      let fieldvisits;
+      if (item.visits) {
+          const style = {
+              fontStyle: 'italic',
+              color: '#aaa',
+              fontSize: '0.7em',
+              marginLeft: 20,
+          };
+          fieldvisits = <dd style={style}>{item.visits.map(
+            (obj) => obj.label)
+            .join(', ')}</dd>;
+      }
       return (<div key={i} style={style}
                 draggable="true"
                 onClick={() => {
@@ -366,12 +411,13 @@ function SelectedFieldList(props) {
                 >
         <div>
             <dt>{item.field}</dt>
-            <dd>{getDictionaryDescription(
+            <dd style={{marginLeft: 20}}>{getDictionaryDescription(
                     item.module,
                     item.category,
                     item.field,
                     props.fulldictionary,
                 )}</dd>
+            {fieldvisits}
         </div>
         <div
             onMouseEnter={() => setRemovingIdx(i)}

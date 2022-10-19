@@ -98,7 +98,6 @@ function DataQueryApp(props) {
 
     const [query, setQuery] = useState(new QueryGroup('and'));
     const [loadQueriesForce, setLoadQueriesForce] = useState(0);
-
     const [setPinQueryID, setPinAction] = usePinnedQueries(
         () => setLoadQueriesForce(loadQueriesForce+1),
     );
@@ -730,8 +729,15 @@ function NextSteps(props) {
             className='fas fa-chevron-left'
             onClick={() => setExpanded(!expanded)}
         ></i>;
-    const style = expanded ? {}: {
+    const style = expanded ? {
+        background: 'white',
+        padding: '0.5em',
+        paddingLeft: '2em',
+    } : {
+        display: 'none',
         visibility: 'hidden',
+        padding: '0.5em',
+        paddingLeft: '2em',
     };
 
     return (
@@ -739,10 +745,17 @@ function NextSteps(props) {
             position: 'fixed',
             bottom: 0,
             right: 10,
+            // Fix the height size so it doesn't move when
+            // expanded or collapsed
+            height: 120,
             // Make sure we're on top of the footer
             zIndex: 300,
         }}>
-          <div style={{display: 'flex', alignItems: 'stretch'}}>
+          <div style={{
+              display: 'flex',
+              alignItems: 'stretch',
+              height: 120,
+            }}>
               <div style={style}>
                 <h3>Next Steps</h3>
                 <div style={{display: 'flex'}}>
