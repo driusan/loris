@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {QueryTerm} from './querydef';
 import AddFilterModal from './definefilters.addfiltermodal';
 import ImportCSVModal from './definefilters.importcsvmodal';
@@ -23,6 +23,47 @@ function DefineFilters(props) {
     // to that group.
     const [modalQueryGroup, setModalGroup] = useState(props.query);
     const [deleteItemIndex, setDeleteItemIndex] = useState(null);
+    const [queryMatches, setQueryMatches] = useState(null);
+    useEffect(() => {
+        setQueryMatches(null);
+        const payload = calcPayload(props.fields, props.query);
+        if (payload == {}) {
+            return;
+        }
+        fetch(
+           loris.BaseURL + '/dqt/queries',
+           {
+             method: 'POST',
+             credentials: 'same-origin',
+             body: JSON.stringify(payload),
+           },
+        ).then(
+           (resp) => {
+               if (!resp.ok) {
+                   throw new Error('Error creating query.');
+               }
+               return resp.json();
+           }
+        ).then(
+            (data) => {
+                fetch(
+                        loris.BaseURL + '/dqt/queries/'
+                            + data.QueryID + '/count',
+                        {
+                            method: 'GET',
+                            credentials: 'same-origin',
+                        }
+                ).then((resp) => {
+                    if (!resp.ok) {
+                        throw new Error('Could not get count.');
+                    }
+                    return resp.json();
+                }).then((result) => {
+                    setQueryMatches(result.count);
+                });
+           }
+        );
+    }, [props.fields, props.query]);
 
     const bGroupStyle = {
         display: 'flex',
@@ -237,13 +278,50 @@ function DefineFilters(props) {
             />
     ) : '';
 
+    const matchCount = queryMatches === null
+        ? <div>&nbsp;</div> // So the header doesn't jump around
+        : <div>Query matches <b>{queryMatches}</b> candidates</div>;
     return (<div>
           {modal}
           {csvModalHTML}
-          <h1>Current Query</h1>
+          <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'baseline',
+          }}>
+              <h1>Current Query</h1>
+              {matchCount}
+          </div>
           {displayquery}
       </div>
       );
+}
+
+/**
+ * Calculates the payload to submit to the count endpoint
+ * to run the query.
+ *
+ * @param {array} fields - the fields to query
+ * @param {QueryGroup} filters - the root of the filters
+ *
+ * @return {object}
+ */
+function calcPayload(fields, filters) {
+    let payload = {
+        type: 'candidates',
+        fields: fields.map((val) => {
+            return {
+                module: val.module,
+                category: val.category,
+                field: val.field,
+            };
+        },
+        ),
+    };
+    if (filters.group.length > 0) {
+        payload.criteria = filters;
+    }
+    return payload;
 }
 
 export default DefineFilters;

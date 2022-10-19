@@ -561,6 +561,8 @@ function DataQueryApp(props) {
                 addQueryGroupItem={addQueryGroupItem}
                 removeQueryGroupItem={removeQueryGroupItem}
                 addNewQueryGroup={addNewQueryGroup}
+
+                fields={selectedFields}
                 query={query}
 
                 setQuery={setQuery}
