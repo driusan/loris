@@ -79,6 +79,15 @@ class Queries extends \NDB_Page
             return $this->runQuery($user, $queryID);
         }
         if (preg_match(
+                    "/queries\/([0-9]+)\/count$/",
+                    $url,
+                    $pieces
+                    ) === 1
+           ) {
+            $queryID = intval($pieces[1]);
+            return $this->countResults($user, $queryID);
+        }
+        if (preg_match(
                     "/queries\/([0-9]+)\/run\/([0-9]+)$/",
                     $url,
                     $pieces
@@ -287,7 +296,7 @@ class Queries extends \NDB_Page
             $query = new Query($this->loris, $queryID);
 
             $queryRun = $query->newRun($user);
-            $queryRun->matchCandidates($user);
+            $queryRun->insertCandidates($user);
             $data = $queryRun->getQueryDataProvisioner();
 
             $table = (new \LORIS\Data\Table())
@@ -301,6 +310,19 @@ class Queries extends \NDB_Page
         } catch (\LorisException $e) {
             return new \LORIS\Http\Response\JSON\NotImplemented($e->getMessage());
 
+        }
+    }
+
+    public function countResults(\User $user, int $queryID) : ResponseInterface {
+        try {
+            $query = new Query($this->loris, $queryID);
+
+            $candidates = $query->matchCandidates($user);
+            return new \LORIS\Http\Response\JSON\OK([
+                'count' => count($candidates),
+            ]);
+        } catch (\LorisException $e) {
+            return new \LORIS\Http\Response\JSON\NotImplemented($e->getMessage());
         }
     }
 }
