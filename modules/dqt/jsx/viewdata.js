@@ -21,7 +21,6 @@ function ViewData(props) {
         if (payload == {}) {
             return;
         }
-        props.onRun(); // forces query list to be reloaded
         fetch(
            loris.BaseURL + '/dqt/queries',
            {
@@ -55,7 +54,9 @@ function ViewData(props) {
                     },
                 );
                 props.onRun(); // forces query list to be reloaded
-                if (response && !response.ok) {
+
+                if (!response.ok) {
+                    console.log(response);
                     response.then(
                         (resp) => resp.json()
                     ).then(
@@ -65,7 +66,7 @@ function ViewData(props) {
                                 text: data.error,
                             });
                         }
-                    );
+                    ).catch( () => {});
                 }
             }
         ).catch(

@@ -95,6 +95,7 @@ async function fetchDataStream(dataURL, rowcb, chunkcb, endstreamcb) {
             doneLoop = true;
         });
     };
+    return null;
 };
 
 export default fetchDataStream;
