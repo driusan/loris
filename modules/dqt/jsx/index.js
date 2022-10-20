@@ -1,391 +1,45 @@
-import {useState, useEffect} from 'react';
-import swal from 'sweetalert2';
+import {useState} from 'react';
 
-// import {NavigationStepper} from './navigationstepper';
 import Welcome from './welcome';
 import DefineFilters from './definefilters';
 import DefineFields from './definefields';
 import ViewData from './viewdata';
 
-import {QueryGroup} from './querydef';
+import NextSteps from './nextsteps.js';
+
+import useBreadcrumbs from './hooks/usebreadcrumbs';
+import useVisits from './hooks/usevisits';
+import useQuery from './hooks/usequery';
+import {useSharedQueries, useLoadQueryFromURL} from './hooks/usesharedqueries';
+
+import {useDataDictionary, useCategories} from './hooks/usedatadictionary';
 
 /**
- * React hook to manage loading of DQT queries
+ * React hook to manage the selection of an active module and category
+ *
+ * @param {function} retrieveModuleDictionary - a function that will return a
+                         promise to retrieve the module's dictionary
  *
  * @return {array}
  */
-function useQuery() {
-    const [fields, setFields] = useState([]);
-    const [criteria, setCriteria] = useState(new QueryGroup('and'));
-
-    const addQueryGroupItem = (querygroup, condition) => {
-        // clone the top level query to force
-        // a new rendering
-        let newquery = new QueryGroup(criteria.operator);
-
-        // Add to this level of the tree
-        querygroup.addTerm(condition);
-
-
-        newquery.group = [...criteria.group];
-        setCriteria(newquery);
-        return newquery;
-    };
-
-    const removeQueryGroupItem = (querygroup, idx) => {
-        // Remove from this level of the tree
-        querygroup.removeTerm(idx);
-
-        // clone the top level query to force
-        // a new rendering
-        let newquery = new QueryGroup(criteria.operator);
-
-        newquery.group = [...criteria.group];
-        setCriteria(newquery);
-
-        return newquery;
-    };
-
-    const addNewQueryGroup = (parentgroup) => {
-        // Add to this level of the tree
-        parentgroup.addGroup();
-
-        // clone the top level query to force
-        // a new rendering
-        let newquery = new QueryGroup(criteria.operator);
-        newquery.group = [...criteria.group];
-
-        setCriteria(newquery);
-    };
-
-    const loadQuery = (fields, filters) => {
-        setFields(fields);
-        if (!filters) {
-            setCriteria(new QueryGroup('and'));
-        } else {
-            setCriteria(filters);
-        }
-    };
-    const fieldActions = {
-        clear: function() {
-            setFields([]);
-        },
-        remove: (module, category, field) => {
-            const equalField = (element) => {
-               return (element.module == module
-                  && element.category === category
-                  && element.field == field);
-            };
-            const newfields = fields.filter((el) => !(equalField(el)));
-            setFields(newfields);
-        },
-        modifyVisits: (module, category, field, dict, visits) => {
-            const newfields = [...fields];
-            const equalField = (element) => {
-              return (element.module == module
-                && element.category === category
-                && element.field == field);
-            };
-
-            for (let i = 0; i < newfields.length; i++) {
-              if (equalField(newfields[i])) {
-                newfields[i].visits = visits;
-                setFields(newfields);
-                return;
-              }
-            }
-        },
-        addRemoveField: (module, category, field, dict, visits) => {
-            const newFieldObj = {
-                module: module,
-                category: category,
-                field: field,
-                dictionary: dict,
-                visits: visits,
-            };
-            const equalField = (element) => {
-                return (element.module == module
-                    && element.category === category
-                    && element.field == field);
-            };
-            if (fields.some(equalField)) {
-                // Remove
-                const newfields = fields.filter(
-                    (el) => !(equalField(el))
-                );
-                setFields(newfields);
-            } else {
-                // Add
-                const newfields = [...fields, newFieldObj];
-                setFields(newfields);
-            }
-        },
-        removeMany: (removeelements) => {
-            const equalField = (el1, el2) => {
-                return (el1.module == el2.module
-                    && el1.category === el2.category
-                    && el1.field == el2.field);
-            };
-            const newfields = fields.filter((el) => {
-                if (removeelements.some((rel) => equalField(rel, el))) {
-                    return false;
-                }
-                return true;
+function useActiveCategory(retrieveModuleDictionary) {
+    const [module, setModule] = useState(false);
+    const [category, setCategory] = useState(false);
+    const [moduleDict, setModuleDict] = useState({});
+    // const moduleDict = fulldictionary[module][category] || {};
+    const changeCategory = (module, category) => {
+            retrieveModuleDictionary(module).then( (dict) => {
+                setModule(module);
+                setCategory(category);
+                setModuleDict(dict[category]);
             });
-            setFields(newfields);
-        },
-        addMany: (elements) => {
-            let newfields = fields;
-            for (let i = 0; i < elements.length; i++) {
-                const newFieldObj = elements[i];
-                const equalField = (element) => {
-                    return (element.module == newFieldObj.module
-                            && element.category === newFieldObj.category
-                            && element.field == newFieldObj.field);
-                };
-                if (!newfields.some((el) => equalField(el))) {
-                    newfields = [...newfields, newFieldObj];
-                }
-            }
-            setFields(newfields);
-        },
     };
-    return [
-      criteria,
-      addQueryGroupItem,
-      removeQueryGroupItem,
-      addNewQueryGroup,
-      loadQuery,
-      setCriteria,
-      fields,
-      setFields,
-      fieldActions,
-  ];
-}
-
-/**
- * React hook to load a query if one was passed in the URL.
- *
- * @param {function} loadQuery - function to load the query into React state
- *
- */
-function useLoadQueryFromURL(loadQuery) {
-    // Load query if queryID was passed
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const queryID = params.get('queryID');
-        if (!queryID) {
-            return;
-        }
-        fetch(
-            '/dqt/queries/' + queryID,
-            {
-                method: 'GET',
-                credentials: 'same-origin',
-            },
-        ).then((resp) => {
-                  if (!resp.ok) {
-                      throw new Error('Invalid response');
-                  }
-                  return resp.json();
-          }).then((result) => {
-              if (result.criteria) {
-                  result.criteria = unserializeSavedQuery(result.criteria);
-              }
-              loadQuery(result);
-              swal.fire({
-                type: 'success',
-                text: 'Loaded query',
-              });
-          }).catch( (error) => {
-              swal.fire({
-                  type: 'error',
-                  text: 'Could not load query',
-              });
-              console.error(error);
-          });
-    }, []);
-}
-
-/**
- * React hook for triggering toggling of pinned queries
- * on a LORIS server.
- *
- * @param {callback} onCompleteCallback - an action to perform after pinning
- * @return {array}
- */
-function usePinnedQueries(onCompleteCallback) {
-    const [pinQueryID, setPinQueryID] = useState(null);
-    const [pinAction, setPinAction] = useState('pin');
-    useEffect(() => {
-        if (pinQueryID == null) {
-            return;
-        }
-
-        fetch(
-            '/dqt/queries/' + pinQueryID + '?pin=' + pinAction,
-            {
-                method: 'PATCH',
-                credentials: 'same-origin',
-            },
-        ).then( () => {
-            setPinQueryID(null);
-            if (onCompleteCallback) {
-                onCompleteCallback();
-            }
-        }
-        );
-    }, [pinQueryID, pinAction]);
-    return [setPinQueryID, setPinAction];
-}
-
-/**
- * React hook for triggering toggling of shared queries
- * on a LORIS server.
- *
- * @param {callback} onCompleteCallback - an action to perform after pinning
- * @return {array}
- */
-function useSharedQueries(onCompleteCallback) {
-    const [shareQueryID, setShareQueryID] = useState(null);
-    const [shareAction, setShareAction] = useState('share');
-    useEffect(() => {
-        if (shareQueryID == null) {
-            return;
-        }
-
-        fetch(
-            '/dqt/queries/' + shareQueryID + '?share=' + shareAction,
-            {
-                method: 'PATCH',
-                credentials: 'same-origin',
-            },
-        ).then( () => {
-            setShareQueryID(null);
-            if (onCompleteCallback) {
-                onCompleteCallback();
-            }
-        }
-        );
-    }, [shareQueryID, shareAction]);
-    return [setShareQueryID, setShareAction];
-}
-
-/**
- * React hook to load categories from the server
- *
- * @return {array|false}
- */
-function useCategories() {
-    const [categories, setCategories] = useState(false);
-    useEffect(() => {
-        if (categories !== false) {
-            return;
-        }
-        fetch('/dictionary/categories', {credentials: 'same-origin'})
-          .then((resp) => {
-                  if (!resp.ok) {
-                      throw new Error('Invalid response');
-                  }
-                  return resp.json();
-          }).then((result) => {
-                  setCategories(result);
-                  }
-          ).catch( (error) => {
-                  console.error(error);
-        });
-    }, []);
-    return categories;
-}
-
-/**
- * React hook to load categories from the server
- *
- * @param {callback} onLoad - A callback after loading the visits
- *
- * @return {array|false}
- */
-function useVisits(onLoad) {
-    const [allVisits, setAllVisits] = useState(false);
-    useEffect(() => {
-        if (allVisits !== false) {
-            return;
-        }
-          fetch('/dqt/visitlist', {credentials: 'same-origin'})
-          .then((resp) => {
-                  if (!resp.ok) {
-                      throw new Error('Invalid response');
-                  }
-                  return resp.json();
-          }).then((result) => {
-                  onLoad(result.Visits);
-                  setAllVisits(result.Visits);
-                  }
-          ).catch( (error) => {
-                  console.error(error);
-                  });
-    }, []);
-    return allVisits;
-}
-
-/**
- * Update the DQT breadcrumbs based on the active tab
- *
- * @param {string} activeTab - The active tab
- * @param {function} setActiveTab - set the state on click
- */
-function useBreadcrumbs(activeTab, setActiveTab) {
-    // update breadcrumbs breadcrumbs
-    useEffect(() => {
-        let breadcrumbs = [
-            {
-                text: 'Data Query Tool (Alpha)',
-                onClick: (e) => {
-                    e.preventDefault();
-                    setActiveTab('Info');
-                },
-            },
-        ];
-        if (activeTab == 'DefineFields'
-                || activeTab == 'DefineFilters'
-                || activeTab == 'ViewData') {
-            breadcrumbs.push({
-                text: 'Define Fields',
-                onClick: (e) => {
-                    e.preventDefault();
-                    setActiveTab('DefineFields');
-                },
-            });
-        }
-        if (activeTab == 'DefineFilters'
-                || activeTab == 'ViewData') {
-            breadcrumbs.push({
-                text: 'Define Filters',
-                onClick: (e) => {
-                    e.preventDefault();
-                    setActiveTab('DefineFilters');
-                },
-            });
-        }
-
-        if (activeTab == 'ViewData') {
-            breadcrumbs.push({
-                text: 'View Data',
-                onClick: (e) => {
-                    e.preventDefault();
-                    setActiveTab('View Data');
-                },
-            });
-        }
-
-        ReactDOM.render(
-            <Breadcrumbs
-                breadcrumbs={breadcrumbs}
-                baseURL={loris.BaseURL}
-            />,
-            document.getElementById('breadcrumbs')
-      );
-    }, [activeTab]);
+    return {
+        module: module,
+        category: category,
+        currentDictionary: moduleDict,
+        changeCategory: changeCategory,
+    };
 }
 
 /**
@@ -397,161 +51,30 @@ function useBreadcrumbs(activeTab, setActiveTab) {
  */
 function DataQueryApp(props) {
     const [activeTab, setActiveTab] = useState('Info');
-    const [selectedModule, setSelectedModule] = useState(false);
-    const [fulldictionary, setDictionary] = useState({});
-    const [selectedModuleCategory, setSelectedModuleCategory] = useState(false);
-    const [defaultVisits, setDefaultVisits] = useState(false);
-
-    const [usedModules, setUsedModules] = useState({});
-    const [recentQueries, setRecentQueries] = useState([]);
-    const [sharedQueries, setSharedQueries] = useState([]);
-    const [topQueries, setTopQueries] = useState([]);
-
-    const [loadQueriesForce, setLoadQueriesForce] = useState(0);
-    const [setPinQueryID, setPinAction] = usePinnedQueries(
-        () => setLoadQueriesForce(loadQueriesForce+1),
-    );
-
-    const [setShareQueryID, setShareAction] = useSharedQueries(
-        () => setLoadQueriesForce(loadQueriesForce+1),
-    );
-
-    const categories = useCategories();
-    const allVisits = useVisits(setDefaultVisits);
-
     useBreadcrumbs(activeTab, setActiveTab);
 
-    useEffect(() => {
-        fetch('/dqt/queries', {credentials: 'same-origin'})
-        .then((resp) => {
-          if (!resp.ok) {
-            throw new Error('Invalid response');
-          }
-          return resp.json();
-        }).then((result) => {
-          let convertedrecent = [];
-          let convertedshared = [];
-          let convertedtop = [];
-          if (result.recent) {
-            result.recent.forEach( (query) => {
-              if (query.Query.criteria) {
-                query.Query.criteria = unserializeSavedQuery(
-                  query.Query.criteria,
-                );
-              }
-              convertedrecent.push({
-                QueryID: query.QueryID,
-                RunTime: query.RunTime,
-                Pinned: query.Pinned,
-                Shared: query.Shared,
-                Name: query.Name,
-                ...query.Query,
-              });
-            });
-          }
-          if (result.shared) {
-            result.shared.forEach( (query) => {
-              if (query.Query.criteria) {
-                query.Query.criteria = unserializeSavedQuery(
-                  query.Query.criteria,
-                );
-              }
-              convertedshared.push({
-                QueryID: query.QueryID,
-                SharedBy: query.SharedBy,
-                Name: query.Name,
-                ...query.Query,
-              });
-            });
-          }
-          if (result.topqueries) {
-            result.topqueries.forEach( (query) => {
-              if (query.Query.criteria) {
-                query.Query.criteria = unserializeSavedQuery(
-                  query.Query.criteria,
-                );
-              }
-              convertedtop.push({
-                QueryID: query.QueryID,
-                Name: query.Name,
-                ...query.Query,
-              });
-            });
-          }
-          setRecentQueries(convertedrecent);
-          setSharedQueries(convertedshared);
-          setTopQueries(convertedtop);
-    }).catch( (error) => {
-      console.error(error);
-    });
-    }, [loadQueriesForce]);
+    const [queries, reloadQueries, queryActions] = useSharedQueries();
 
-    useEffect(() => {
-        Object.keys(usedModules).forEach((module) => {
-            if (!fulldictionary[module]) {
-                fetch('/dictionary/module/' + module,
-                    {credentials: 'same-origin'}
-                    )
-                .then((resp) => {
-                        if (!resp.ok) {
-                            throw new Error('Invalid response');
-                        }
-                        return resp.json();
-                        }).then((result) => {
-                            fulldictionary[module] = result;
-                            let newdictcache = {...fulldictionary};
-                            setDictionary(newdictcache);
-                            setSelectedModule(module);
-                          }
-                  ).catch( (error) => {
-                          console.error(error);
-                  });
-            }
-        });
-    }, [usedModules]);
+    const visits = useVisits();
 
-    useEffect(() => {
-        if (selectedModule === false) {
-            return;
-        }
-        getModuleFields(selectedModule);
-        if (fulldictionary[selectedModule]) {
-            // Already cached
-            return;
-        }
-    }, [selectedModule, selectedModuleCategory, fulldictionary]);
+    const [
+        fulldictionary,
+        fetchModuleDictionary,
+    ] = useDataDictionary();
+    const categories = useCategories();
+
+    const activeCategory = useActiveCategory(
+        fetchModuleDictionary,
+    );
 
     const [query,
-        addQueryGroupItem,
-        removeQueryGroupItem,
-        addNewQueryGroup,
         loadQuery,
-        setQuery,
         selectedFields,
-        setFields,
         fieldActions,
+        criteriaActions,
     ] = useQuery();
 
     useLoadQueryFromURL(loadQuery);
-
-    const getModuleFields = (module, category) => {
-        if (!usedModules[module]) {
-            let newUsedModules = {...usedModules};
-            newUsedModules[module] = [module, category];
-            setUsedModules(newUsedModules);
-        }
-
-        setSelectedModule(module);
-        if (category) {
-            setSelectedModuleCategory(category);
-        }
-        return fulldictionary[module];
-    };
-
-    const modifyDefaultVisits = (values) => {
-        setDefaultVisits(values.map((el) => el.value));
-    };
-
 
     let content;
 
@@ -567,50 +90,30 @@ function DataQueryApp(props) {
             return categories.categories[module][category];
         }
         return category;
-        // return props.categories.categories[name];
     };
 
-    const moduleDict = fulldictionary[selectedModule] || {};
+    const getModuleFields = (module, category) => {
+        return fetchModuleDictionary(module).then(() => {
+        });
+    };
+
     switch (activeTab) {
         case 'Info':
             content = <Welcome
                         loadQuery={loadQuery}
-                        recentQueries={recentQueries}
-                        sharedQueries={sharedQueries}
-                        topQueries={topQueries}
+                        recentQueries={queries.recent}
+                        sharedQueries={queries.shared}
+                        topQueries={queries.top_}
 
-                        pinQuery={
-                            (queryID) => {
-                                setPinAction('pin');
-                                setPinQueryID(queryID);
-                            }
-                        }
-                        unpinQuery={
-                            (queryID) => {
-                                setPinAction('unpin');
-                                setPinQueryID(queryID);
-                            }
-                        }
+                        pinQuery={queryActions.pin}
+                        unpinQuery={queryActions.unpin}
+                        shareQuery={queryActions.share}
+                        unshareQuery={queryActions.unshare}
 
-                        shareQuery={
-                            (queryID) => {
-                                setShareAction('share');
-                                setShareQueryID(queryID);
-                            }
-                        }
-                        unshareQuery={
-                            (queryID) => {
-                                setShareAction('unshare');
-                                setShareQueryID(queryID);
-                            }
-                        }
-
-                        reloadQueries={
-                            () => setLoadQueriesForce(loadQueriesForce+1)
-                        }
+                        reloadQueries={reloadQueries}
                         // Need dictionary related stuff
                         // to display saved queries
-                        getModuleFields={getModuleFields}
+                        getModuleFields={fetchModuleDictionary}
                         mapModuleName={mapModuleName}
                         mapCategoryName={mapCategoryName}
                         fulldictionary={fulldictionary}
@@ -621,18 +124,19 @@ function DataQueryApp(props) {
             break;
         case 'DefineFields':
             content = <DefineFields allCategories={categories}
-                displayedFields={moduleDict[selectedModuleCategory]}
+                displayedFields={activeCategory.currentDictionary}
 
-                defaultVisits={defaultVisits}
-                onChangeDefaultVisits={modifyDefaultVisits}
-                allVisits={allVisits}
+                defaultVisits={visits.default_}
+                onChangeDefaultVisits={visits.modifyDefault}
+                allVisits={visits.all}
 
-                module={selectedModule}
-                category={selectedModuleCategory}
+                module={activeCategory.module}
+                category={activeCategory.category}
+                onCategoryChange={activeCategory.changeCategory}
+
                 selected={selectedFields}
-                setSelected={setFields}
+                setSelected={fieldActions.setFields}
 
-                onCategoryChange={getModuleFields}
                 onFieldToggle={fieldActions.addRemoveField}
 
                 onChangeVisitList={fieldActions.modifyVisits}
@@ -643,8 +147,6 @@ function DataQueryApp(props) {
                 onClearAll={fieldActions.clear}
 
                 fulldictionary={fulldictionary}
-
-
                />;
             break;
         case 'DefineFilters':
@@ -652,20 +154,20 @@ function DataQueryApp(props) {
                 module={selectedModule}
                 category={selectedModuleCategory}
 
-                dictionary={moduleDict[selectedModuleCategory]}
-                displayedFields={moduleDict[selectedModuleCategory]}
+                dictionary={currentModuleDict}
+                displayedFields={currentModuleDict}
 
                 categories={categories}
                 onCategoryChange={getModuleFields}
 
-                addQueryGroupItem={addQueryGroupItem}
-                removeQueryGroupItem={removeQueryGroupItem}
-                addNewQueryGroup={addNewQueryGroup}
+                addQueryGroupItem={criteriaActions.addQueryGroupItem}
+                removeQueryGroupItem={criteriaActions.removeQueryGroupItem}
+                addNewQueryGroup={criteriaActions.addNewQueryGroup}
 
                 fields={selectedFields}
                 query={query}
 
-                setQuery={setQuery}
+                setQuery={criteriaActions.setCriteria}
 
                 getModuleFields={getModuleFields}
                 fulldictionary={fulldictionary}
@@ -678,7 +180,7 @@ function DataQueryApp(props) {
             content = <ViewData
                 fields={selectedFields}
                 filters={query}
-                onRun={() => setLoadQueriesForce(loadQueriesForce+1)}
+                onRun={reloadQueries}
             />;
             break;
         default:
@@ -695,187 +197,11 @@ function DataQueryApp(props) {
     </div>;
 }
 
-/**
- * Takes a saved query from a JSON object and marshal
- * it into a QueryGroup object
- *
- * @param {object} query - the json object
- *
- * @return {QueryGroup}
- */
-function unserializeSavedQuery(query) {
-    if (!query.operator) {
-        console.error('Invalid query tree', query);
-        return null;
-    }
-    const root = new QueryGroup(query.operator);
-    query.group.forEach((val) => {
-        if (val.operator) {
-            const childTree = unserializeSavedQuery(val);
-            root.group.push(childTree);
-            return;
-        }
-        if (!val.module
-            || !val.category
-            || !val.fieldname
-            || !val.op) {
-            console.error('Invalid criteria', val);
-            return;
-        }
-        root.addTerm({
-            Module: val.module,
-            Category: val.category,
-            Field: val.fieldname,
-            Op: val.op,
-            Value: val.value,
-        });
-    });
-    return root;
-}
-
-/**
- * Next steps options for query navigation
- *
- * @param {object} props - React props
- *
- * @return {ReactDOM}
- */
-function NextSteps(props) {
-    const [expanded, setExpanded] = useState(true);
-    const steps = [];
-
-    const canRun = (props.fields && props.fields.length > 0);
-    switch (props.page) {
-    case 'Info':
-        if (canRun) {
-            // A previous query was loaded, it can be either
-            // modified or run
-            steps.push(<ButtonElement
-                    label='Modify Fields'
-                    columnSize='col-sm-12'
-                    key='fields'
-                    onUserInput={() => props.changePage('DefineFields')}
-            />);
-            steps.push(<ButtonElement
-                    label='Modify Filters'
-                    columnSize='col-sm-12'
-                    key='filters'
-                    onUserInput={() => props.changePage('DefineFilters')}
-            />);
-            steps.push(<ButtonElement
-                    label='Run Query'
-                    columnSize='col-sm-12'
-                    key='runquery'
-                    onUserInput={() => props.changePage('ViewData')}
-            />);
-        } else {
-            // No query loaded, must define fields
-            steps.push(<ButtonElement
-                    label='Define Fields'
-                    columnSize='col-sm-12'
-                    key='fields'
-                    onUserInput={() => props.changePage('DefineFields')}
-            />);
-        }
-        break;
-    case 'DefineFields':
-        steps.push(<ButtonElement
-                label='Define Filters'
-                columnSize='col-sm-12'
-                key='filters'
-                onUserInput={() => props.changePage('DefineFilters')}
-        />);
-        if (canRun) {
-            steps.push(<ButtonElement
-                    label='Run Query'
-                    columnSize='col-sm-12'
-                    key='runquery'
-                    onUserInput={() => props.changePage('ViewData')}
-            />);
-        }
-        break;
-    case 'DefineFilters':
-        if (canRun) {
-            steps.push(<ButtonElement
-                    label='Run Query'
-                    key='runquery'
-                    columnSize='col-sm-12'
-                    onUserInput={() => props.changePage('ViewData')}
-            />);
-        }
-        steps.push(<ButtonElement
-                label='Modify Fields'
-                key='fields'
-                columnSize='col-sm-12'
-                onUserInput={() => props.changePage('DefineFields')}
-        />);
-        break;
-    case 'ViewData':
-        steps.push(<ButtonElement
-                label='Modify Fields'
-                key='fields'
-                columnSize='col-sm-12'
-                onUserInput={() => props.changePage('DefineFields')}
-        />);
-        steps.push(<ButtonElement
-                label='Modify Filters'
-                key='filters'
-                columnSize='col-sm-12'
-                onUserInput={() => props.changePage('DefineFilters')}
-        />);
-        break;
-    }
-
-    const expandIcon = <i
-            style={{transform: 'scaleY(2)', fontSize: '2em'}}
-            className='fas fa-chevron-left'
-            onClick={() => setExpanded(!expanded)}
-        ></i>;
-    const style = expanded ? {
-        background: 'white',
-        padding: '0.5em',
-        paddingLeft: '2em',
-    } : {
-        display: 'none',
-        visibility: 'hidden',
-        padding: '0.5em',
-        paddingLeft: '2em',
-    };
-
-    return (
-        <div style={{
-            position: 'fixed',
-            bottom: 0,
-            right: 10,
-            // Fix the height size so it doesn't move when
-            // expanded or collapsed
-            height: 120,
-            // Make sure we're on top of the footer
-            zIndex: 300,
-        }}>
-          <div style={{
-              display: 'flex',
-              alignItems: 'stretch',
-              height: 120,
-            }}>
-              <div style={style}>
-                <h3>Next Steps</h3>
-                <div style={{display: 'flex'}}>
-                    {steps}
-                </div>
-              </div>
-              <div
-                  style={{alignSelf: 'center'}}
-              >{expandIcon}</div>
-          </div>
-        </div>
-    );
-}
-
 window.addEventListener('load', () => {
   ReactDOM.render(
     <DataQueryApp queryAdmin={loris.userHasPermission('dataquery_admin')}/>,
     document.getElementById('lorisworkspace')
   );
 });
+
 export default DataQueryApp;

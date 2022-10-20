@@ -350,7 +350,8 @@ function QueryList(props) {
                 if (val.criteria) {
                     const itemInGroupMatches = (group) => {
                         for (let field of group.group) {
-                            if (field.fieldname.toLowerCase().includes(
+                            if (field.fieldname
+                                && field.fieldname.toLowerCase().includes(
                                 lowerQF
                             )) {
                                 anyFieldMatches = true;
@@ -362,7 +363,9 @@ function QueryList(props) {
                                 field.fieldname,
                                 props.fulldictionary,
                             );
-                            if (description.toLowerCase().includes(lowerQF)) {
+                            if (description
+                                && description.toLowerCase().includes(lowerQF)
+                            ) {
                                 anyFilterMatches = true;
                                 return;
                             }
@@ -462,6 +465,7 @@ function QueryList(props) {
 
                             queryAdmin={props.queryAdmin}
                             unpinAdminQuery={setUnpinAdminQuery}
+                            fulldictionary={props.fulldictionary}
                             />;
             })}
         </Pager>

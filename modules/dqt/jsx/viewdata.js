@@ -54,7 +54,8 @@ function ViewData(props) {
                         setLoading(false);
                     },
                 );
-                if (!response.ok) {
+                props.onRun(); // forces query list to be reloaded
+                if (response && !response.ok) {
                     response.then(
                         (resp) => resp.json()
                     ).then(
