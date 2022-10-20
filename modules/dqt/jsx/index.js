@@ -74,43 +74,17 @@ function useSharedQueries(onCompleteCallback) {
 }
 
 /**
- * Return the main page for the DQT
+ * React hook to load categories from the server
  *
- * @param {object} props - React props
- *
- * @return {ReactDOM}
+ * @return {array|false}
  */
-function DataQueryApp(props) {
-    const [activeTab, setActiveTab] = useState('Info');
-    const [selectedModule, setSelectedModule] = useState(false);
-    const [fulldictionary, setDictionary] = useState({});
-    const [selectedModuleCategory, setSelectedModuleCategory] = useState(false);
+function useCategories() {
     const [categories, setCategories] = useState(false);
-    const [selectedFields, setFields] = useState([]);
-    const [defaultVisits, setDefaultVisits] = useState(false);
-    const [allVisits, setAllVisits] = useState(false);
-
-    const [searchType, setSearchType] = useState('candidates');
-    const [usedModules, setUsedModules] = useState({});
-    const [recentQueries, setRecentQueries] = useState([]);
-    const [sharedQueries, setSharedQueries] = useState([]);
-    const [topQueries, setTopQueries] = useState([]);
-
-    const [query, setQuery] = useState(new QueryGroup('and'));
-    const [loadQueriesForce, setLoadQueriesForce] = useState(0);
-    const [setPinQueryID, setPinAction] = usePinnedQueries(
-        () => setLoadQueriesForce(loadQueriesForce+1),
-    );
-
-    const [setShareQueryID, setShareAction] = useSharedQueries(
-        () => setLoadQueriesForce(loadQueriesForce+1),
-    );
-
     useEffect(() => {
         if (categories !== false) {
             return;
         }
-          fetch('/dictionary/categories', {credentials: 'same-origin'})
+        fetch('/dictionary/categories', {credentials: 'same-origin'})
           .then((resp) => {
                   if (!resp.ok) {
                       throw new Error('Invalid response');
@@ -121,11 +95,22 @@ function DataQueryApp(props) {
                   }
           ).catch( (error) => {
                   console.error(error);
-                  });
+        });
     }, []);
+    return categories;
+}
 
+/**
+ * React hook to load categories from the server
+ *
+ * @param {callback} onLoad - A callback after loading the visits
+ *
+ * @return {array|false}
+ */
+function useVisits(onLoad) {
+    const [allVisits, setAllVisits] = useState(false);
     useEffect(() => {
-        if (defaultVisits !== false) {
+        if (allVisits !== false) {
             return;
         }
           fetch('/dqt/visitlist', {credentials: 'same-origin'})
@@ -135,13 +120,23 @@ function DataQueryApp(props) {
                   }
                   return resp.json();
           }).then((result) => {
-                  setDefaultVisits(result.Visits);
+                  loadedCallback(result.Visits);
                   setAllVisits(result.Visits);
                   }
           ).catch( (error) => {
                   console.error(error);
                   });
     }, []);
+    return allVisits;
+}
+
+/**
+ * Update the DQT breadcrumbs based on the active tab
+ *
+ * @param {string} activeTab - The active tab
+ * @param {function} setActiveTab - set the state on click
+ */
+function useBreadcrumbs(activeTab, setActiveTab) {
     // update breadcrumbs breadcrumbs
     useEffect(() => {
         let breadcrumbs = [
@@ -193,6 +188,42 @@ function DataQueryApp(props) {
             document.getElementById('breadcrumbs')
       );
     }, [activeTab]);
+}
+/**
+ * Return the main page for the DQT
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function DataQueryApp(props) {
+    const [activeTab, setActiveTab] = useState('Info');
+    const [selectedModule, setSelectedModule] = useState(false);
+    const [fulldictionary, setDictionary] = useState({});
+    const [selectedModuleCategory, setSelectedModuleCategory] = useState(false);
+    const [selectedFields, setFields] = useState([]);
+    const [defaultVisits, setDefaultVisits] = useState(false);
+
+    const [searchType, setSearchType] = useState('candidates');
+    const [usedModules, setUsedModules] = useState({});
+    const [recentQueries, setRecentQueries] = useState([]);
+    const [sharedQueries, setSharedQueries] = useState([]);
+    const [topQueries, setTopQueries] = useState([]);
+
+    const [query, setQuery] = useState(new QueryGroup('and'));
+    const [loadQueriesForce, setLoadQueriesForce] = useState(0);
+    const [setPinQueryID, setPinAction] = usePinnedQueries(
+        () => setLoadQueriesForce(loadQueriesForce+1),
+    );
+
+    const [setShareQueryID, setShareAction] = useSharedQueries(
+        () => setLoadQueriesForce(loadQueriesForce+1),
+    );
+
+    const categories = useCategories();
+    const allVisits = useVisits(setDefaultVisits);
+    useBreadcrumbs(activeTab, setActiveTab);
+
 
     useEffect(() => {
         fetch('/dqt/queries', {credentials: 'same-origin'})
@@ -294,6 +325,31 @@ function DataQueryApp(props) {
             return;
         }
     }, [selectedModule, selectedModuleCategory, fulldictionary]);
+
+    // Load query if queryID was passed
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const queryID = params.get('queryID');
+        if (!queryID) {
+            return;
+        }
+        fetch(
+            '/dqt/queries/' + queryID,
+            {
+                method: 'GET',
+                credentials: 'same-origin',
+            },
+        ).then((resp) => {
+                  if (!resp.ok) {
+                      throw new Error('Invalid response');
+                  }
+                  return resp.json();
+          }).then((result) => {
+              console.log(result);
+          }).catch( (error) => {
+              console.error(error);
+          });
+    }, []);
 
     const getModuleFields = (module, category) => {
         if (!usedModules[module]) {
