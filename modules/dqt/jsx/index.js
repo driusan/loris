@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-// import swal from 'sweetalert2';
+import swal from 'sweetalert2';
 
 // import {NavigationStepper} from './navigationstepper';
 import Welcome from './welcome';
@@ -8,6 +8,204 @@ import DefineFields from './definefields';
 import ViewData from './viewdata';
 
 import {QueryGroup} from './querydef';
+
+/**
+ * React hook to manage loading of DQT queries
+ *
+ * @return {array}
+ */
+function useQuery() {
+    const [fields, setFields] = useState([]);
+    const [criteria, setCriteria] = useState(new QueryGroup('and'));
+
+    const addQueryGroupItem = (querygroup, condition) => {
+        // clone the top level query to force
+        // a new rendering
+        let newquery = new QueryGroup(criteria.operator);
+
+        // Add to this level of the tree
+        querygroup.addTerm(condition);
+
+
+        newquery.group = [...criteria.group];
+        setCriteria(newquery);
+        return newquery;
+    };
+
+    const removeQueryGroupItem = (querygroup, idx) => {
+        // Remove from this level of the tree
+        querygroup.removeTerm(idx);
+
+        // clone the top level query to force
+        // a new rendering
+        let newquery = new QueryGroup(criteria.operator);
+
+        newquery.group = [...criteria.group];
+        setCriteria(newquery);
+
+        return newquery;
+    };
+
+    const addNewQueryGroup = (parentgroup) => {
+        // Add to this level of the tree
+        parentgroup.addGroup();
+
+        // clone the top level query to force
+        // a new rendering
+        let newquery = new QueryGroup(criteria.operator);
+        newquery.group = [...criteria.group];
+
+        setCriteria(newquery);
+    };
+
+    const loadQuery = (fields, filters) => {
+        setFields(fields);
+        if (!filters) {
+            setCriteria(new QueryGroup('and'));
+        } else {
+            setCriteria(filters);
+        }
+    };
+    const fieldActions = {
+        clear: function() {
+            setFields([]);
+        },
+        remove: (module, category, field) => {
+            const equalField = (element) => {
+               return (element.module == module
+                  && element.category === category
+                  && element.field == field);
+            };
+            const newfields = fields.filter((el) => !(equalField(el)));
+            setFields(newfields);
+        },
+        modifyVisits: (module, category, field, dict, visits) => {
+            const newfields = [...fields];
+            const equalField = (element) => {
+              return (element.module == module
+                && element.category === category
+                && element.field == field);
+            };
+
+            for (let i = 0; i < newfields.length; i++) {
+              if (equalField(newfields[i])) {
+                newfields[i].visits = visits;
+                setFields(newfields);
+                return;
+              }
+            }
+        },
+        addRemoveField: (module, category, field, dict, visits) => {
+            const newFieldObj = {
+                module: module,
+                category: category,
+                field: field,
+                dictionary: dict,
+                visits: visits,
+            };
+            const equalField = (element) => {
+                return (element.module == module
+                    && element.category === category
+                    && element.field == field);
+            };
+            if (fields.some(equalField)) {
+                // Remove
+                const newfields = fields.filter(
+                    (el) => !(equalField(el))
+                );
+                setFields(newfields);
+            } else {
+                // Add
+                const newfields = [...fields, newFieldObj];
+                setFields(newfields);
+            }
+        },
+        removeMany: (removeelements) => {
+            const equalField = (el1, el2) => {
+                return (el1.module == el2.module
+                    && el1.category === el2.category
+                    && el1.field == el2.field);
+            };
+            const newfields = fields.filter((el) => {
+                if (removeelements.some((rel) => equalField(rel, el))) {
+                    return false;
+                }
+                return true;
+            });
+            setFields(newfields);
+        },
+        addMany: (elements) => {
+            let newfields = fields;
+            for (let i = 0; i < elements.length; i++) {
+                const newFieldObj = elements[i];
+                const equalField = (element) => {
+                    return (element.module == newFieldObj.module
+                            && element.category === newFieldObj.category
+                            && element.field == newFieldObj.field);
+                };
+                if (!newfields.some((el) => equalField(el))) {
+                    newfields = [...newfields, newFieldObj];
+                }
+            }
+            setFields(newfields);
+        },
+    };
+    return [
+      criteria,
+      addQueryGroupItem,
+      removeQueryGroupItem,
+      addNewQueryGroup,
+      loadQuery,
+      setCriteria,
+      fields,
+      setFields,
+      fieldActions,
+  ];
+}
+
+/**
+ * React hook to load a query if one was passed in the URL.
+ *
+ * @param {function} loadQuery - function to load the query into React state
+ *
+ */
+function useLoadQueryFromURL(loadQuery) {
+    // Load query if queryID was passed
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const queryID = params.get('queryID');
+        if (!queryID) {
+            return;
+        }
+        fetch(
+            '/dqt/queries/' + queryID,
+            {
+                method: 'GET',
+                credentials: 'same-origin',
+            },
+        ).then((resp) => {
+                  if (!resp.ok) {
+                      throw new Error('Invalid response');
+                  }
+                  return resp.json();
+          }).then((result) => {
+              if (result.criteria) {
+                  result.criteria = unserializeSavedQuery(result.criteria);
+              }
+              loadQuery(result);
+              swal.fire({
+                type: 'success',
+                text: 'Loaded query',
+              });
+          }).catch( (error) => {
+              swal.fire({
+                  type: 'error',
+                  text: 'Could not load query',
+              });
+              console.error(error);
+          });
+    }, []);
+}
 
 /**
  * React hook for triggering toggling of pinned queries
@@ -120,7 +318,7 @@ function useVisits(onLoad) {
                   }
                   return resp.json();
           }).then((result) => {
-                  loadedCallback(result.Visits);
+                  onLoad(result.Visits);
                   setAllVisits(result.Visits);
                   }
           ).catch( (error) => {
@@ -189,6 +387,7 @@ function useBreadcrumbs(activeTab, setActiveTab) {
       );
     }, [activeTab]);
 }
+
 /**
  * Return the main page for the DQT
  *
@@ -201,16 +400,13 @@ function DataQueryApp(props) {
     const [selectedModule, setSelectedModule] = useState(false);
     const [fulldictionary, setDictionary] = useState({});
     const [selectedModuleCategory, setSelectedModuleCategory] = useState(false);
-    const [selectedFields, setFields] = useState([]);
     const [defaultVisits, setDefaultVisits] = useState(false);
 
-    const [searchType, setSearchType] = useState('candidates');
     const [usedModules, setUsedModules] = useState({});
     const [recentQueries, setRecentQueries] = useState([]);
     const [sharedQueries, setSharedQueries] = useState([]);
     const [topQueries, setTopQueries] = useState([]);
 
-    const [query, setQuery] = useState(new QueryGroup('and'));
     const [loadQueriesForce, setLoadQueriesForce] = useState(0);
     const [setPinQueryID, setPinAction] = usePinnedQueries(
         () => setLoadQueriesForce(loadQueriesForce+1),
@@ -222,8 +418,8 @@ function DataQueryApp(props) {
 
     const categories = useCategories();
     const allVisits = useVisits(setDefaultVisits);
-    useBreadcrumbs(activeTab, setActiveTab);
 
+    useBreadcrumbs(activeTab, setActiveTab);
 
     useEffect(() => {
         fetch('/dqt/queries', {credentials: 'same-origin'})
@@ -305,7 +501,6 @@ function DataQueryApp(props) {
                             fulldictionary[module] = result;
                             let newdictcache = {...fulldictionary};
                             setDictionary(newdictcache);
-
                             setSelectedModule(module);
                           }
                   ).catch( (error) => {
@@ -326,30 +521,18 @@ function DataQueryApp(props) {
         }
     }, [selectedModule, selectedModuleCategory, fulldictionary]);
 
-    // Load query if queryID was passed
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const queryID = params.get('queryID');
-        if (!queryID) {
-            return;
-        }
-        fetch(
-            '/dqt/queries/' + queryID,
-            {
-                method: 'GET',
-                credentials: 'same-origin',
-            },
-        ).then((resp) => {
-                  if (!resp.ok) {
-                      throw new Error('Invalid response');
-                  }
-                  return resp.json();
-          }).then((result) => {
-              console.log(result);
-          }).catch( (error) => {
-              console.error(error);
-          });
-    }, []);
+    const [query,
+        addQueryGroupItem,
+        removeQueryGroupItem,
+        addNewQueryGroup,
+        loadQuery,
+        setQuery,
+        selectedFields,
+        setFields,
+        fieldActions,
+    ] = useQuery();
+
+    useLoadQueryFromURL(loadQuery);
 
     const getModuleFields = (module, category) => {
         if (!usedModules[module]) {
@@ -365,136 +548,10 @@ function DataQueryApp(props) {
         return fulldictionary[module];
     };
 
-    const removeField = (module, category, field) => {
-      const equalField = (element) => {
-        return (element.module == module
-          && element.category === category
-          && element.field == field);
-      };
-      const newfields = selectedFields.filter((el) => !(equalField(el)));
-      setFields(newfields);
-    };
-
-    const addManyFields = (elements) => {
-        let newfields = selectedFields;
-        for (let i = 0; i < elements.length; i++) {
-            const newFieldObj = elements[i];
-            const equalField = (element) => {
-                return (element.module == newFieldObj.module
-                    && element.category === newFieldObj.category
-                    && element.field == newFieldObj.field);
-            };
-            if (!newfields.some((el) => equalField(el))) {
-                newfields = [...newfields, newFieldObj];
-            }
-        }
-        setFields(newfields);
-    };
-
-    const removeManyFields = (removeelements) => {
-        const equalField = (el1, el2) => {
-           return (el1.module == el2.module
-                    && el1.category === el2.category
-                    && el1.field == el2.field);
-            };
-        const newfields = selectedFields.filter((el) => {
-            if (removeelements.some((rel) => equalField(rel, el))) {
-                return false;
-            }
-            return true;
-        });
-        setFields(newfields);
-    };
-
-    const addRemoveField = (module, category, field, dict, visits) => {
-        const newFieldObj = {
-                module: module,
-                category: category,
-                field: field,
-                dictionary: dict,
-                visits: visits,
-            };
-        const equalField = (element) => {
-            return (element.module == module
-                && element.category === category
-                && element.field == field);
-        };
-        if (selectedFields.some(equalField)) {
-            // Remove
-            const newfields = selectedFields.filter((el) => !(equalField(el)));
-            setFields(newfields);
-        } else {
-            // Add
-            const newfields = [...selectedFields, newFieldObj];
-            setFields(newfields);
-        }
-    };
-
-    const modifyFieldVisits = (module, category, field, dict, visits) => {
-        const newfields = [...selectedFields];
-        const equalField = (element) => {
-            return (element.module == module
-                && element.category === category
-                && element.field == field);
-        };
-
-        for (let i = 0; i < newfields.length; i++) {
-            if (equalField(newfields[i])) {
-                newfields[i].visits = visits;
-                setFields(newfields);
-                return;
-            }
-        }
-    };
-
-    const clearAllFields = () => {
-        setFields([]);
-    };
-
     const modifyDefaultVisits = (values) => {
         setDefaultVisits(values.map((el) => el.value));
     };
 
-
-    const addQueryGroupItem = (querygroup, condition) => {
-        // clone the top level query to force
-        // a new rendering
-        let newquery = new QueryGroup(query.operator);
-
-        // Add to this level of the tree
-        querygroup.addTerm(condition);
-
-
-        newquery.group = [...query.group];
-        setQuery(newquery);
-        return newquery;
-    };
-
-    const removeQueryGroupItem = (querygroup, idx) => {
-        // Remove from this level of the tree
-        querygroup.removeTerm(idx);
-
-        // clone the top level query to force
-        // a new rendering
-        let newquery = new QueryGroup(query.operator);
-
-        newquery.group = [...query.group];
-        setQuery(newquery);
-
-        return newquery;
-    };
-
-    const addNewQueryGroup = (parentgroup) => {
-        // Add to this level of the tree
-        parentgroup.addGroup();
-
-        // clone the top level query to force
-        // a new rendering
-        let newquery = new QueryGroup(query.operator);
-        newquery.group = [...query.group];
-
-        setQuery(newquery);
-    };
 
     let content;
 
@@ -512,16 +569,6 @@ function DataQueryApp(props) {
         return category;
         // return props.categories.categories[name];
     };
-
-    const loadQuery = (fields, filters) => {
-        setFields(fields);
-        if (!filters) {
-            setQuery(new QueryGroup('and'));
-        } else {
-            setQuery(filters);
-        }
-    };
-
 
     const moduleDict = fulldictionary[selectedModule] || {};
     switch (activeTab) {
@@ -586,14 +633,14 @@ function DataQueryApp(props) {
                 setSelected={setFields}
 
                 onCategoryChange={getModuleFields}
-                onFieldToggle={addRemoveField}
+                onFieldToggle={fieldActions.addRemoveField}
 
-                onChangeVisitList={modifyFieldVisits}
+                onChangeVisitList={fieldActions.modifyVisits}
 
-                removeField={removeField}
-                onAddAll={addManyFields}
-                onRemoveAll={removeManyFields}
-                onClearAll={clearAllFields}
+                removeField={fieldActions.remove}
+                onAddAll={fieldActions.addMany}
+                onRemoveAll={fieldActions.removeMany}
+                onClearAll={fieldActions.clear}
 
                 fulldictionary={fulldictionary}
 
@@ -602,9 +649,6 @@ function DataQueryApp(props) {
             break;
         case 'DefineFilters':
             content = <DefineFilters
-                setSearchType={setSearchType}
-                searchtype={searchType}
-
                 module={selectedModule}
                 category={selectedModuleCategory}
 
