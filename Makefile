@@ -8,7 +8,7 @@ VERSION: .
 	tools/gen-version.sh
 
 phpdev:
-	# composer install
+	composer install
 
 jsdev:
 	npm ci
@@ -49,5 +49,9 @@ unittests: phpdev
 # Perform all tests that don't require an install.
 check: checkstatic unittests
 
+
 testdata:
 	php tools/raisinbread_refresh.php
+
+dqt:
+	target=dqt npm run compile
