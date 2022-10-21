@@ -17,6 +17,7 @@ function DefineFilters(props) {
     let displayquery = '';
     const [addModal, setAddModal] = useState(false);
     const [csvModal, setCSVModal] = useState(false);
+    const [showAdvanced, setShowAdvanced] = useState(false);
     // The subgroup used for the "Add Filter" modal window
     // to add to. Default to top level unless click from a
     // query group, in which case the callback changes it
@@ -74,7 +75,60 @@ function DefineFilters(props) {
     const mapModuleName = props.mapModuleName;
     const mapCategoryName = props.mapCategoryName;
 
+    const advancedLabel = showAdvanced ? 'Hide Advanced' : 'Show Advanced';
+    let advancedButtons;
+    const toggleAdvancedButton = (
+        <div>
+          <div style={bGroupStyle}>
+             <ButtonElement
+                label={advancedLabel}
+                onUserInput={(e) => {
+                   e.preventDefault();
+                   setShowAdvanced(!showAdvanced);
+                }}
+             />
+          </div>
+       </div>
+    );
     if (props.query.group.length == 0) {
+        if (showAdvanced) {
+          advancedButtons = (
+            <div>
+                <p>The "nested groups" options are advanced options for queries
+                   that do not have any specific condition at the
+                   base of the query.
+                   Use <code>Add nested "or" condition groups</code> if
+                   you need to build a query of the form.
+                   <i> (a or b) and (c or d) [or (e and f)..]</i>.
+                </p>
+                <div style={bGroupStyle}>
+                  <ButtonElement
+                     label='Add nested "or" condition groups'
+                     onUserInput={(e) => {
+                       e.preventDefault();
+                       props.query.condition = 'and';
+                       props.addNewQueryGroup(props.query);
+                     }}
+                   />
+                 </div>
+                <p>
+                   Use <code>Add nested "and" condition groups</code> if you
+                   need to build a query of the form
+                   <i> (a and b) or (c and d) [or (e and f)..]</i>.
+                </p>
+                 <div style={bGroupStyle}>
+                   <ButtonElement
+                     label='Add nested "and" condition groups'
+                     onUserInput={(e) => {
+                       e.preventDefault();
+                       props.query.condition = 'or';
+                       props.addNewQueryGroup(props.query);
+                     }}
+                   />
+                 </div>
+             </div>
+             );
+        }
         // Only 1 add condition button since "and" or "or"
         // are the same with only 1 term
         displayquery = <div>
@@ -86,20 +140,10 @@ function DefineFilters(props) {
                to your filters (ie. "Date Of Birth &lt; 2015-02-15"). <b>This is
                most likely where you want to start your filters.</b>
             </p>
-            <p>The "nested groups" options are advanced options for queries
-               that do not have any specific condition at the base of the query.
-               Use <code>Add nested "or" condition groups</code> if you need to
-               build a query of the form
-               <i> (a or b) and (c or d) [or (e and f)..]</i>.
-               Use <code>Add nested "and" condition groups</code> if you need
-               to build a query of the form
-               <i> (a and b) or (c and d) [or (e and f)..]</i>. If there are
-               *any* conditions at the base of the query such as
-               <i> a and (b or c)</i> it is easiest to start with
-               <code>Add condition</code> instead of the nested groups.
-            </p>
             <p>You can also import a population from a CSV by clicking
                 the <code>Import from CSV</code> button.</p>
+            <p>The advanced options are for queries that do not have
+               a condition to add at the base of the query.</p>
             </div>
             <form>
               <fieldset>
@@ -115,47 +159,65 @@ function DefineFilters(props) {
                       </div>
                       <div style={bGroupStyle}>
                           <ButtonElement
-                              label='Add nested "or" condition groups'
+                              label='Import from CSV'
                               onUserInput={(e) => {
                                   e.preventDefault();
-                                  props.query.condition = 'and';
-                                  props.addNewQueryGroup(props.query);
-                              }}
-                           />
-                      </div>
-                      <div style={bGroupStyle}>
-                          <ButtonElement
-                              label='Add nested "and" condition groups'
-                              onUserInput={(e) => {
-                                  e.preventDefault();
-                                  props.query.condition = 'or';
-                                  props.addNewQueryGroup(props.query);
+                                  // Need to be sure that we've loaded
+                                  // candidate_parameters so it's in
+                                  // fulldictionary
+                                  props.getModuleFields(
+                                    'candidate_parameters',
+                                    'identifiers'
+                                  );
+                                  setCSVModal(true);
                               }}
                            />
                       </div>
                    </div>
-                  <div style={bGroupStyle}>
-                      <ButtonElement
-                          label='Import from CSV'
-                          onUserInput={(e) => {
-                              e.preventDefault();
-                              // Need to be sure that we've loaded
-                              // candidate_parameters so it's in
-                              // fulldictionary
-                              props.getModuleFields(
-                                'candidate_parameters',
-                                'identifiers'
-                              );
-                              setCSVModal(true);
-                          }}
-                       />
-                  </div>
+                   {toggleAdvancedButton}
+                   {advancedButtons}
                </fieldset>
             </form>
         </div>;
     } else if (props.query.group.length == 1 &&
         props.query.group[0] instanceof QueryTerm
     ) {
+        if (showAdvanced) {
+          advancedButtons = (
+            <div>
+                <div style={bGroupStyle}>
+                    <p>Use <code>New "and" subgroup</code> if the rest of the
+                    query you need to write is a subgroup consisting
+                    of "and" conditions. ie your query is of the form:
+                    <div>
+                   <i>(your condition above) or (c and d [and e and f..])</i>
+                   </div>
+                   </p>
+                    <ButtonElement
+                        label='New "and" subgroup'
+                        onUserInput={(e) => {
+                            e.preventDefault();
+                            props.query.operator = 'or';
+                            props.addNewQueryGroup(props.query);
+                        }} />
+                    <p>Use <code>New "or" subgroup</code> if the rest of the
+                    query you need to write is a subgroup consisting
+                    of "or" conditions. ie your query is of the form:
+                    <div>
+                   <i>(your condition above) and (c or d [or e or f..])</i>
+                   </div>
+                   </p>
+                    <ButtonElement
+                        label='New "or" subgroup'
+                        onUserInput={(e) => {
+                            e.preventDefault();
+                            props.query.operator = 'and';
+                            props.addNewQueryGroup(props.query);
+                    }} />
+                </div>
+             </div>
+             );
+        }
         // buttons for 1. Add "and" condition 2. Add "or" condition
         displayquery = (<div>
             <p>Currently querying for any candidates with:</p>
@@ -205,23 +267,9 @@ function DefineFilters(props) {
                                     props.query.operator = 'or';
                             }} />
                         </div>
-                        <div style={bGroupStyle}>
-                            <ButtonElement
-                                label='New "and" subgroup'
-                                onUserInput={(e) => {
-                                    e.preventDefault();
-                                    props.query.operator = 'or';
-                                    props.addNewQueryGroup(props.query);
-                                }} />
-                            <ButtonElement
-                                label='New "or" subgroup'
-                                onUserInput={(e) => {
-                                    e.preventDefault();
-                                    props.query.operator = 'and';
-                                    props.addNewQueryGroup(props.query);
-                            }} />
-                        </div>
                     </div>
+                    {toggleAdvancedButton}
+                    {advancedButtons}
                 </fieldset>
             </form>
         </div>);
@@ -292,6 +340,29 @@ function DefineFilters(props) {
               <h1>Current Query</h1>
               {matchCount}
           </div>
+         <div className="alert alert-info"
+            style={{
+                backgroundColor: '#BEDFFF',
+                color: 'black',
+                display: 'flex',
+                flexBasis: 'row',
+                flexWrap: 'nowrap',
+            }}>
+            <div style={{
+                alignSelf: 'center',
+                padding: '1em',
+            }}>
+                <i style={{fontSize: '2em', color: 'blue'}}
+                    className="fas fa-info-circle"></i>
+            </div>
+            <div style={{
+                paddingLeft: '1em',
+            }}>
+                Note that only candidates which you have permission to
+                access in LORIS are included in results. Number of
+                results may vary from other users running the same query.
+            </div>
+         </div>
           {displayquery}
       </div>
       );
