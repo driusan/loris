@@ -19,21 +19,36 @@ use \LORIS\Data\Query\Criteria\Substring;
 use \LORIS\Data\Query\Criteria\EndsWith;
 
 
-class Query implements \LORIS\StudyEntities\AccessibleResource {
+class Query implements \LORIS\StudyEntities\AccessibleResource,
+    \LORIS\Data\DataInstance {
     protected $data;
-    public function __construct(protected \LORIS\LorisInstance $loris, protected int $queryID) {
-        $DB = $loris->getDatabaseConnection();
+    protected string $name;
+    public function __construct(
+        protected \LORIS\LorisInstance $loris,
+        protected int $queryID,
+        ?array $query,
+        ?string $name,
+    ) {
+        if ($query !== null) {
+            $this->data = $query;
+        } else {
+            // FIXME: Remove this, move it to the caller
+            $DB = $loris->getDatabaseConnection();
 
-        $data = $DB->pselectOne("
-            SELECT dq.Query
-                FROM dataquery_queries dq
-            WHERE QueryID=:qid",
-            ['qid' => $queryID]
-        );
-        if ($data === null) {
-            throw new \NotFound("Query $queryID not found");
+            $data = $DB->pselectOne("
+                    SELECT dq.Query
+                    FROM dataquery_queries dq
+                    WHERE QueryID=:qid",
+                    ['qid' => $queryID]
+                    );
+            if ($data === null) {
+                throw new \NotFound("Query $queryID not found");
+            }
+            $this->data = json_decode($data, true);
         }
-        $this->data = json_decode($data, true);
+        if ($name !== null) {
+            $this->name = $name;
+        }
     }
 
     public function isAccessibleBy(\User $user) : bool {
@@ -354,4 +369,11 @@ class Query implements \LORIS\StudyEntities\AccessibleResource {
         return $dict;
     }
 
+    public function jsonSerialize() : mixed {
+        return [
+            'QueryID' => $this->queryID,
+            'Name' => $this->name,
+            'Query' => $this->data,
+        ];
+    }
 }

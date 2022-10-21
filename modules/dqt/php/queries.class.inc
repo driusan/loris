@@ -182,26 +182,20 @@ class Queries extends \NDB_Page
     }
 
     public function getTopQueries(\User $user) : iterable {
-        $DB = $this->loris->getDatabaseConnection();
-        $potentialQueries = $DB->pselect("
-            SELECT dq.QueryID, Query, dsq.Name
-            FROM dataquery_queries dq
-                LEFT JOIN dataquery_study_queries_rel dsq ON
-                    (dq.QueryID=dsq.QueryID)
-            WHERE dsq.PinType='topquery'
-            GROUP BY QueryID
-            ORDER BY QueryID",
-            [],
+        $provisioner = (
+            new StudyQueriesProvisioner($this->loris, 'topquery')
+        )->filter(
+                new \LORIS\Data\Filters\AccessibleResourceFilter()
         );
-
+        
+        $potentialQueries = $provisioner->execute($user);
         $results = [];
         // FIXME: Filter out queries that aren't accessible by the
         // user because of the fields/modules
-        // FIXME: Use a DataProvisioner?
         foreach($potentialQueries as $query) {
             // Convert from string to PHP array so that it's not double
             // escaped when json_encode is called.
-            $query['Query'] = json_decode($query['Query'], true);
+            // $query['Query'] = json_encode($query, true);
 
             $results[] = $query;
             
