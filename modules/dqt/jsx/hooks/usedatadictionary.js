@@ -64,7 +64,8 @@ function useDataDictionary() {
                 reject(error);
             });
         });
-        let newUsedModules = {...pendingModules};
+        // let newUsedModules = {...pendingModules};
+        let newUsedModules = pendingModules;
         newUsedModules[module] = promise;
         setPendingModules(newUsedModules);
         return promise;
