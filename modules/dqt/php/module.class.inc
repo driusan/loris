@@ -102,6 +102,32 @@ class Module extends \Module
                     new \LORIS\dashboard\WidgetDisplayProps("small"),
                 );
             }
+            $studyqueries = $DB->pselect("
+                SELECT dq.QueryID, dsq.Name
+                FROM dataquery_queries dq
+                    LEFT JOIN dataquery_study_queries_rel dsq ON
+                        (dq.QueryID=dsq.QueryID)
+                WHERE dsq.PinType='dashboard'
+                GROUP BY QueryID
+                ORDER BY QueryID",
+            [],
+            );
+            if (count($studyqueries) > 0) {
+                $widgets[] = new \LORIS\dashboard\Widget(
+                    new \LORIS\dashboard\WidgetContent(
+                        "Study Queries",
+                        $this->renderTemplate(
+                            "studyquerieswidget.tpl",
+                            [
+                                'baseURL'       => $baseURL,
+                                'queries' => $studyqueries,
+                            ]
+                        ),
+                        ""
+                    ),
+                    new \LORIS\dashboard\WidgetDisplayProps("small"),
+                );
+            }
             return $widgets;
         }
         return [];
