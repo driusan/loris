@@ -102,16 +102,18 @@ class Module extends \Module
                     new \LORIS\dashboard\WidgetDisplayProps("small"),
                 );
             }
-            $studyqueries = $DB->pselect("
-                SELECT dq.QueryID, dsq.Name
-                FROM dataquery_queries dq
-                    LEFT JOIN dataquery_study_queries_rel dsq ON
-                        (dq.QueryID=dsq.QueryID)
-                WHERE dsq.PinType='dashboard'
-                GROUP BY QueryID
-                ORDER BY QueryID",
-            [],
+            $provisioner = (
+                new StudyQueriesProvisioner($this->lorisinstance, 'dashboard')
+            )->filter(
+                    new \LORIS\Data\Filters\AccessibleResourceFilter()
             );
+        
+            $results = $provisioner->execute($user);
+            $studyqueries = [];
+            foreach($results as $query) {
+                $studyqueries[] = $query;
+                
+            }
             if (count($studyqueries) > 0) {
                 $widgets[] = new \LORIS\dashboard\Widget(
                     new \LORIS\dashboard\WidgetContent(

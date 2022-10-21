@@ -22,12 +22,12 @@ use \LORIS\Data\Query\Criteria\EndsWith;
 class Query implements \LORIS\StudyEntities\AccessibleResource,
     \LORIS\Data\DataInstance {
     protected $data;
-    protected string $name;
+    public readonly string $name;
     public function __construct(
         protected \LORIS\LorisInstance $loris,
-        protected int $queryID,
-        ?array $query,
-        ?string $name,
+        public readonly int $queryID,
+        ?array $query=null,
+        ?string $name=null,
     ) {
         if ($query !== null) {
             $this->data = $query;
@@ -46,6 +46,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
             }
             $this->data = json_decode($data, true);
         }
+
         if ($name !== null) {
             $this->name = $name;
         }
@@ -278,7 +279,6 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
 
             $fulldict = $this->getFlattenedDictionary($engine);
             $dictitem = $fulldict[$crit['fieldname']];
-            // var_dump($dict);
             
             // Get a new engine for each term to reset the internal state
             switch ($crit['op']) {
@@ -337,7 +337,6 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
         }
         error_log("Before intersection used " . (memory_get_usage() - $startMemory) . " bytes of memory");
         $combinedresult = [];
-        var_dump($results);
         if (count($results) == 1) {
             // Doesn't matter if it's 'and' or 'or', there's only 1 criteria
             $combinedresult = $results[0];

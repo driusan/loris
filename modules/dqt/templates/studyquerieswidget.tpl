@@ -21,21 +21,20 @@ function getMatchCount(QueryID, domEl) {
 </script>
 <div class="list-group">
     {foreach from=$queries item=query}
-        <a href="{$baseURL}/dqt/?queryID={$query.QueryID}" class="list-group-item">
-            {$query.Name}
+        <a href="{$baseURL}/dqt/?queryID={$query->queryID}" class="list-group-item">
+            {$query->name}
             <span class="pull-right text-muted small">Candidate matches:
-                <span id="studyquerymatch_{$query.QueryID}"></span>
+                <span id="studyquerymatch_{$query->queryID}"></span>
             </span>
             <script>
             window.addEventListener('load', function() {
                 getMatchCount(
-                    {$query.QueryID},
-                    document.getElementById("studyquerymatch_{$query.QueryID}")
+                    {$query->queryID},
+                    document.getElementById("studyquerymatch_{$query->queryID}")
                 );
             });
             </script>
         </a>
-        
     {/foreach}
 </div>
 <div style="padding-bottom: 1em; font-style: italic">
