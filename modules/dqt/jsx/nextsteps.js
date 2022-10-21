@@ -11,20 +11,27 @@ function NextSteps(props) {
     const [expanded, setExpanded] = useState(true);
     const steps = [];
 
+
     const canRun = (props.fields && props.fields.length > 0);
+    const fieldLabel = (props.fields && props.fields.length > 0)
+        ? 'Modify Fields'
+        : 'Choose Fields';
+    const filterLabel = (props.filters && props.filters.group.length > 0)
+        ? 'Modify Filters'
+        : 'Add Filters';
     switch (props.page) {
     case 'Info':
         if (canRun) {
             // A previous query was loaded, it can be either
             // modified or run
             steps.push(<ButtonElement
-                    label='Modify Fields'
+                    label={fieldLabel}
                     columnSize='col-sm-12'
                     key='fields'
                     onUserInput={() => props.changePage('DefineFields')}
             />);
             steps.push(<ButtonElement
-                    label='Modify Filters'
+                    label={filterLabel}
                     columnSize='col-sm-12'
                     key='filters'
                     onUserInput={() => props.changePage('DefineFilters')}
@@ -38,7 +45,7 @@ function NextSteps(props) {
         } else {
             // No query loaded, must define fields
             steps.push(<ButtonElement
-                    label='Define Fields'
+                    label={fieldLabel}
                     columnSize='col-sm-12'
                     key='fields'
                     onUserInput={() => props.changePage('DefineFields')}
@@ -47,7 +54,7 @@ function NextSteps(props) {
         break;
     case 'DefineFields':
         steps.push(<ButtonElement
-                label='Define Filters'
+                label={filterLabel}
                 columnSize='col-sm-12'
                 key='filters'
                 onUserInput={() => props.changePage('DefineFilters')}
@@ -71,7 +78,7 @@ function NextSteps(props) {
             />);
         }
         steps.push(<ButtonElement
-                label='Modify Fields'
+                label={fieldLabel}
                 key='fields'
                 columnSize='col-sm-12'
                 onUserInput={() => props.changePage('DefineFields')}
@@ -79,13 +86,13 @@ function NextSteps(props) {
         break;
     case 'ViewData':
         steps.push(<ButtonElement
-                label='Modify Fields'
+                label={fieldLabel}
                 key='fields'
                 columnSize='col-sm-12'
                 onUserInput={() => props.changePage('DefineFields')}
         />);
         steps.push(<ButtonElement
-                label='Modify Filters'
+                label={filterLabel}
                 key='filters'
                 columnSize='col-sm-12'
                 onUserInput={() => props.changePage('DefineFilters')}
