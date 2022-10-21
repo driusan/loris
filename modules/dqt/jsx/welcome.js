@@ -163,6 +163,7 @@ function QueryList(props) {
     const [queryFilter, setQueryFilter] = useState('');
     const [fullQuery, setFullQuery] = useState(!props.defaultCollapsed);
     const [unpinAdminQuery, setUnpinAdminQuery] = useState(null);
+    const [adminPinAction, setAdminPinAction] = useState('top');
 
     useEffect(() => {
         const modules = new Set();
@@ -233,7 +234,8 @@ function QueryList(props) {
 
         fetch(
             '/dqt/queries/' + id
-                + '?type=top&name=' + encodeURIComponent(name),
+                + '?type=' + adminPinAction
+                + '&name=' + encodeURIComponent(name),
             {
                 method: 'PATCH',
                 credentials: 'same-origin',
@@ -278,7 +280,20 @@ function QueryList(props) {
         />;
     const adminModal = adminModalID == null ? '' :
         <AdminQueryModal
-            onSubmit={(name, topQ, dashboardQ) => setQueryName(name)}
+            onSubmit={(name, topQ, dashboardQ) => {
+                console.log(name, topQ, dashboardQ);
+                if (topQ && dashboardQ) {
+                    setAdminPinAction('top,dashboard');
+                } else if (topQ) {
+                    setAdminPinAction('top');
+                } else if (dashboardQ) {
+                    setAdminPinAction('dashboard');
+                } else {
+                    console.log('Error');
+                    throw new Error('Modal promise should not have resolved');
+                }
+                setQueryName(name);
+            }}
             closeModal={() => setAdminModalID(null)}
             defaultName={defaultModalQueryName}
             QueryID={adminModalID}

@@ -12,7 +12,7 @@ import {useState} from 'react';
 function AdminQueryModal(props) {
     const [queryName, setQueryName] = useState(props.defaultName || '');
     const [topQuery, setTopQuery] = useState(true);
-    const [dashboardQuery, setDashboardQuery] = useState(false);
+    const [dashboardQuery, setDashboardQuery] = useState(true);
     const submitPromise = () => {
         let sbmt = new Promise((resolve, reject) => {
            if (queryName == '') {
@@ -31,10 +31,13 @@ function AdminQueryModal(props) {
                reject();
                return;
            }
-           resolve(queryName, topQuery, dashboardQuery);
+           resolve([queryName, topQuery, dashboardQuery]);
         });
         if (props.onSubmit) {
-            sbmt = sbmt.then(props.onSubmit);
+            sbmt = sbmt.then((val) => {
+                const [name, topq, dashq] = val;
+                props.onSubmit(name, topq, dashq);
+            });
         }
         return sbmt;
     };
