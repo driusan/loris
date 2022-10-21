@@ -85,8 +85,9 @@ class Module extends \Module
                     WHERE dpq.PinnedBy=:userid",
                 ['userid' => $user->getId()]
             );
-            return [
-                new \LORIS\dashboard\Widget(
+            $widgets = [];
+            if (count($queries) > 0) {
+                $widgets[] = new \LORIS\dashboard\Widget(
                     new \LORIS\dashboard\WidgetContent(
                         "Starred Queries",
                         $this->renderTemplate(
@@ -99,8 +100,9 @@ class Module extends \Module
                         ""
                     ),
                     new \LORIS\dashboard\WidgetDisplayProps("small"),
-                )
-            ];
+                );
+            }
+            return $widgets;
         }
         return [];
     }

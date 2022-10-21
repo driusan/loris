@@ -12,7 +12,4 @@
             {$query.Name}
         </a>
     {/foreach}
-    <ul>
-        <li>Saved query should be above here</li>
-    </ul>
 </div>
