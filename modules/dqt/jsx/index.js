@@ -151,14 +151,14 @@ function DataQueryApp(props) {
             break;
         case 'DefineFilters':
             content = <DefineFilters
-                module={selectedModule}
-                category={selectedModuleCategory}
+                module={activeCategory.module}
+                category={activeCategory.category}
 
-                dictionary={currentModuleDict}
-                displayedFields={currentModuleDict}
+                dictionary={activeCategory.currentDictionary}
+                displayedFields={activeCategory.currentDictionary}
 
                 categories={categories}
-                onCategoryChange={getModuleFields}
+                onCategoryChange={activeCategory.changeCategory}
 
                 addQueryGroupItem={criteriaActions.addQueryGroupItem}
                 removeQueryGroupItem={criteriaActions.removeQueryGroupItem}
