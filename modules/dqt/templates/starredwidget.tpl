@@ -1,6 +1,6 @@
 <div class="list-group">
     {foreach from=$starredqueries item=query}
-        <a href="{$baseURL}/dqt/?queryID={$query.QueryID}" class="list-group-item">
+        <a href="{$baseURL}/dqt/?queryID={$query->queryID}" class="list-group-item">
             <span class="fa-stack">
                 <i style="color: yellow"
                    class="fas fa-star fa-stack-1x"
@@ -9,7 +9,7 @@
                    class="far fa-star fa-stack-1x"
                 ></i>
             </span>
-            {$query.Name}
+            {$query->name}
         </a>
     {/foreach}
 </div>

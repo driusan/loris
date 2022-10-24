@@ -75,18 +75,18 @@ class Module extends \Module
         case 'dashboard':
             $baseURL = \NDB_Factory::singleton()->settings()->getBaseURL();
             $DB = $this->lorisinstance->getDatabaseConnection();
-            $queries = $DB->pselect(
-                "SELECT dpq.QueryID, COALESCE(dqn.Name, CONCAT('Query ', dpq.QueryID)) as Name
-                    FROM dataquery_pinned_queries_rel dpq 
-                        JOIN dataquery_queries dq
-                            ON (dq.QueryID=dpq.QueryID)
-                        LEFT JOIN dataquery_query_names dqn
-                            ON (dpq.PinnedBy=dqn.UserID AND dpq.QueryID=dqn.QueryID)
-                    WHERE dpq.PinnedBy=:userid",
-                ['userid' => $user->getId()]
+            $provisioner = (
+                new Provisioners\StarredQueries($this->lorisinstance, $user)
+            )->filter(
+                    new \LORIS\Data\Filters\AccessibleResourceFilter()
             );
+            $results = $provisioner->execute($user);
+            $starredqueries = [];
+            foreach($results as $query) {
+                $starredqueries[] = $query;
+            }
             $widgets = [];
-            if (count($queries) > 0) {
+            if (count($starredqueries) > 0) {
                 $widgets[] = new \LORIS\dashboard\Widget(
                     new \LORIS\dashboard\WidgetContent(
                         "Starred Queries",
@@ -94,7 +94,7 @@ class Module extends \Module
                             "starredwidget.tpl",
                             [
                                 'baseURL'       => $baseURL,
-                                'starredqueries' => $queries,
+                                'starredqueries' => $starredqueries,
                             ]
                         ),
                         ""
@@ -103,7 +103,7 @@ class Module extends \Module
                 );
             }
             $provisioner = (
-                new \LORIS\dqt\Provisioners\StudyQueries($this->lorisinstance, 'dashboard')
+                new Provisioners\StudyQueries($this->lorisinstance, 'dashboard')
             )->filter(
                     new \LORIS\Data\Filters\AccessibleResourceFilter()
             );
