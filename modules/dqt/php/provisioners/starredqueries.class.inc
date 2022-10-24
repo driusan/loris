@@ -19,12 +19,12 @@ class StarredQueries extends \LORIS\Data\Provisioners\DBRowProvisioner
     function __construct(protected \LORIS\LorisInstance $loris, \User $user) {
         parent::__construct(
         "SELECT dpq.QueryID, COALESCE(dqn.Name, CONCAT('Query ', dpq.QueryID)) as Name
-            FROM dataquery_pinned_queries_rel dpq
+            FROM dataquery_starred_queries_rel dpq
                 JOIN dataquery_queries dq
                     ON (dq.QueryID=dpq.QueryID)
                 LEFT JOIN dataquery_query_names dqn
-                    ON (dpq.PinnedBy=dqn.UserID AND dpq.QueryID=dqn.QueryID)
-            WHERE dpq.PinnedBy=:userid",
+                    ON (dpq.StarredBy=dqn.UserID AND dpq.QueryID=dqn.QueryID)
+            WHERE dpq.StarredBy=:userid",
         ['userid' => $user->getId()]
         );
     }

@@ -70,23 +70,23 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
         return $this->data;
     }
 
-    public function pin(\User $user) {
+    public function star(\User $user) {
         $DB = $this->loris->getDatabaseConnection();
-        $DB->insertIgnore('dataquery_pinned_queries_rel',
+        $DB->insertIgnore('dataquery_starred_queries_rel',
             [
                 'QueryID' => $this->queryID,
-                'PinnedBy' => $user->getId(),
+                'StarredBy' => $user->getId(),
             ]
         );
 
     }
 
-    public function unpin(\User $user) {
+    public function unstar(\User $user) {
         $DB = $this->loris->getDatabaseConnection();
-        $DB->delete('dataquery_pinned_queries_rel',
+        $DB->delete('dataquery_starred_queries_rel',
             [
                 'QueryID' => $this->queryID,
-                'PinnedBy' => $user->getId(),
+                'StarredBy' => $user->getId(),
             ]
         );
     }

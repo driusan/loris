@@ -160,16 +160,18 @@ class Queries extends \NDB_Page
             case 'PATCH':
                 $params = $request->getQueryParams();
                 // Can only do 1 action at a time.
-                if (isset($params['pin']) && isset($params['share'])) {
+                if (isset($params['star']) && isset($params['share'])) {
                     return new \LORIS\Http\Response\JSON\BadRequest();
                 }
 
-                if ($params['pin'] == 'unpin') {
-                    $query->unpin($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unpinned query']);
-                } else if ($params['pin'] == 'pin') {
-                    $query->pin($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Pinned query']);
+                if ($params['star'] == 'unstar') {
+                    $query->unstar($user);
+                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unstarred query']);
+                } else if ($params['star'] == 'star') {
+                    $query->star($user);
+                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Starred query']);
+                } else {
+                    return new \LORIS\Http\Response\JSON\BadRequest(['msg'=>'Invalid star action']);
                 }
 
                 if ($params['share'] == 'share') {

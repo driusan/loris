@@ -4,35 +4,35 @@ import swal from 'sweetalert2';
 import {QueryGroup} from '../querydef';
 
 /**
- * React hook for triggering toggling of pinned queries
+ * React hook for triggering toggling of starred queries
  * on a LORIS server.
  *
  * @param {callback} onCompleteCallback - an action to perform after pinning
  * @return {array}
  */
-function usePinnedQueries(onCompleteCallback) {
-    const [pinQueryID, setPinQueryID] = useState(null);
-    const [pinAction, setPinAction] = useState('pin');
+function useStarredQueries(onCompleteCallback) {
+    const [starQueryID, setStarQueryID] = useState(null);
+    const [starAction, setStarAction] = useState('star');
     useEffect(() => {
-        if (pinQueryID == null) {
+        if (starQueryID == null) {
             return;
         }
 
         fetch(
-            '/dqt/queries/' + pinQueryID + '?pin=' + pinAction,
+            '/dqt/queries/' + starQueryID + '?star=' + starAction,
             {
                 method: 'PATCH',
                 credentials: 'same-origin',
             },
         ).then( () => {
-            setPinQueryID(null);
+            setStarQueryID(null);
             if (onCompleteCallback) {
                 onCompleteCallback();
             }
         }
         );
-    }, [pinQueryID, pinAction]);
-    return [setPinQueryID, setPinAction];
+    }, [starQueryID, starAction]);
+    return [setStarQueryID, setStarAction];
 }
 
 /**
@@ -80,7 +80,7 @@ function useSharedQueries() {
 
     const [loadQueriesForce, setLoadQueriesForce] = useState(0);
     const reloadQueries = () => setLoadQueriesForce(loadQueriesForce+1);
-    const [setPinQueryID, setPinAction] = usePinnedQueries(reloadQueries);
+    const [setStarQueryID, setStarAction] = useStarredQueries(reloadQueries);
     const [setShareQueryID, setShareAction] = useShareQueries(reloadQueries);
 
     useEffect(() => {
@@ -151,13 +151,13 @@ function useSharedQueries() {
         },
         reloadQueries,
         {
-            pin: (queryID) => {
-                    setPinAction('pin');
-                    setPinQueryID(queryID);
+            star: (queryID) => {
+                    setStarAction('star');
+                    setStarQueryID(queryID);
             },
-            unpin: (queryID) => {
-                    setPinAction('unpin');
-                    setPinQueryID(queryID);
+            unstar: (queryID) => {
+                    setStarAction('unstar');
+                    setStarQueryID(queryID);
             },
 
             share: (queryID) => {

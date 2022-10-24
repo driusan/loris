@@ -86,8 +86,8 @@ function Welcome(props) {
                         loadQuery={props.loadQuery}
                         defaultCollapsed={false}
 
-                        pinQuery={props.pinQuery}
-                        unpinQuery={props.unpinQuery}
+                        starQuery={props.starQuery}
+                        unstarQuery={props.unstarQuery}
 
                         shareQuery={props.shareQuery}
                         unshareQuery={props.unshareQuery}
@@ -396,7 +396,7 @@ function QueryList(props) {
                     || anyFilterMatches;
                 });
     }
-    const starFilter = props.pinQuery ?
+    const starFilter = props.starQuery ?
             <CheckboxElement name='onlystar' label='Starred Only'
                 value={onlyStarred}
                 offset=''
@@ -469,8 +469,8 @@ function QueryList(props) {
 
                             loadQuery={props.loadQuery}
 
-                            pinQuery={props.pinQuery}
-                            unpinQuery={props.unpinQuery}
+                            starQuery={props.starQuery}
+                            unstarQuery={props.unstarQuery}
 
                             shareQuery={props.shareQuery}
                             unshareQuery={props.unshareQuery}
@@ -564,7 +564,7 @@ function SingleQueryDisplay(props) {
         starredIcon = <span
             style={{cursor: 'pointer'}}
         onClick={
-            () => props.unpinQuery(query.QueryID)
+            () => props.unstarQuery(query.QueryID)
         }
         title="Unstar"
             className="fa-stack">
@@ -582,7 +582,7 @@ function SingleQueryDisplay(props) {
             style={{cursor: 'pointer'}}
         title="Star"
             onClick={
-                () => props.pinQuery(query.QueryID)
+                () => props.starQuery(query.QueryID)
             }
         className="fa-stack">
             <i className="far fa-star fa-stack-1x"/>
@@ -786,8 +786,8 @@ function QueryRunList(props) {
         loadQuery={props.loadQuery}
         defaultCollapsed={false}
 
-        pinQuery={props.pinQuery}
-        unpinQuery={props.unpinQuery}
+        starQuery={props.starQuery}
+        unstarQuery={props.unstarQuery}
 
         shareQuery={props.shareQuery}
         unshareQuery={props.unshareQuery}

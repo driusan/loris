@@ -40,12 +40,12 @@ CREATE TABLE dataquery_shared_queries_rel (
     CONSTRAINT unique_share UNIQUE (QueryID, SharedBy)
 );
 
-CREATE TABLE dataquery_pinned_queries_rel (
+CREATE TABLE dataquery_starred_queries_rel (
     QueryID int(10) unsigned,
-    PinnedBy int(10) unsigned,
+    StarredBy int(10) unsigned,
     FOREIGN KEY (QueryID) REFERENCES dataquery_queries(QueryID),
-    FOREIGN KEY (PinnedBy) REFERENCES users(ID),
-    CONSTRAINT unique_pin UNIQUE (QueryID, PinnedBy)
+    FOREIGN KEY (StarredBy) REFERENCES users(ID),
+    CONSTRAINT unique_pin UNIQUE (QueryID, StarredBy)
 );
 
 CREATE TABLE dataquery_run_results (

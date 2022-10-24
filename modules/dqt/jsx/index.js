@@ -105,8 +105,8 @@ function DataQueryApp(props) {
                         sharedQueries={queries.shared}
                         topQueries={queries.top_}
 
-                        pinQuery={queryActions.pin}
-                        unpinQuery={queryActions.unpin}
+                        starQuery={queryActions.star}
+                        unstarQuery={queryActions.unstar}
                         shareQuery={queryActions.share}
                         unshareQuery={queryActions.unshare}
 

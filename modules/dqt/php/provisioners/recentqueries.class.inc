@@ -25,8 +25,8 @@ class RecentQueries extends \LORIS\Data\Provisioners\DBRowProvisioner
                name.Name
             FROM dataquery_queries dq
                 JOIN dataquery_run_queries drq ON (dq.QueryID=drq.QueryID)
-                LEFT JOIN dataquery_pinned_queries_rel dpq ON
-                    (dq.QueryID=dpq.QueryID AND dpq.PinnedBy=:userid)
+                LEFT JOIN dataquery_starred_queries_rel dpq ON
+                    (dq.QueryID=dpq.QueryID AND dpq.StarredBy=:userid)
                 LEFT JOIN dataquery_shared_queries_rel dsq ON
                     (dq.QueryID=dsq.QueryID AND dsq.SharedBy=:userid)
                 LEFT JOIN dataquery_query_names name ON 
