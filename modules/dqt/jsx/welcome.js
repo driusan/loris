@@ -81,8 +81,8 @@ function Welcome(props) {
             title: 'Recent Queries',
             content: (
                 <div>
-                  <QueryList
-                        queries={props.recentQueries}
+                  <QueryRunList
+                        queryruns={props.recentQueries}
                         loadQuery={props.loadQuery}
                         defaultCollapsed={false}
 
@@ -105,6 +105,7 @@ function Welcome(props) {
             alwaysOpen: false,
             defaultOpen: true,
     });
+
     if (props.sharedQueries.length > 0) {
         panels.push({
               title: 'Shared Queries',
@@ -302,7 +303,7 @@ function QueryList(props) {
     let displayedQueries = props.queries;
     if (onlyStarred === true) {
         displayedQueries = displayedQueries.filter(
-            (val) => val.Pinned
+            (val) => val.Starred
         );
     }
     if (onlyShared === true) {
@@ -555,12 +556,12 @@ function SingleQueryDisplay(props) {
         setShowFullQuery(props.showFullQueryDefault);
     }, [props.showFullQueryDefault]);
 
-    let pinnedIcon;
+    let starredIcon;
     let sharedIcon;
     const query = props.query;
 
-    if (query.Pinned) {
-        pinnedIcon = <span
+    if (query.Starred) {
+        starredIcon = <span
             style={{cursor: 'pointer'}}
         onClick={
             () => props.unpinQuery(query.QueryID)
@@ -577,7 +578,7 @@ function SingleQueryDisplay(props) {
             />
             </span>;
     } else {
-        pinnedIcon = <span
+        starredIcon = <span
             style={{cursor: 'pointer'}}
         title="Star"
             onClick={
@@ -670,7 +671,7 @@ function SingleQueryDisplay(props) {
                 <i className="fas fa-pencil-alt fa-stack-1x"> </i>
             </span>;
          msg = <div>{desc}
-            &nbsp;{pinnedIcon}{sharedIcon}{loadIcon}{nameIcon}{pinIcon}
+            &nbsp;{starredIcon}{sharedIcon}{loadIcon}{nameIcon}{pinIcon}
             </div>;
      } else if (query.SharedBy) {
          const desc = query.Name
@@ -756,5 +757,48 @@ function SingleQueryDisplay(props) {
             {queryDisplay}
             <hr />
         </div>);
+}
+
+/**
+ * Display a list of Query Runs
+ *
+ * @param {object} props - react props
+ *
+ * @return {ReactDOM}
+ */
+function QueryRunList(props) {
+    // When <QueryList /> was written there wasn't a clear distinction between
+    // runs and queries, so we need to flatten all the information into a single
+    // object that it thinks is a query and not a query run.
+    const queries = props.queryruns.map((val) => {
+        let flattened = {...val.Query};
+        flattened.RunTime = val.RunTime;
+        flattened.QueryID = val.QueryID;
+        flattened.Starred = val.Starred;
+        flattened.Shared = val.Shared;
+        flattened.Name = val.Name;
+        return flattened;
+    });
+    console.log(queries);
+
+    return (<QueryList
+        queries={queries}
+        loadQuery={props.loadQuery}
+        defaultCollapsed={false}
+
+        pinQuery={props.pinQuery}
+        unpinQuery={props.unpinQuery}
+
+        shareQuery={props.shareQuery}
+        unshareQuery={props.unshareQuery}
+
+        reloadQueries={props.reloadQueries}
+
+        getModuleFields={props.getModuleFields}
+        mapModuleName={props.mapModuleName}
+        mapCategoryName={props.mapCategoryName}
+        fulldictionary={props.fulldictionary}
+        queryAdmin={props.queryAdmin}
+    />);
 }
 export default Welcome;

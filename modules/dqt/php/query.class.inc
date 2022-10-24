@@ -30,7 +30,9 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
         public readonly int $queryID,
         ?array $query=null,
         ?string $name=null,
-        ?array $sharedBy=null
+        ?array $sharedBy=null,
+        protected ?bool $starred=null,
+        protected ?bool $shared=null
     ) {
         if ($query !== null) {
             $this->data = $query;
@@ -384,6 +386,12 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
         }
         if ($this->sharedBy !== null) {
             $result['SharedBy'] = $this->sharedBy;
+        }
+        if ($this->starred !== null) {
+            $result['Starred'] = $this->starred;
+        }
+        if ($this->shared !== null) {
+            $result['Shared'] = $this->shared;
         }
         return $result;
     }

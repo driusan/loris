@@ -3,6 +3,7 @@ namespace LORIS\dqt;
 
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
+use \LORIS\Data\Filters\AccessibleResourceFilter;
 
 /**
  * Queries page
@@ -41,9 +42,9 @@ class Queries extends \NDB_Page
             switch ($request->getMethod()) {
             case 'GET':
                 return new \LORIS\Http\Response\JSON\OK([
-                        'recent' => $this->getRecentQueries($user),
-                        'shared' => $this->getSharedQueries($user),
-                        'topqueries' => $this->getTopQueries($user),
+                        'recent' => iterator_to_array($this->getRecentQueries($user)),
+                        'shared' => iterator_to_array($this->getSharedQueries($user)),
+                        'topqueries' => iterator_to_array($this->getTopQueries($user)),
                 ]);
             case 'POST':
                 $requestjson = (string) $request->getBody();
@@ -101,71 +102,21 @@ class Queries extends \NDB_Page
     }
 
     public function getRecentQueries(\User $user) : iterable {
-        $DB = $this->loris->getDatabaseConnection();
-        $potentialQueries = $DB->pselect("
-            SELECT dq.QueryID, RunTime, Query,
-               IF(dpq.QueryID IS NULL, 'Unpinned', 'Pinned') as Pinned,
-               IF(dsq.QueryID IS NULL, 'Unshared', 'Shared') as Shared,
-               name.Name
-            FROM dataquery_queries dq
-                JOIN dataquery_run_queries drq ON (dq.QueryID=drq.QueryID)
-                LEFT JOIN dataquery_pinned_queries_rel dpq ON
-                    (dq.QueryID=dpq.QueryID AND dpq.PinnedBy=:userid)
-                LEFT JOIN dataquery_shared_queries_rel dsq ON
-                    (dq.QueryID=dsq.QueryID AND dsq.SharedBy=:userid)
-                LEFT JOIN dataquery_query_names name ON 
-                    (dq.QueryID=name.QueryID AND name.UserID=:userid)
-                
-            WHERE drq.UserID=:userid
-            ORDER BY drq.RunTime DESC",
-            ['userid' => $user->getId()]
-        );
-
-        $results = [];
-        // FIXME: Filter out queries that aren't accessible by the
-        // user because of the fields/modules
-        // FIXME: Use a DataProvisioner?
-        foreach($potentialQueries as $query) {
-            // Convert pinned/unpinned to boolean
-            if ($query['Pinned'] === 'Pinned') {
-                $query['Pinned'] = true;
-            } else {
-                $query['Pinned'] = false;
-            }
-            if ($query['Shared'] === 'Shared') {
-                $query['Shared'] = true;
-            } else {
-                $query['Shared'] = false;
-            }
-            if (empty($query['Name'])) {
-                unset($query['Name']);
-            }
-            // Convert from string to PHP array so that it's not double
-            // escaped when json_encode is called.
-            $query['Query'] = json_decode($query['Query'], true);
-
-            $results[] = $query;
-            
-        }
-        return $results;
+        return (new provisioners\RecentQueries($this->loris, $user))
+            ->filter(new AccessibleResourceFilter())
+            ->execute($user);
     }
 
     public function getSharedQueries(\User $user) : iterable {
-        $provisioner = (
-            new provisioners\SharedQueries($this->loris, $user)
-        )->filter(
-                new \LORIS\Data\Filters\AccessibleResourceFilter()
-        );
-        return iterator_to_array($provisioner->execute($user));
+        return (new provisioners\SharedQueries($this->loris, $user))
+            ->filter(new AccessibleResourceFilter())
+            ->execute($user);
     }
 
     public function getTopQueries(\User $user) : iterable {
-        $provisioner = (
-            new provisioners\StudyQueries($this->loris, 'topquery')
-        )->filter(
-                new \LORIS\Data\Filters\AccessibleResourceFilter()
-        );
-        return iterator_to_array($provisioner->execute($user));
+        return (new provisioners\StudyQueries($this->loris, 'topquery'))
+            ->filter(new AccessibleResourceFilter())
+            ->execute($user);
     }
 
     private function storeQuery(\User $user, string $requestjson) {

@@ -95,19 +95,15 @@ function useSharedQueries() {
           let convertedshared = [];
           let convertedtop = [];
           if (result.recent) {
-            result.recent.forEach( (query) => {
-              if (query.Query.criteria) {
-                query.Query.criteria = unserializeSavedQuery(
-                  query.Query.criteria,
+            result.recent.forEach( (queryrun) => {
+              if (queryrun.Query.Query.criteria) {
+                queryrun.Query.Query.criteria = unserializeSavedQuery(
+                  queryrun.Query.Query.criteria,
                 );
               }
               convertedrecent.push({
-                QueryID: query.QueryID,
-                RunTime: query.RunTime,
-                Pinned: query.Pinned,
-                Shared: query.Shared,
-                Name: query.Name,
-                ...query.Query,
+                RunTime: queryrun.RunTime,
+                ...queryrun.Query,
               });
             });
           }

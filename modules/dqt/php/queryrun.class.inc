@@ -2,8 +2,16 @@
 namespace LORIS\dqt;
 use \LORIS\StudyEntities\Candidate\CandID;
 
-class QueryRun implements \LORIS\StudyEntities\AccessibleResource {
-    public function __construct(protected \LORIS\LorisInstance $loris, protected Query $query, protected ?int $RunID) {
+class QueryRun implements \LORIS\StudyEntities\AccessibleResource,
+    \LORIS\Data\DataInstance {
+    protected int $runID;
+    public function __construct(protected \LORIS\LorisInstance $loris, protected Query $query, ?int $RunID=null,
+        public readonly string $runTime='',
+        public readonly bool $starred=false,
+        public readonly bool $shared=false) {
+        if ($RunID !== null) {
+            $this->runID = $RunID;
+        }
     }
 
     public function isAccessibleBy(\User $user) : bool {
@@ -40,6 +48,14 @@ class QueryRun implements \LORIS\StudyEntities\AccessibleResource {
             return new CandID($val);
         }, $candIDs);
 
+    }
+
+    public function jsonSerialize() : mixed {
+        $result = [
+            'RunTime' => $this->runTime,
+            'Query' => $this->query,
+        ];
+        return $result;
     }
 }
 ?>
