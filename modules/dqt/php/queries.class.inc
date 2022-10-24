@@ -151,34 +151,12 @@ class Queries extends \NDB_Page
     }
 
     public function getSharedQueries(\User $user) : iterable {
-        $DB = $this->loris->getDatabaseConnection();
-        $potentialQueries = $DB->pselect("
-            SELECT dq.QueryID, Query, GROUP_CONCAT(u.UserID) as SharedBy, name.Name
-            FROM dataquery_queries dq
-                LEFT JOIN dataquery_shared_queries_rel dsq ON
-                    (dq.QueryID=dsq.QueryID)
-                LEFT JOIN users u ON (dsq.SharedBy=u.ID)
-                LEFT JOIN dataquery_query_names name ON 
-                    (dsq.QueryID=name.QueryID AND name.UserID=dsq.SharedBy)
-            WHERE dsq.SharedBy != :userid
-            GROUP BY QueryID
-            ORDER BY QueryID",
-            ['userid' => $user->getId()]
+        $provisioner = (
+            new provisioners\SharedQueries($this->loris, $user)
+        )->filter(
+                new \LORIS\Data\Filters\AccessibleResourceFilter()
         );
-
-        $results = [];
-        // FIXME: Filter out queries that aren't accessible by the
-        // user because of the fields/modules
-        // FIXME: Use a DataProvisioner?
-        foreach($potentialQueries as $query) {
-            // Convert from string to PHP array so that it's not double
-            // escaped when json_encode is called.
-            $query['Query'] = json_decode($query['Query'], true);
-
-            $results[] = $query;
-            
-        }
-        return $results;
+        return iterator_to_array($provisioner->execute($user));
     }
 
     public function getTopQueries(\User $user) : iterable {
@@ -187,20 +165,7 @@ class Queries extends \NDB_Page
         )->filter(
                 new \LORIS\Data\Filters\AccessibleResourceFilter()
         );
-        
-        $potentialQueries = $provisioner->execute($user);
-        $results = [];
-        // FIXME: Filter out queries that aren't accessible by the
-        // user because of the fields/modules
-        foreach($potentialQueries as $query) {
-            // Convert from string to PHP array so that it's not double
-            // escaped when json_encode is called.
-            // $query['Query'] = json_encode($query, true);
-
-            $results[] = $query;
-            
-        }
-        return $results;
+        return iterator_to_array($provisioner->execute($user));
     }
 
     private function storeQuery(\User $user, string $requestjson) {

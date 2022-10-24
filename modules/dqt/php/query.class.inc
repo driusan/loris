@@ -23,11 +23,14 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
     \LORIS\Data\DataInstance {
     protected $data;
     public readonly string $name;
+    protected $sharedBy;
+
     public function __construct(
         protected \LORIS\LorisInstance $loris,
         public readonly int $queryID,
         ?array $query=null,
         ?string $name=null,
+        ?array $sharedBy=null
     ) {
         if ($query !== null) {
             $this->data = $query;
@@ -49,6 +52,9 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
 
         if ($name !== null) {
             $this->name = $name;
+        }
+        if ($sharedBy !== null) {
+            $this->sharedBy = $sharedBy;
         }
     }
 
@@ -369,10 +375,16 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
     }
 
     public function jsonSerialize() : mixed {
-        return [
+        $result = [
             'QueryID' => $this->queryID,
-            'Name' => $this->name,
             'Query' => $this->data,
         ];
+        if ($this->name !== null && $this->name !== '') {
+            $result['Name'] = $this->name;
+        }
+        if ($this->sharedBy !== null) {
+            $result['SharedBy'] = $this->sharedBy;
+        }
+        return $result;
     }
 }
