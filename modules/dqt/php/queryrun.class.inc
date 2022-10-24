@@ -15,9 +15,7 @@ class QueryRun implements \LORIS\StudyEntities\AccessibleResource,
     }
 
     public function isAccessibleBy(\User $user) : bool {
-        // FIXME: validate all fields and modules
-        // are accessible
-        return true;
+        return $this->query->isAccessibleBy($user);
     }
 
     public function getQuery() : Query {
