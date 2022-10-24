@@ -103,7 +103,7 @@ class Module extends \Module
                 );
             }
             $provisioner = (
-                new StudyQueriesProvisioner($this->lorisinstance, 'dashboard')
+                new \LORIS\dqt\Provisioners\StudyQueries($this->lorisinstance, 'dashboard')
             )->filter(
                     new \LORIS\Data\Filters\AccessibleResourceFilter()
             );

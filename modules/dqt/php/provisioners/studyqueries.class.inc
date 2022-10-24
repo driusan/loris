@@ -1,20 +1,21 @@
 <?php declare(strict_types=1);
 /**
- * This file implements a data provisioner to get recent queries
- * for a user
+ * This file implements a data provisioner to get study queries
+ * for a user.
  *
  * PHP Version 7
  *
  * @author Dave MacFarlane <david.macfarlane2@mcgill.ca>
  */
 
-namespace LORIS\dqt;
+namespace LORIS\dqt\Provisioners;
+use \LORIS\dqt\Query;
 
-class StudyQueriesProvisioner extends \LORIS\Data\Provisioners\DBRowProvisioner
+class StudyQueries extends \LORIS\Data\Provisioners\DBRowProvisioner
 {
     /**
-     * Create a DataDictRowProvisioner, which gets rows for
-     * the datadict menu table.
+     * Create a StudyQueries provisioner, which gets rows for
+     * the pinned study queries.
      */
     function __construct(protected \LORIS\LorisInstance $loris, $pintype) {
         parent::__construct(
@@ -30,8 +31,7 @@ class StudyQueriesProvisioner extends \LORIS\Data\Provisioners\DBRowProvisioner
     }
 
     /**
-     * Returns an instance of a DataDict object for a given
-     * table row.
+     * {@inheritDoc}
      *
      * @param array $row The database row from the LORIS Database class.
      *

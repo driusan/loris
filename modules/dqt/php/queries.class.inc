@@ -183,7 +183,7 @@ class Queries extends \NDB_Page
 
     public function getTopQueries(\User $user) : iterable {
         $provisioner = (
-            new StudyQueriesProvisioner($this->loris, 'topquery')
+            new provisioners\StudyQueries($this->loris, 'topquery')
         )->filter(
                 new \LORIS\Data\Filters\AccessibleResourceFilter()
         );
