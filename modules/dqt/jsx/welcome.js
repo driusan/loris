@@ -44,37 +44,11 @@ function Welcome(props) {
     }
     panels.push({
             title: 'Introduction',
-            content: (
-                <div>
-                  <p>The data query tool allows you to query data
-                  within LORIS. There are three steps to defining
-                  a query:
-                  </p>
-                  <ol>
-                    <li>First, you must select the fields that you're
-                        interested in on the <code>Define Fields</code>
-                        page.</li>
-                    <li>Next, you can optionally define filters on the
-                        <code>Define Filters</code> page to restrict
-                        the population that is returned.</li>
-                    <li>Finally, you view your query results on
-                        the <code>View Data</code> page</li>
-                  </ol>
-                  <p>Instead of building a query, you can reload a
-                    recently run query below.</p>
-                  <p>Clicking on on a table below cell in either the
-                     <code>Fields</code> or <code>Filters</code>
-                     cell will load the query fields and criteria
-                     of the recent query. Clicking on the <code>
-                     Time Run</code> cell of a query will reload
-                     the data that was returned at that time, without
-                     re-running the query.</p>
-                   <ButtonElement
-                        onUserInput={props.onContinue}
-                        label="Continue to Define Fields" />
-                </div>
-            ),
-            alwaysOpen: true,
+            content: <IntroductionMessage
+                        hasStudyQueries={props.topQueries.length > 0}
+                        onContinue={props.onContinue}
+                     />,
+            alwaysOpen: false,
             defaultOpen: true,
     });
     panels.push({
@@ -590,27 +564,23 @@ function SingleQueryDisplay(props) {
     }
 
     if (query.Shared) {
-        sharedIcon = <span className="fa-stack"
-            style={{cursor: 'pointer'}}
-        title="Unshare"
+        sharedIcon = <ShareIcon
+            isShared={query.Shared}
+            title='Unshare'
             onClick={
                 () =>
                     props.unshareQuery(query.QueryID)
-            }>
-        <i style={{color: 'blue'}}
-        className="fas fa-share-alt fa-stack-1x" />
-            </span>;
+            }
+        />;
     } else {
-        sharedIcon = <span className="fa-stack"
-            style={{cursor: 'pointer'}}
-        title="Share"
+        sharedIcon = <ShareIcon
+            isShared={query.Shared}
+            title='Shshare'
             onClick={
                 () =>
                     props.shareQuery(query.QueryID)
-            }>
-        <i style={{color: 'black'}}
-        className="fas fa-share-alt fa-stack-1x" />
-            </span>;
+            }
+        />;
     }
 
     const loadQuery = () => {
@@ -625,12 +595,7 @@ function SingleQueryDisplay(props) {
         });
     };
 
-    const loadIcon = <span onClick={loadQuery}
-                        title="Reload query"
-                        style={{cursor: 'pointer'}}
-                        className="fa-stack">
-                        <i className="fas fa-sync fa-stack-1x"></i>
-                     </span>;
+    const loadIcon = <LoadIcon onClick={loadQuery} />;
 
     const pinIcon = props.queryAdmin
         ? <span title="Pin Study Query"
@@ -661,15 +626,11 @@ function SingleQueryDisplay(props) {
                  : <i>You ran this query</i>;
          }
 
-         const nameIcon = <span title="Name query"
-             style={{cursor: 'pointer'}}
-             className="fa-stack"
-             onClick={() => {
-                props.setDefaultModalQueryName(query.Name);
-                props.setNameModalID(query.QueryID);
-             }}>
-                <i className="fas fa-pencil-alt fa-stack-1x"> </i>
-            </span>;
+         const nameIcon = <NameIcon
+                onClick={() => {
+                    props.setDefaultModalQueryName(query.Name);
+                    props.setNameModalID(query.QueryID);
+                }} />;
          msg = <div>{desc}
             &nbsp;{starredIcon}{sharedIcon}{loadIcon}{nameIcon}{pinIcon}
             </div>;
@@ -800,5 +761,110 @@ function QueryRunList(props) {
         fulldictionary={props.fulldictionary}
         queryAdmin={props.queryAdmin}
     />);
+}
+
+/**
+ * An icon to load a query
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function LoadIcon(props) {
+    return <span onClick={props.onClick}
+                    title="Reload query"
+                    style={{cursor: 'pointer'}}
+                    className="fa-stack">
+                    <i className="fas fa-sync fa-stack-1x"></i>
+         </span>;
+}
+
+/**
+ * An icon to share a query
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function ShareIcon(props) {
+    return <span className="fa-stack"
+            style={{cursor: 'pointer'}}
+            title={props.title}
+            onClick={props.onClick}>
+        <i style={props.isShared ? {color: 'blue'} : {}}
+            className="fas fa-share-alt fa-stack-1x" />
+    </span>;
+}
+
+/**
+ * An icon to name a query
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function NameIcon(props) {
+   return (<span title="Name query"
+             style={{cursor: 'pointer'}}
+             className="fa-stack"
+             onClick={props.onClick}
+             >
+                <i className="fas fa-pencil-alt fa-stack-1x"> </i>
+    </span>);
+}
+
+/**
+ * Displays the message for the introduction panel
+ *
+ * @param {object} props - React props
+ *
+ * @return {ReactDOM}
+ */
+function IntroductionMessage(props) {
+    const studyQueriesParagraph = props.hasStudyQueries ? (
+        <p>Above, there is also a <code>Study Queries</code> panel. This
+        are a special type of shared queries that have been pinned
+        by a study administer to always display at the top of this
+        page.</p>
+    ) : '';
+    return (
+        <div>
+          <p>The data query tool allows you to query data
+          within LORIS. There are three steps to defining
+          a query:
+          </p>
+          <ol>
+            <li>First, you must select the fields that you're
+                interested in on the <code>Define Fields</code>
+                page.</li>
+            <li>Next, you can optionally define filters on the
+                <code>Define Filters</code> page to restrict
+                the population that is returned.</li>
+            <li>Finally, you view your query results on
+                the <code>View Data</code> page</li>
+          </ol>
+          <p>The <code>Next Steps</code> on the bottom right of your
+             screen always the context-sensitive next steps that you
+             can do to build your query.</p>
+          <p>Your recently run queries will be displayed in the
+             <code>Recent Queries</code> panel below. Instead of building
+             a new query, you can reload a query that you've recently run
+             by clicking on the <LoadIcon /> icon next to the query.</p>
+          <p>Queries can be shared with others by clicking the <ShareIcon />
+             icon. This will cause the query to be shared with all users who
+             have access to the fields used by the query. It will display
+             in a <code>Shared Queries</code> panel below the
+             <code>Recent Queries</code>.</p>
+           <p>You may also give a query a name at any time by clicking the
+             <NameIcon /> icon. This makes it easier to find queries you care
+             about by giving them an easier to remember name that can be used
+             for filtering. When you share a query, the name will be shared
+             along with it.</p>
+           {studyQueriesParagraph}
+           <ButtonElement
+                onUserInput={props.onContinue}
+                label="Continue to Define Fields" />
+        </div>
+    );
 }
 export default Welcome;

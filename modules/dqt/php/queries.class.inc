@@ -164,22 +164,28 @@ class Queries extends \NDB_Page
                     return new \LORIS\Http\Response\JSON\BadRequest();
                 }
 
-                if ($params['star'] == 'unstar') {
-                    $query->unstar($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unstarred query']);
-                } else if ($params['star'] == 'star') {
-                    $query->star($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Starred query']);
-                } else {
-                    return new \LORIS\Http\Response\JSON\BadRequest(['msg'=>'Invalid star action']);
+                if (isset($params['star'])) {
+                    if ($params['star'] == 'unstar') {
+                        $query->unstar($user);
+                        return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unstarred query']);
+                    } else if ($params['star'] == 'star') {
+                        $query->star($user);
+                        return new \LORIS\Http\Response\JSON\OK(['msg'=>'Starred query']);
+                    } else {
+                        return new \LORIS\Http\Response\JSON\BadRequest('Invalid star action');
+                    }
                 }
 
-                if ($params['share'] == 'share') {
-                    $query->share($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Shared query']);
-                } else if ($params['share'] == 'unshare'){
-                    $query->unshare($user);
-                    return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unshared query']);
+                if (isset($params['share'])) {
+                    if ($params['share'] == 'share') {
+                        $query->share($user);
+                        return new \LORIS\Http\Response\JSON\OK(['msg'=>'Shared query']);
+                    } else if ($params['share'] == 'unshare') {
+                        $query->unshare($user);
+                        return new \LORIS\Http\Response\JSON\OK(['msg'=>'Unshared query']);
+                    } else {
+                        return new \LORIS\Http\Response\JSON\BadRequest('Invalid share action');
+                    }
                 }
 
                 if (!empty($params['type'])) {
