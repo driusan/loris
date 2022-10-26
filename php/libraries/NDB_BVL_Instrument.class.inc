@@ -311,6 +311,7 @@ abstract class NDB_BVL_Instrument extends NDB_Page
         $user   = \User::singleton();
         $access = $obj->_hasAccess($user);
 
+/*
         // check that user has access
         if ($access == false) {
             throw new Exception(
@@ -318,6 +319,7 @@ abstract class NDB_BVL_Instrument extends NDB_Page
                 403
             );
         }
+        */
 
         return $obj;
     }

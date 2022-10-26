@@ -117,6 +117,10 @@ class LorisInstance
         return false;
     }
 
+    public function getModule(string $name) : \Module {
+        return \Module::factoryWithInstance($name, $this);
+    }
+
     /**
      * Returns an NDB_Config object used for interacting with configuration
      * settings for this instance.

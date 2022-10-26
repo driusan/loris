@@ -42,9 +42,9 @@ class Queries extends \NDB_Page
             switch ($request->getMethod()) {
             case 'GET':
                 return new \LORIS\Http\Response\JSON\OK([
-                        'recent' => iterator_to_array($this->getRecentQueries($user)),
-                        'shared' => iterator_to_array($this->getSharedQueries($user)),
-                        'topqueries' => iterator_to_array($this->getTopQueries($user)),
+                        'recent' => iterator_to_array($this->getRecentQueries($user), false),
+                        'shared' => iterator_to_array($this->getSharedQueries($user), false),
+                        'topqueries' => iterator_to_array($this->getTopQueries($user), false),
                 ]);
             case 'POST':
                 $requestjson = (string) $request->getBody();

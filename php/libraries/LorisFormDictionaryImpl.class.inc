@@ -140,13 +140,24 @@ trait LorisFormDictionaryImpl
                     "Unknown element type: " . $element['type']
                 );
             }
-            $items[] = new DictionaryItem(
+
+            $items[] = new class(
                 $prefix . $element['name'],
                 $label,
                 $scope,
                 $t,
-                $card
-            );
+                $card,
+                $this,
+            )
+                extends DictionaryItem {
+                    public function __construct($name, $label, $scope, $type, $cardinality, private $instrument) {
+                        parent::__construct($name, $label, $scope, $type, $cardinality);
+
+                    }
+                    public function isAccessibleBy(\User $user) : bool {
+                        return $this->instrument->_hasAccess($user);
+                    }
+            };
         }
         return $items;
     }

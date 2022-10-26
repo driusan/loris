@@ -61,9 +61,105 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
     }
 
     public function isAccessibleBy(\User $user) : bool {
+        // Check module permissions for both fields and criteria
+        /*
+        $fields = $this->getFields();
+        $modules = array_map(
+            function($field) {
+                return $field['module'];
+            },
+            $this->data['fields'] ?? []
+        );
+        */
+        $criteria = $this->getCriteria();
+        /*
+        if ($criteria) {
+            $modules = array_merge($modules, $this->getAllCriteriaModules($criteria));
+        }
+
+        foreach (array_unique($modules) as $module) {
+            if (!$this->loris->getModule($module)->hasAccess($user))
+                return false;
+        }
+
+        // Check accessibility for fields
+        $fields = $this->getFields();
+        foreach($fields as $field) {
+            if ($field->isAccessibleBy($user) === false) {
+                return false;
+            }
+        }
+        */
+
+        // Check accessibility for dictionary items in the criteria
+        $critfields = $this->getAllCriteriaDictionaries($criteria);
+        foreach ($critfields as $field) {
+            if ($field->isAccessibleBy($user) === false) {
+                return false;
+            }
+
+        }
+        return true;
+        /*
+    public function getCriteria() : ?array {
+        return $this->data['criteria'] ?? null;
+    }
+    */
+
+
         // FIXME: validate all fields and modules
         // are accessible
         return true;
+    }
+
+    /**
+     * Recursively get all modules used by criteria and sub-criteria
+     * Returns the module names.
+     *
+     * @return string[]
+     */
+    private function getAllCriteriaModules($criteria) : array {
+        // Ensure it was called with a criteria object and not
+        // some other array
+        assert(isset($criteria['operator']));
+        $modules = [];
+        foreach($criteria['group'] as $item) {
+            if (isset($item['group'])) {
+                $modules = array_merge($modules, $this->getAllCriteriaModules($item));
+            } else {
+                $modules[] = $item['module'];
+            }
+        }
+        return array_unique($modules);
+    }
+
+    /**
+     * Recursively get a dictionaryItem for every field used
+     * in the criteria including subgroup
+     *
+     * @return DictionaryItem[]
+     */
+    private function getAllCriteriaDictionaries($criteria) : array {
+        if($criteria === null) {
+            return [];
+        }
+        // Ensure it was called with a criteria object and not
+        // some other array
+        assert(isset($criteria['operator']));
+        $usedDicts = [];
+        foreach($criteria['group'] as $item) {
+            if (isset($item['group'])) {
+                $usedDicts = array_merge($usedDicts, $this->getAllCriteriaDictionaries($item));
+            } else {
+                $mname = $item['module'];
+                $cname = $item['category'];
+                $fname = $item['fieldname'];
+                $this->populateModuleDictCache($mname);
+                assert(isset($this->moduleDictCache[$mname][$cname][$fname]));
+                $usedDicts[] = $this->moduleDictCache[$mname][$cname][$fname];
+            }
+        }
+        return $usedDicts;
     }
 
     public function toArray() : array {
@@ -127,8 +223,59 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
         return $this->data['criteria'] ?? null;
     }
 
-    public function getFields() : ?array {
-        return $this->data['fields'] ?? null;
+    /**
+     * A cache used for storing a hierarchical version of module
+     * data dictionaries used by this query.
+     *
+     * Entries are of the form
+     *     $cache[modulename][categoryname][fieldname]= DictionaryItem
+     */
+    private $moduleDictCache = [];
+
+    private function populateModuleDictCache(string $mname) : void {
+        if (isset($this->moduleDictCache[$mname])) {
+            return;
+        }
+        $module = $this->loris->getModule($mname);
+
+        $moduleDict = $module->getQueryEngine()->getDataDictionary();
+        foreach($moduleDict as $category) {
+            $cname = $category->getName();
+            foreach ($category->getItems() as $cfield) {
+                if (!isset($this->moduleDictCache[$mname])) {
+                    $this->moduleDictCache[$mname] = [];
+                }
+                if (!isset($this->moduleDictCache[$mname][$cname])) {
+                    $this->moduleDictCache[$mname][$cname] = [];
+                }
+                $this->moduleDictCache[$mname][$cname][$cfield->getName()] = $cfield;
+            }
+        }
+    }
+    /**
+     * Gets the fields for this query.
+     *
+     * @return DictionaryItem[]
+     */
+    public function getFields() : iterable {
+        if (empty($this->data['fields'])) {
+            return [];
+        }
+
+        $fields = [];
+
+        foreach ($this->data['fields'] as $field) {
+            $mname = $field['module'];
+            $cname = $field['category'];
+            $fname = $field['field'];
+
+            $this->populateModuleDictCache($mname);
+
+            assert(isset($this->moduleDictCache[$mname][$cname][$fname]));
+            $fields[] = $this->moduleDictCache[$mname][$cname][$fname];
+        }
+        assert(count($fields) == count($this->data['fields']));
+        return $fields;
     }
 
     public function newRun(\User $user) : QueryRun {
