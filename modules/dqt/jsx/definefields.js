@@ -115,7 +115,8 @@ function DefineFields(props) {
       let modifiedvisits = false;
       props.selected.forEach( (field) => {
           // Valid visits according to the dictionary
-          const dict = field.dictionary;
+          const category = props.fulldictionary[field.module][field.category];
+          const dict = category[field.field];
 
           const newvisits = dict.visits.filter((visit) => {
               return props.defaultVisits.includes(visit);
