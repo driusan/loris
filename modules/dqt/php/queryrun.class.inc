@@ -28,7 +28,7 @@ class QueryRun implements \LORIS\StudyEntities\AccessibleResource,
         if (count($candIDs) == 0) {
             return;
         }
-        $insertstmt = "INSERT INTO dataquery_run_results (RunID, CandID) VALUES ($this->RunID, " . join("),($this->RunID, ", $candIDs) . ')';
+        $insertstmt = "INSERT INTO dataquery_run_results (RunID, CandID) VALUES ($this->runID, " . join("),($this->runID, ", $candIDs) . ')';
         $q = $DB->prepare($insertstmt);
         $q->execute([]);
         return;
@@ -40,7 +40,7 @@ class QueryRun implements \LORIS\StudyEntities\AccessibleResource,
 
     public function getCandidates() : array {
         $DB = $this->loris->getDatabaseConnection();
-        $candIDs = $DB->pselectCol("SELECT CandID FROM dataquery_run_results WHERE RunID=:run", ['run' => $this->RunID]);
+        $candIDs = $DB->pselectCol("SELECT CandID FROM dataquery_run_results WHERE RunID=:run", ['run' => $this->runID]);
 
         return array_map(function ($val) {
             return new CandID($val);

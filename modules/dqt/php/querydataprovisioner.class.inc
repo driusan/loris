@@ -24,7 +24,7 @@ class QueryDataProvisioner extends ProvisionerInstance {
         $startMemory = memory_get_usage();
         $dataiterators = [];
         $fields = [];
-        $fieldsarray = $this->query->getFields();
+        $fieldsarray = $this->query->getFieldsRaw();
 
         // Convert from an array of fieldnames to an array of
         // fieldnames per module, to minimize the number of roundtrips

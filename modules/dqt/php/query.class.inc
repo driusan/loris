@@ -62,7 +62,6 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
 
     public function isAccessibleBy(\User $user) : bool {
         // Check module permissions for both fields and criteria
-        /*
         $fields = $this->getFields();
         $modules = array_map(
             function($field) {
@@ -70,9 +69,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
             },
             $this->data['fields'] ?? []
         );
-        */
         $criteria = $this->getCriteria();
-        /*
         if ($criteria) {
             $modules = array_merge($modules, $this->getAllCriteriaModules($criteria));
         }
@@ -89,7 +86,6 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
                 return false;
             }
         }
-        */
 
         // Check accessibility for dictionary items in the criteria
         $critfields = $this->getAllCriteriaDictionaries($criteria);
@@ -99,16 +95,6 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
             }
 
         }
-        return true;
-        /*
-    public function getCriteria() : ?array {
-        return $this->data['criteria'] ?? null;
-    }
-    */
-
-
-        // FIXME: validate all fields and modules
-        // are accessible
         return true;
     }
 
@@ -251,6 +237,11 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
                 $this->moduleDictCache[$mname][$cname][$cfield->getName()] = $cfield;
             }
         }
+    }
+
+    public function getFieldsRaw() : iterable {
+        return $this->data['fields'] ?? null;
+
     }
     /**
      * Gets the fields for this query.
