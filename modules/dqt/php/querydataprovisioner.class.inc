@@ -137,42 +137,6 @@ class QueryDataProvisioner extends ProvisionerInstance {
         }
     }
 
-    // Xavier's work. Stolen from https://github.com/xlecours/Loris/blob/DQT_couchprovisioner/modules/dqt/php/querygroup.class.inc
-    private static function _intersect(\Traversable $iter1, \Traversable $iter2): \Traversable {
-        foreach($iter1 as $value1) {
-            if (!$iter2->valid()) {
-                return;
-            }
-            switch($value1 <=> $iter2->current()) {
-                case -1:
-                    // iter1 is smaller than iter2.
-                    // Move to next foreach.
-                    break;
-                case 0:
-                    // Both iter1 and iter2 are equal.
-                    // Move iter2 and yield $value before moving to next foreach.
-                    $iter2->next();
-                    yield $value1;
-                    break;
-                case 1:
-                    // iter1 is greater than iter2.
-                    // Advance iter2 until it is greater or equal to iter1.
-                    while ($iter2->current() < $value1) {
-                        $iter2->next();
-                        if (!$iter2->valid()) {
-                            return;
-                        }
-                    }
-                    if ($value1 == $iter2->current()) {
-                        // Both iter1 and iter2 are equal.
-                        // Yield $value before moving to next foreach.
-                        yield $value1;
-                    }
-                    break;
-            }
-        }
-    }
-
     public function getFlattenedDictionary(\LORIS\Data\Query\QueryEngine $engine) {
         $rawdict = $engine->getDataDictionary();
 
