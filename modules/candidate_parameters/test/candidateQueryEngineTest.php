@@ -90,7 +90,7 @@ class CandidateQueryEngineTest
 
         $lorisinstance = new \LORIS\LorisInstance($this->DB, $this->config, []);
 
-        $this->engine = \Module::factoryWithInstance('candidate_parameters', $lorisinstance)->getQueryEngine($lorisinstance);
+        $this->engine = \Module::factory('candidate_parameters', $lorisinstance)->getQueryEngine($lorisinstance);
     }
 
     function tearDown() {

@@ -140,12 +140,6 @@ abstract class Module extends \LORIS\Router\PrefixRouter
         return $cls;
     }
 
-    static public function factoryWithInstance(string $name, $loris): \Module
-    {
-        $m = self::factory($name);
-        $m->lorisinstance = $loris;
-        return $m;
-    }
     /**
      * Creates a new module instance
      *

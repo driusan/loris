@@ -43,7 +43,7 @@ class QueryDataProvisioner extends ProvisionerInstance {
         foreach ($fields as $modulename => $mfields) {
             $mStartMemory = memory_get_usage();
             $now = time();
-            $engine = \Module::factoryWithInstance($modulename, $this->loris)->getQueryEngine();
+            $engine = $this->loris->getModule($modulename)->getQueryEngine();
 
             $flatdict = $this->getFlattenedDictionary($engine);
 

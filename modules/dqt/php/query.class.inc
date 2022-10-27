@@ -421,7 +421,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
             $modulename = $crit['module'];
             $mStartMemory = memory_get_usage();
             $now = time();
-            $engine = \Module::factoryWithInstance($modulename, $this->loris)->getQueryEngine();
+            $engine = $this->loris->getModule($modulename)->getQueryEngine();
 
             $fulldict = $this->getFlattenedDictionary($engine);
             $dictitem = $fulldict[$crit['fieldname']];
