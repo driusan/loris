@@ -4,6 +4,7 @@ import AddFilterModal from './definefilters.addfiltermodal';
 import ImportCSVModal from './definefilters.importcsvmodal';
 import QueryTree from './querytree';
 import CriteriaTerm from './criteriaterm';
+import InfoBox from 'jsx/InfoBox';
 
 
 /**
@@ -340,29 +341,11 @@ function DefineFilters(props) {
               <h1>Current Query</h1>
               {matchCount}
           </div>
-         <div className="alert alert-info"
-            style={{
-                backgroundColor: '#BEDFFF',
-                color: 'black',
-                display: 'flex',
-                flexBasis: 'row',
-                flexWrap: 'nowrap',
-            }}>
-            <div style={{
-                alignSelf: 'center',
-                padding: '1em',
-            }}>
-                <i style={{fontSize: '2em', color: 'blue'}}
-                    className="fas fa-info-circle"></i>
-            </div>
-            <div style={{
-                paddingLeft: '1em',
-            }}>
+          <InfoBox>
                 Note that only candidates which you have permission to
                 access in LORIS are included in results. Number of
                 results may vary from other users running the same query.
-            </div>
-         </div>
+          </InfoBox>
           {displayquery}
       </div>
       );
