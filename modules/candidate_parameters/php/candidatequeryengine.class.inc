@@ -240,10 +240,22 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             $this->createTemporaryCandIDTable($DB, "searchcandidates", $candidates);
         }
 
+        $sessionVariables = false;
         foreach ($items as $dict) {
             $fields[] = $this->getFieldNameFromDict($dict) . ' as ' . $dict->getName();
+            if ($dict->getScope() == 'session') {
+                $sessionVariables = true;
+            }
         }
 
+        if ($sessionVariables) {
+            if (!in_array('s.Visit_label', $fields)) {
+                $fields[] = 's.Visit_label';
+            }
+            if (!in_array('s.SessionID', $fields)) {
+                $fields[] = 's.ID as SessionID';
+            }
+        }
         $query = 'SELECT ' . join(', ', $fields) . ' FROM';
         $query .= ' ' . $this->getTableJoins();
 
@@ -349,5 +361,8 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             }
             $this->addWhereClause('s.Visit_label IN (' . join(",", $inset) . ')');
         }
+    }
+    protected function getCorrespondingKeyField($fieldname) {
+        throw new \Exception("Unhandled Cardinality::MANY field $fieldname");
     }
 }

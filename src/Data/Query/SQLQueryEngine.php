@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 namespace LORIS\Data\Query;
+
 use LORIS\Data\Query\Criteria;
 
 use LORIS\Data\Query\Criteria\Equal;
@@ -194,8 +195,6 @@ abstract class SQLQueryEngine implements QueryEngine {
         $lastcandid = null;
         $candval = [];
 
-        error_log("1");
-        // foreach ($rows as $row) {
         foreach ($rows as $row) {
             if($lastcandid !== null && $row['CandID'] !== $lastcandid) {
                 yield $lastcandid => $candval;
@@ -204,23 +203,83 @@ abstract class SQLQueryEngine implements QueryEngine {
             $lastcandid = $row['CandID'];
             foreach($dict as $field) {
                 $fname = $field->getName();
-                if ($field->getScope() == 'session'
-                    || $field->getCardinality()->__toString() == 'many') {
-
+                if ($field->getScope() == 'session') {
+                    // Session variables exist many times per CandID, so put
+                    // the values in an array.
                     if (!isset($candval[$fname])) {
                         $candval[$fname] = [];
                     }
-                    if (!in_array($row[$fname], $candval[$fname])
-                        && $row[$fname] !== null
-                    ) {
-                        $candval[$fname][] = $row[$fname];
+                    // Each session must have a VisitLabel and SessionID key.
+                    if ($row['VisitLabel'] === null || $row['SessionID'] === null) {
+                        // If they don't exist and there's a value, there was a bug
+                        // somewhere. If they don't exist and the value is also null,
+                        // the query might have just done a LEFT JOIN on session. 
+                        assert($row[$fname] === null);
+                    } else {
+                        $SID = $row['SessionID'];
+                        if (isset($candval[$fname][$SID])) {
+                            // There is already a value stored for this session ID.
+
+                            // Assert that the VisitLabel and SessionID are the same.
+                            assert($candval[$fname][$SID]['VisitLabel'] == $row['VisitLabel']);
+                            assert($candval[$fname][$SID]['SessionID'] == $row['SessionID']);
+
+                            if ($field->getCardinality()->__toString() !== "many") {
+                                // It's not cardinality many, so ensure it's the same value. The
+                                // Query may have returned multiple rows with the same value as
+                                // the result of a JOIN, so it's not a problem to see it many
+                                // times.
+                                assert($candval[$fname][$SID]['value'] == $row[$fname]);
+                            } else {
+                                // It is cardinality many, so append the value.
+                                // $key = $this->getCorrespondingKeyField($fname);
+                                $key = $row[$fname . ':key'];
+                                $val = [
+                                    'key' => $key,
+                                    'value' => $row[$fname],
+                                ];
+                                if (isset($candval[$fname][$SID][$key])) {
+                                    assert($candval[$fname][$SID][$key]['value'] == $row[$fname]);
+                                } else {
+                                    $candval[$fname][$SID][$key] = $val;
+                                }
+                            }
+                        } else {
+                            // This is the first time we've session this sessionID
+                            if ($field->getCardinality()->__toString() !== "many") {
+                                // It's not many, so just store the value directly.
+                                $candval[$fname][$SID] = [
+                                    'VisitLabel' => $row['VisitLabel'],
+                                    'SessionID' => $row['SessionID'],
+                                    'value' => $row[$fname],
+                                ];
+                            } else {
+                                // It is many, so use an array
+                                $key = $row[$fname . ':key'];
+                                $val = [
+                                    'key' => $key,
+                                    'value' => $row[$fname],
+                                ];
+                                $candval[$fname][$SID] = [
+                                    'VisitLabel' => $row['VisitLabel'],
+                                    'SessionID' => $row['SessionID'],
+                                    $key => $val,
+                                ];
+                            }
+                        }
                     }
-                } else {
+
+                } else if ($field->getCardinality()->__toString() === 'many') {
+                    // FIXME: Implement this.
+                    throw new \Exception("Cardinality many for candidate variables not handled");
+                }
+                else {
+                    // It was a candidate variable that isn't cardinality::many. 
+                    // Just store the value directly.
                     $candval[$fname] = $row[$fname];
                 }
             }
         }
-        // $rows->close();
         if (!empty($candval)) {
             yield $lastcandid => $candval;
         }
@@ -271,4 +330,6 @@ abstract class SQLQueryEngine implements QueryEngine {
     public function useQueryBuffering(bool $buffered) {
         $this->useBufferedQuery = $buffered;
     }
+
+    abstract protected function getCorrespondingKeyField($fieldname);
 }

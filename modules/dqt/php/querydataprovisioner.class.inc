@@ -108,19 +108,7 @@ class QueryDataProvisioner extends ProvisionerInstance {
                             continue;
                         }
                         $d = $data[$fname];
-                        $v = '';
-                        if (is_array($d)) {
-                            foreach($d as $val2) {
-                                if (is_array($val2)) {
-                                    $v .= join('DO NOT TRUST ME FRIEND', $val2);
-                                } else {
-                                    $v .= $val2;
-                                }
-                            }
-                        } else {
-                            $v = $d;
-                        }
-                        $val[$idx] = $v;
+                        $val[$idx] = json_encode($d);
                     }
 
                     // Advance this iterator to the next row

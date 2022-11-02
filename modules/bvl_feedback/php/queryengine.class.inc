@@ -170,4 +170,8 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         }
     }
 
+    protected function getCorrespondingKeyField($fieldname) {
+        throw new \Exception("Unhandled cardinality many field $fieldname");
+    }
+
 }

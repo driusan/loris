@@ -34,7 +34,7 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         $items  = [
             new DictionaryItem(
                 "ScanDone",
-                "Does the candidate have any imaging scan done?",
+                "Does the session have any imaging scan done?",
                 $scope,
                 new \LORIS\Data\Types\BooleanType(),
                 new Cardinality(Cardinality::SINGLE),
@@ -101,7 +101,7 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
 
         $this->addTable('candidate c');
         $this->addTable('JOIN session s ON (s.CandID=c.CandID)');
-        $this->addTable('JOIN files f ON (s.ID=f.SessionID)');
+        $this->addTable('LEFT JOIN files f ON (s.ID=f.SessionID)');
 
         $this->addWhereClause("s.Active='Y'");
         $this->addWhereClause("c.Active='Y'");
@@ -155,15 +155,30 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
 
         $this->addTable('candidate c');
         $this->addTable('JOIN session s ON (s.CandID=c.CandID)');
-        $this->addTable('JOIN files f ON (s.ID=f.SessionID)');
+        $this->addTable('LEFT JOIN files f ON (s.ID=f.SessionID)');
 
         $this->addWhereClause("s.Active='Y'");
         $this->addWhereClause("c.Active='Y'");
 
         // CandID needed for candidateCombine.
         $fields = ['c.CandID'];
+        $addSession = false;
         foreach ($items as $dict) {
             $fields[] = $this->getFieldNameFromDict($dict) . ' as ' . $dict->getName();
+            if ($dict->getScope() == 'session') {
+                $addSession = true;
+            }
+            if($dict->getCardinality() == 'many') {
+                $fields[] = $this->getCorrespondingKeyField($dict->getName());
+            }
+        }
+        if ($addSession) {
+            if (!in_array('s.Visit_label', $fields)) {
+                $fields[] = 's.Visit_label as VisitLabel';
+            }
+            if (!in_array('s.SessionID as SessionID', $fields)) {
+                $fields[] = 's.ID as SessionID';
+            }
         }
 
         $DB = $this->loris->getDatabaseConnection();
@@ -198,9 +213,12 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
             if ($item->getName() == $ScanType) {
                 $DB = $this->loris->getDatabaseConnection();
                 $tableName = $DB->escape($ScanType);
+                $mstTable = $DB->escape($ScanType . '_scantype');
                 $this->addTable('candidate c');
                 $this->addTable('JOIN session s ON (s.CandID=c.CandID)');
-                $this->addTable("JOIN files $tableName ON (s.ID=f.SessionID)");
+                $this->addTable("LEFT JOIN files $tableName ON (s.ID=$tableName.SessionID)");
+                $this->addTable("JOIN mri_scan_type $mstTable ON ($tableName.AcquisitionProtocolID=$mstTable.ID
+                    AND $mstTable.Scan_type='$ScanType')");
                 return "$tableName.File";
             }
         }
@@ -210,5 +228,24 @@ class QueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         default:
             throw new \DomainException("Invalid field " . $item->getName());
         }
+    }
+
+    protected function getCorrespondingKeyField($fieldname) {
+        $scantypes = \Utility::getScanTypeList();
+        foreach ($scantypes as $ScanType) {
+            if ($fieldname == $ScanType) {
+                $DB = $this->loris->getDatabaseConnection();
+                $tableName = $DB->escape($ScanType);
+                $mstTable = $DB->escape($ScanType . '_scantype');
+                $this->addTable('candidate c');
+                $this->addTable('JOIN session s ON (s.CandID=c.CandID)');
+                $this->addTable("LEFT JOIN files $tableName ON (s.ID=$tableName.SessionID)");
+                $this->addTable("JOIN mri_scan_type $mstTable ON ($tableName.AcquisitionProtocolID=$mstTable.ID
+                    AND $mstTable.Scan_type='$ScanType')");
+                $keyname = $DB->escape($fieldname . ':key');
+                return "$tableName.FileID as $keyname";
+            }
+        }
+        throw new \Exception("Unhandled Cardinality::MANY field $fieldname");
     }
 }
