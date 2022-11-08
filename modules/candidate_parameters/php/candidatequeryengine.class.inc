@@ -249,8 +249,8 @@ class CandidateQueryEngine extends \LORIS\Data\Query\SQLQueryEngine
         }
 
         if ($sessionVariables) {
-            if (!in_array('s.Visit_label', $fields)) {
-                $fields[] = 's.Visit_label';
+            if (!in_array('s.Visit_label as VisitLabel', $fields)) {
+                $fields[] = 's.Visit_label as VisitLabel';
             }
             if (!in_array('s.SessionID', $fields)) {
                 $fields[] = 's.ID as SessionID';

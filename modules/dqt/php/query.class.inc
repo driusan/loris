@@ -372,9 +372,10 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
         // Remove inaccessible candidates from the temp table
         foreach($organized as $vals) {
             $canddata = new \CandidateData(
-                new \ProjectID($vals['RegistrationProject']),
-                new \CenterID($vals['RegistrationCenter']),
-                $vals['Timepoints']
+                candID: new CandID($vals['CandID']),
+                registrationProjectID: new \ProjectID($vals['RegistrationProject']),
+                registrationCenterID: new \CenterID($vals['RegistrationCenter']),
+                timepoints: $vals['Timepoints']
             );
             $candidate = new \Candidate($canddata);
 

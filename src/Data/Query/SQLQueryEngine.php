@@ -238,10 +238,10 @@ abstract class SQLQueryEngine implements QueryEngine {
                                     'key' => $key,
                                     'value' => $row[$fname],
                                 ];
-                                if (isset($candval[$fname][$SID][$key])) {
-                                    assert($candval[$fname][$SID][$key]['value'] == $row[$fname]);
+                                if (isset($candval[$fname][$SID]['values'][$key])) {
+                                    assert($candval[$fname][$SID]['values'][$key]['value'] == $row[$fname]);
                                 } else {
-                                    $candval[$fname][$SID][$key] = $val;
+                                    $candval[$fname][$SID]['values'][$key] = $val;
                                 }
                             }
                         } else {
@@ -263,7 +263,7 @@ abstract class SQLQueryEngine implements QueryEngine {
                                 $candval[$fname][$SID] = [
                                     'VisitLabel' => $row['VisitLabel'],
                                     'SessionID' => $row['SessionID'],
-                                    $key => $val,
+                                    'values' => [$key => $val],
                                 ];
                             }
                         }

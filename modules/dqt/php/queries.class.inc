@@ -103,19 +103,19 @@ class Queries extends \NDB_Page
 
     public function getRecentQueries(\User $user) : iterable {
         return (new provisioners\RecentQueries($this->loris, $user))
-            ->filter(new AccessibleResourceFilter())
+            //->filter(new AccessibleResourceFilter())
             ->execute($user);
     }
 
     public function getSharedQueries(\User $user) : iterable {
         return (new provisioners\SharedQueries($this->loris, $user))
-            ->filter(new AccessibleResourceFilter())
+            //->filter(new AccessibleResourceFilter())
             ->execute($user);
     }
 
     public function getTopQueries(\User $user) : iterable {
         return (new provisioners\StudyQueries($this->loris, 'topquery'))
-            ->filter(new AccessibleResourceFilter())
+            //->filter(new AccessibleResourceFilter())
             ->execute($user);
     }
 

@@ -180,6 +180,9 @@ function DataQueryApp(props) {
             content = <ViewData
                 fields={selectedFields}
                 filters={query}
+
+                fulldictionary={fulldictionary}
+
                 onRun={reloadQueries}
             />;
             break;
