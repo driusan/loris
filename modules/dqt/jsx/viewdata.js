@@ -84,9 +84,13 @@ function ViewData(props) {
         </div>
         ) : (
         <StaticDataTable
-            Headers={props.fields.map((val) => {
-                return val.field;
-            })}
+            Headers={
+                organizeHeaders(
+                    props.fields,
+                    visitOrganization,
+                    props.fulldictionary,
+                )
+            }
             RowNumLabel='Row Number'
             Data={organizeData(resultData, visitOrganization)}
             getFormattedCell={
@@ -103,7 +107,10 @@ function ViewData(props) {
         <h2>Display visits as:</h2>
          <ul>
             <li>Cross-sectional (not implemented, rows)</li>
-            <li>Longitudinal (not implemented, columns)</li>
+            <li onClick={
+                () => setVisitOrganization('longitudinal')
+            }
+            >Columns (Longitudinal)</li>
             <li onClick={
                 () => setVisitOrganization('inline')
             }>Inline values (no download)</li>
@@ -159,6 +166,9 @@ function organizeData(resultData, visitOrganization) {
     case 'inline':
         // Organize with flexbox within the cell by the
         // formatter
+        return resultData;
+    case 'longitudinal':
+        // the formatter splits into multiple cells
         return resultData;
     default: throw new Error('Unhandled visit organization');
     }
@@ -265,6 +275,37 @@ function organizedFormatter(resultData, visitOrganization, fields, dict) {
         };
         callback.displayName = 'Inline session data';
         return callback;
+    case 'longitudinal':
+        callback = (label, cell, row, cellPos, fieldNo) => {
+            // if candidate -- return directly
+            // if session -- get visits from query def, put in <divs>
+            const fieldobj = fields[fieldNo];
+            const fielddict = getDictionary(fieldobj, dict);
+            if (fielddict.scope == 'candidate'
+                    && fielddict.cardinality != 'many') {
+                return <td>{cell}</td>;
+            }
+            let val;
+            if (fielddict.scope == 'session') {
+                let displayedVisits;
+                if (fields[fieldNo] && fields[fieldNo].visits) {
+                    displayedVisits = fields[fieldNo].visits.map((obj) => {
+                        return obj.value;
+                    });
+                } else {
+                    // All visits
+                    displayedVisits = fielddict.visits;
+                }
+                val = displayedVisits.map((visit) => {
+                    return <><td>1</td><td>2</td></>;
+                });
+                return val;
+            } else {
+                return <td>{cell}</td>;
+            }
+        };
+        callback.displayName = 'Longitudinal data';
+        return callback;
     }
 }
 
@@ -306,4 +347,44 @@ function valuesList(values) {
         {items}
     </ul>);
 }
+
+/**
+ * Generate the appropriate table headers based on the visit
+ * organization
+ *
+ * @param {array} fields - the selected fields
+ * @param {string} org - the visit organization
+ * @param {object} fulldict - the data dictionary
+ *
+ * @return {array}
+ */
+function organizeHeaders(fields, org, fulldict) {
+    switch (org) {
+    case 'raw':
+        return fields.map((val) => {
+            return val.field;
+        });
+    case 'inline':
+        return fields.map((val) => {
+            return val.field;
+        });
+        // Organize with flexbox within the cell by the
+        // formatter
+    case 'longitudinal':
+        let headers = [];
+        for (const field of fields) {
+            const dict = getDictionary(field, fulldict);
+            if (dict.scope == 'candidate') {
+                headers.push(field.field);
+            } else {
+                headers.push(field.field + 'v1');
+                headers.push(field.field + 'v1');
+            }
+        }
+        // Split session level selections into multiple headers
+        return headers;
+    default: throw new Error('Unhandled visit organization');
+    }
+}
+
 export default ViewData;
