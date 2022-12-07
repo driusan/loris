@@ -53,41 +53,6 @@ class DataDictRowProvisioner extends \LORIS\Data\Provisioners\DBRowProvisioner
             ",
             []
         );
-
-        foreach ($modules as $module) {
-            $mdict = $module->getDataDictionary($this->loris);
-            foreach($mdict as $cat) {
-                foreach($cat->getItems() as $item) {
-                    $name   = $cat->getName() . '_' . $item->getName();
-                    $desc   = '';
-                    $status = 'Unchanged';
-                    if (isset($overrides[$name])) {
-                        $desc   = $overrides[$name]['Description'];
-                        $status = 'Modified';
-                    } else {
-                        $desc = $item->getDescription();
-                    }
-
-                    if ($desc == '') {
-                        $status = 'Empty';
-                    }
-                    $dict[] = $this->getInstance(
-                        $item,
-                        [
-                            'module'        => $module->getName(),
-                            'category'     => $cat->getName(),
-                            'name'               => $name,
-                            'source_field'       => $item->getName(),
-                            'description'        => $desc,
-                            'description_status' => $status,
-                            'datascope' => $item->getScope(),
-                            'type' => $item->getDataType(),
-                        ]
-                    );
-                }
-            } 
-        }
-        return new \ArrayIterator($dict);
     }
 
     /**
@@ -98,8 +63,8 @@ class DataDictRowProvisioner extends \LORIS\Data\Provisioners\DBRowProvisioner
      *
      * @return \LORIS\Data\DataInstance An instance representing this row.
      */
-    public function getInstance(\LORIS\Data\Dictionary\DictionaryItem $item, array $row) : \LORIS\Data\DataInstance
+    public function getInstance($row) : \LORIS\Data\DataInstance
     {
-        return new DataDictRow($item, $row);
+        return new DataDictRow($row);
     }
 }

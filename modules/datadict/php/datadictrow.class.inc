@@ -25,7 +25,7 @@ namespace LORIS\datadict;
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link       https://www.github.com/aces/Loris/
  */
-class DataDictRow implements \LORIS\Data\DataInstance, \LORIS\StudyEntities\AccessibleResource
+class DataDictRow implements \LORIS\Data\DataInstance
 {
     protected $DBRow;
 
@@ -35,9 +35,8 @@ class DataDictRow implements \LORIS\Data\DataInstance, \LORIS\StudyEntities\Acce
      * @param array $row The row (in the same format as \Database::pselectRow
      *                   returns
      */
-    public function __construct(\LORIS\Data\Dictionary\DictionaryItem $item, array $row)
+    public function __construct(array $row)
     {
-        $this->item = $item;
         $this->DBRow = $row;
     }
 
@@ -49,9 +48,5 @@ class DataDictRow implements \LORIS\Data\DataInstance, \LORIS\StudyEntities\Acce
     public function jsonSerialize() : array
     {
         return $this->DBRow;
-    }
-
-    public function isAccessibleBy(\User $user) : bool {
-        return $this->item->isAccessibleBy($user);
     }
 }

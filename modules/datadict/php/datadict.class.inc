@@ -11,7 +11,6 @@
  * @link     https://github.com/aces/Loris-Trunk
  */
 namespace LORIS\datadict;
-use \Psr\Http\Message\ServerRequestInterface;
 /**
  * Datadict module
  *
@@ -145,42 +144,5 @@ class Datadict extends \DataFrameworkMenu
     public function useProjectFilter() : bool
     {
         return false;
-    }
-
-    // FIXME: This should be moved to the parent class
-    public function getDataProvisionerWithFilters() : \LORIS\Data\Provisioner {
-        $prov = parent::getDataProvisionerWithFilters();
-        return $prov->filter(new \LORIS\Data\Filters\AccessibleResourceFilter());
-    }
-
-    public function loadResources(
-        \User $user, ServerRequestInterface $request
-    ) : void {
-        $this->lorisinstance = $request->getAttribute("loris");
-        $modules = $this->lorisinstance->getActiveModules();
-        $usermodules = [];
-        $dict = [];
-        $categories = [];
-
-        foreach ($modules as $module) {
-            if(!$module->hasAccess($user)) {
-                continue;
-            }
-            $usermodules[] = $module;
-
-            $mdict = $module->getDataDictionary($this->lorisinstance);
-            $mname = $module->getName();
-
-            if(count($mdict) > 0) {
-                $categories[$mname] = [];
-
-
-                foreach($mdict as $cat) {
-                    $categories[$mname][$cat->getName()] = $cat->getDescription();
-                }
-            }
-        }
-        $this->modules = $usermodules;
-        $this->categories = $categories;
     }
 }
