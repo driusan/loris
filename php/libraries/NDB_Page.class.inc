@@ -30,6 +30,7 @@ class NDB_Page implements RequestHandlerInterface
 {
     use Psr\Log\LoggerAwareTrait;
 
+    protected $lorisinstance;
     /**
      * The name of the test_name being accessed
      */
@@ -80,7 +81,7 @@ class NDB_Page implements RequestHandlerInterface
      *
      * @var \LORIS\LorisInstance
      */
-    protected \LORIS\LorisInstance $loris;
+    protected $loris;
 
     /**
      * The format that the page content should be returned in. This is generally
@@ -132,7 +133,6 @@ class NDB_Page implements RequestHandlerInterface
         string $commentID
     ) {
         $this->loris  = $loris;
-        $this->lorisinstance  = $loris;
         $this->Module = $module;
         $this->name   = $module->getName(); // for legacy purposes.
 
@@ -754,6 +754,20 @@ class NDB_Page implements RequestHandlerInterface
     }
 
     /**
+     * This function can be overridden in a module's page to load the necessary
+     * resources to check the permissions of a user.
+     *
+     * @param User                   $user    The user to load the resources for
+     * @param ServerRequestInterface $request The PSR15 Request being handled
+     *
+     * @return void
+     */
+    public function loadResources(
+        \User $user, ServerRequestInterface $request
+    ) : void {
+    }
+
+    /**
      * Displays the form
      *
      * @return string of the content to be inserted into the template
@@ -952,19 +966,5 @@ class NDB_Page implements RequestHandlerInterface
     function toJSON(): string
     {
         return json_encode(['error' => 'Not implemented']);
-    }
-
-    /**
-     * This function can be overridden in a module's page to load the necessary
-     * resources to check the permissions of a user.
-     *
-     * @param User                   $user    The user to load the resources for
-     * @param ServerRequestInterface $request The PSR15 Request being handled
-     *
-     * @return void
-     */
-    public function loadResources(
-        \User $user, ServerRequestInterface $request
-    ) : void {
     }
 }

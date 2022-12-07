@@ -1,6 +1,5 @@
 <?php
 namespace LORIS\Data\Query\Criteria;
-use LORIS\Data\Query\Criteria;
 
 use LORIS\Data\Query\Criteria;
 
