@@ -496,10 +496,6 @@ class CandidateQueryEngineTest
     }
 
     public function testRegistrationSiteMatches() {
-        // Both candidates only have registrationProjectID 1, but we can
-        // be pretty comfortable with the comparison operators working in
-        // general because of the other field tests, so we just make sure
-        // that the project is set up and do basic tests
         $this->DB->setFakeTableData(
             "psc",
             [
@@ -557,8 +553,6 @@ class CandidateQueryEngineTest
     }
 
     public function testEntityType() {
-        // Since it's an SQLQueryEngine we're comfortable with the operators being tested in
-        // getCandID and only do a couple for PSCID
         $candiddict = $this->getDictItem("EntityType");
         $result = $this->engine->getCandidateMatches(new QueryTerm($candiddict, new Equal("Human")));
         $this->assertMatchAll($result);
