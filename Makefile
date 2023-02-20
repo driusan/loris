@@ -55,3 +55,5 @@ testdata:
 login:
 	target=login npm run compile
 
+dqt:
+	target=dqt npm run compile

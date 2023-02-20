@@ -763,11 +763,21 @@ class ScatterplotGraph extends Component {
       $.plot('#scatterplotdiv', plots, {});
     }
 
-    $('#correlationtbl tbody').children().remove();
-    $('#correlationtbl tbody').append(
-      '<tr><td>' + jStat.covariance(field1, field2)
-      + '</td><td>' + jStat.corrcoeff(field1, field2) + '</td></tr>'
-    );
+    const items = document.querySelector('#correlationtbl tbody').children;
+    items.forEach( (item) => item.parentNode.removeChild(item));
+
+    const row = document.createElement('tr');
+    let cell = document.createElement('td');
+    cell.innerText = jStat.covariance(field1, field2);
+
+    row.appendChild(cell);
+
+    cell = document.createElement('td');
+    cell.innerText = jStat.corrcoeff(field1, field2);
+
+    row.appendChild(cell);
+
+    document.querySelector('#correlationtbl tbody').appendChild(row);
   }
 
   /**
