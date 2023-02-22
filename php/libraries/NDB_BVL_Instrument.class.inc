@@ -51,6 +51,7 @@ abstract class NDB_BVL_Instrument extends \LORIS\instruments\schematypes\PHP
         // isn't necessarily an error.
         if (!file_exists($base."project/instruments/$class.class.inc")
             && !file_exists($base."project/instruments/$instrument.linst")
+            && !file_exists($base."project/instruments/$instrument.zjson")
             && $guarantee_exists==false
         ) {
             return null;
@@ -68,6 +69,16 @@ abstract class NDB_BVL_Instrument extends \LORIS\instruments\schematypes\PHP
                 $page,
                 $commentID,
                 $commentID,
+            );
+        } else if (file_exists($base."project/instruments/$instrument.zjson")
+        ) {
+            $module = $loris->getModule("instruments");
+            $module->registerAutoloader();
+            $obj = new \LORIS\instruments\schematypes\ZJSON(
+                $loris,
+                $module,
+                $commentID,
+                file_get_contents($base."project/instruments/$instrument.zjson")
             );
         } else {
             if (!class_exists($class)

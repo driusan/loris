@@ -34,6 +34,7 @@ class ExceptionHandlingMiddleware implements MiddlewareInterface, LoggerAwareInt
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
     ) : ResponseInterface {
+        return $handler->handle($request);
         // Catch PHP Fatal errors that aren't exceptions such as type errors
         // or out of memory errors
         register_shutdown_function(
