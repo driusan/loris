@@ -15,7 +15,7 @@ class ZJSON extends \NDB_BVL_Instrument {
         string $jsoncontent
         
     ) {
-        $this->json = json_decode($jsoncontent, true);
+        $this->json = json_decode($jsoncontent, true, JSON_THROW_ON_ERROR);
         // FIXME: Do some validation that required things are defined.
         $this->defaultLang = $this->json['schema']['meta']['defaultLanguage'];
         parent::__construct($loris, $module, "", $commentid, $commentid);
