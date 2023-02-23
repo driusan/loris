@@ -3,71 +3,39 @@ function ZJSONPage(props) {
         const elementSchema = props.schema.elements[name];
         const elementUI = props.ui[name];
         if (!elementUI) {
-            throw new Error("Invalid element. Missing UI.");
-        }
-        // FIXME: Use ui from ZJSON
-
-        switch (elementUI.type) {
-            case '
+            throw new Error('Invalid element. Missing UI.');
         }
         const label= elementSchema.description[props.defaultLang];
-        switch (elementSchema.type) {
-            // DATA Element types
-        case 'enum':
-            // FIXME: Support all options in ZJSON spec
-            // missing:
-            //    - allowMultipleValues
-            //    - requireResponse
-            //    - readOnly
-            //    - hideInSurvey
-            //    - showDesc
-            //    - correctResponse
-            //    - isSavable (sic)
+        switch (elementUI.type) {
+            case 'select':
+                // FIXME: Support all options in ZJSON spec
+                // missing:
+                //    - allowMultipleValues
+                //    - requireResponse
+                //    - readOnly
+                //    - hideInSurvey
+                //    - showDesc
+                //    - correctResponse
+                //    - isSavable (sic)
 
-            let options = {};
-            for (const value of elementSchema.options.values) {
-                options[value.value] = value.description[props.defaultLang];
-            }
-            return <SelectElement
-                name={name}
-                options={options}
-                label={label}
-                value={options}
-                multiple={false}
-                emptyOption={true}
-            />;
-        case 'string':
-            // FIXME: Support all options in ZJSON spec
+                let options = {};
+                for (const value of elementSchema.options.values) {
+                    options[value.value] = value.description[props.defaultLang];
+                }
+                return <SelectElement
+                    name={name}
+                    options={options}
+                    label={label}
+                    multiple={false}
+                    emptyOption={true}
+                />;
+            case 'text':
             return <TextboxElement
                         name={name}
                         label={label}
                     />;
-        // FIXME: Implement below this line.
-        case 'integer':
-        case 'decimal':
-
-        case 'date':
-        case 'time':
-        case 'datetime':
-
-        case 'boolean':
-
-        // FIXME: Comment on the spec that this doesn't seem necessary given
-        // the hideInSurvey option. The score field should be encapsulated
-        // by one of the other types (or be considered "display", not a "field"
-        case 'score':
-
-        // LAYOUT Element Types
-        case 'text':
-        case 'group':
-        case 'row':
-        case 'table':
-        case 'section':
-        case 'image':
-            console.error('Unhandled element type');
-            break;
-        default:
-            console.error('Invalid element type');
+            default:
+                console.error('Unhandled element type: ' + elementUI.type);
         }
     });
     return <div>
