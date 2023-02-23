@@ -46,6 +46,7 @@ function ZJSONPage(props) {
 
 function ZJSONInstrument(props) {
     const schema = props.zjson.schema;
+    const [pageNum, setPageNum] = useState(0);
     const defaultLang = schema.meta.defaultLanguage;
     const instrumentTitle = schema.meta.longName[defaultLang];
     const pageNames = schema.setup.map(
