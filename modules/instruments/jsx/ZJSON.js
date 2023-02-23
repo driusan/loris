@@ -1,9 +1,15 @@
 function ZJSONPage(props) {
     const elements = props.elements.map( (name) => {
         const elementSchema = props.schema.elements[name];
-        // const elementUI = props.ui[name];
+        const elementUI = props.ui[name];
+        if (!elementUI) {
+            throw new Error("Invalid element. Missing UI.");
+        }
         // FIXME: Use ui from ZJSON
 
+        switch (elementUI.type) {
+            case '
+        }
         const label= elementSchema.description[props.defaultLang];
         switch (elementSchema.type) {
             // DATA Element types
@@ -36,7 +42,7 @@ function ZJSONPage(props) {
                         name={name}
                         label={label}
                     />;
-        // FIXME: Implement below this line. 
+        // FIXME: Implement below this line.
         case 'integer':
         case 'decimal':
 
@@ -49,7 +55,7 @@ function ZJSONPage(props) {
         // FIXME: Comment on the spec that this doesn't seem necessary given
         // the hideInSurvey option. The score field should be encapsulated
         // by one of the other types (or be considered "display", not a "field"
-        case 'score': 
+        case 'score':
 
         // LAYOUT Element Types
         case 'text':
@@ -89,6 +95,7 @@ function ZJSONInstrument(props) {
             page={schema.setup[0]}
             elements={schema.setup[0].order}
             schema={schema}
+            ui={props.zjson.ui}
             defaultLang={defaultLang}
         />
     </div>;
