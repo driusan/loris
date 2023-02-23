@@ -55,5 +55,8 @@ testdata:
 login:
 	target=login npm run compile
 
+instruments:
+	target=instruments npm run compile
+
 mri_violations:
 	target=mri_violations npm run compile

@@ -52,7 +52,13 @@ class ZJSON extends \NDB_BVL_Instrument {
     }
     function handle(ServerRequestInterface $request) : ResponseInterface {
         return (new \LORIS\Http\Response())
-            ->withBody(new \LORIS\Http\StringStream("test"));
+            ->withBody(new \LORIS\Http\StringStream("
+
+            <div id=\"instrumentroot\"></div>
+            <script>lorisjs.instruments.ZJSON.RenderZJSON('"
+                . json_encode($this->json)
+                . "')</script>"
+            ));
     }
     function getJSDependencies()
     {
@@ -62,7 +68,7 @@ class ZJSON extends \NDB_BVL_Instrument {
         return array_merge(
             $depends,
             [
-                $baseURL . '/instruments/js/zjson.js'
+                $baseURL . '/instruments/js/ZJSON.js'
             ]
         );
     }
