@@ -105,19 +105,13 @@ function ZJSONPage(props) {
                         + ' must be backed by a datetime data type.'
                     );
                 }
+
                 // FIXME: Support all valid ZJSON options here.
-                return <div>
-                            <DateElement
-                                key={idx + 'date'}
-                                name={name}
-                                label={label}
-                            />
-                            <TimeElement
-                                key={idx + 'time'}
-                                name={name}
-                                label={label}
-                            />
-                        </div>;
+                return <DateTimeElement
+                            key={idx}
+                            name={name}
+                            label={label}
+                        />;
             default:
                 console.error('Unhandled element type: ' + elementUI.type);
             }
