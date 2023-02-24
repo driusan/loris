@@ -46,9 +46,25 @@ function ZJSONPage(props) {
                 />;
             case 'text':
                 // FIXME: Support all valid ZJSON options here
+                let placeholder;
+                if (elementUI.options) {
+                    placeholder = elementUI.options.placeholder;
+                }
                 return <TextboxElement
                             key={idx}
                             name={name}
+                            placeholder={placeholder}
+                            label={label}
+                        />;
+            case 'textarea':
+                let taplaceholder;
+                if (elementUI.options) {
+                    taplaceholder = elementUI.options.placeholder;
+                }
+                return <TextareaElement
+                            key={idx}
+                            name={name}
+                            placeholder={taplaceholder}
                             label={label}
                         />;
             case 'checkbox':
@@ -112,6 +128,48 @@ function ZJSONPage(props) {
                             name={name}
                             label={label}
                         />;
+            case 'number':
+                if (elementSchema.type != 'decimal'
+                        && elementSchema.type != 'integer') {
+                    // XXX: Allow other data types? The spec doesn't say
+                    // how they should be handled.
+                    throw new Error(
+                        'Incompatible element and UI. number UI elements'
+                        + ' must be backed by either a'
+                        + ' decimal or integer data type.'
+                    );
+                }
+                return <NumericElement
+                            key={idx}
+                            name={name}
+                            label={label}
+                            min={elementSchema.minValue}
+                            max={elementSchema.minValue}
+                            step={elementSchema.type == 'decimal' ? 'any' : '1'}
+                    />;
+            case 'radio':
+                if (elementSchema.type != 'enum') {
+                    throw new Error(
+                        'Incompatible element and UI. select UI elements'
+                        + ' must be backed by an enum data type.'
+                    );
+                }
+
+                let radiooptions = {};
+                for (const value of elementSchema.options.values) {
+                    radiooptions[value.value]
+                        = value.description[props.defaultLang];
+                }
+
+                return <RadioElement
+                            key={idx}
+                            name={name}
+                            required={elementSchema.requireResponse}
+                            vertical={elementUI.options.vertical}
+                            options={radiooptions}
+                            label={label}
+                        />;
+
             default:
                 console.error('Unhandled element type: ' + elementUI.type);
             }
