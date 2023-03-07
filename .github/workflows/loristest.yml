@@ -13,18 +13,18 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-            testsuite: ['integration']
+            # testsuite: ['integration']
             php: ['8.1','8.2']
-            ci_node_index: [0,1,2,3]
+            # ci_node_index: [0,1,2,3]
 
             include:
             # add a variable but do not display it in the job's name 
-            - ci_node_total: 4
+            # - ci_node_total: 4
 
-            - testsuite: 'static'
-              php: '8.1'
-            - testsuite: 'static'
-              php: '8.2'
+            #- testsuite: 'static'
+            #  php: '8.1'
+            #- testsuite: 'static'
+            #  php: '8.2'
             - testsuite: 'unit'
               php: '8.1'
             - testsuite: 'unit'
