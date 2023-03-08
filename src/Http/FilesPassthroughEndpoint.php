@@ -71,11 +71,9 @@ abstract class FilesPassthroughEndpoint extends Endpoint
      * Define a stub loadResources so that we don't crash when the module
      * handler calls it.
      */
-    public function loadResources(
-        \User $user,
-        ServerRequestInterface $request
-    ) : void {
-    }
+    abstract protected function getDownloadDirectory(\NDB_Config $config): \SplFileInfo;
+
+    abstract protected function getEndpointPrefix() : string;
 
     /**
      * Send a notification for the download.
