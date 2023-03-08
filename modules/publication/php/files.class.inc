@@ -2,7 +2,7 @@
 namespace LORIS\publication;
 
 /**
- * Handles managing files through the /files/* endpoint of the publication 
+ * Handles managing files through the /files/* endpoint of the publication
  * module.
  *
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
@@ -18,11 +18,13 @@ class Files extends \LORIS\Http\FilesPassthroughEndpoint
      */
     function _hasAccess(\User $user): bool
     {
-        return $user->hasAnyPermission([
+        return $user->hasAnyPermission(
+            [
                 'publication_view',
                 'publication_propose',
                 'publication_approve',
-        ]);
+            ]
+        );
     }
 
     /**
