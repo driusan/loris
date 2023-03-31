@@ -271,6 +271,27 @@ class LorisForm
     }
 
     /**
+     * Add a Datetime element to this form.
+     *
+     * @param string $name    The element name.
+     * @param string $label   The label to attach to this element.
+     * @param array  $options An array of options that should get added,
+     *                        such as the date format, min or max date etc.
+     * @param array  $attribs An array of other attributes that should
+     *                        get added, for example "class" attribute.
+     *
+     * @return &array
+     */
+    public function addDatetime($name, $label, $options, $attribs = [])
+    {
+        $el            =& $this->addBase($name, $label, $attribs);
+        $el['type']    = 'datetime';
+        $el['options'] = $options;
+        return $el;
+    }
+
+
+    /**
      * Adds a file to the current form.
      *
      * @param string $name    The element name.
@@ -416,6 +437,9 @@ class LorisForm
             break;
         case 'date':
             $el = $this->addDate($name, $label, $options, $attribs);
+            break;
+        case 'datetime':
+            $el = $this->addDatetime($name, $label, $options, $attribs);
             break;
         case 'file':
             $el = $this->addFile($name, $label, $attribs);
@@ -823,6 +847,78 @@ class LorisForm
         $val = $this->getValue($el['name']);
         return $val;
     }
+
+    /**
+     * Generates the HTML to add to the page when rendered for a datetime
+     * element.
+     *
+     * @param array $el The element to render from $this->form
+     *
+     * @return string A string of the HTML markup to render
+     */
+    function datetimeHTML($el)
+    {
+        if (array_key_exists('options', $el)
+            && (isset($el['options']['format'])
+            && strtolower($el['options']['format']) == 'y')
+        ) {
+            return $this->yearHTML($el);
+        }
+        $cls      = '';
+        $minYear  = '';
+        $maxYear  = '';
+        $disabled = '';
+        if (isset($el['class'])) {
+            $cls = "class=\"$el[class]\"";
+        }
+        if (isset($el['disabled']) || $this->frozen) {
+            $disabled = 'disabled';
+        }
+        if (isset($el['options']['minYear'])) {
+            $minYear = "min=\"" . $el['options']['minYear'] . "-01-01\"";
+        }
+        if (isset($el['options']['maxYear'])) {
+            $maxYear = "max=\"" . $el['options']['maxYear'] . "-12-31\"";
+        }
+        $msg      = isset($el['requireMsg']) ? $el['requireMsg'] : 'Required';
+        $required = isset($el['required']) ? "this.value === '' ? '$msg':''" : "''";
+        $value    = $this->getValue($el['name']);
+        $format   = 'datetime-local';
+
+        if (array_key_exists('options', $el) && isset($el['options']['format'])) {
+            $elOptions = $el['options'];
+            $elFormat  = strtolower($elOptions['format']);
+
+            if ($elFormat == 'my' || $elFormat == 'ym') {
+                $format = 'month';
+                if ($value) {
+                    $value = explode("-", $value);
+                    $value = sprintf("%s-%s", $value[0], $value[1]??null);
+                }
+                if (isset($elOptions['minYear'])) {
+                    $minYear = "min=\"" . $elOptions['minYear'] . "-01\"";
+                }
+                if (isset($elOptions['maxYear'])) {
+                    $maxYear = "max=\"" . $elOptions['maxYear'] . "-12\"";
+                }
+            }
+        }
+
+        $elmnt = "<input name=\"$el[name]\" type=\"$format\" $cls "
+            . "$minYear $maxYear "
+            . "onChange=\"this.setCustomValidity($required)\" "
+            . (isset($el['required']) ? "required " : '')
+            . (!empty($disabled) ? "disabled " : '')
+            . (
+            !empty($value)
+                ? ' value="' . $value . '" '
+                : ''
+            )
+            . ">";
+
+        return $elmnt;
+    }
+
     /**
      * Generates the HTML to add to the page when rendered for a date
      * element.
@@ -1515,6 +1611,8 @@ class LorisForm
         switch ($el['type']) {
         case 'date':
             return $this->dateHTML($el);
+        case 'datetime':
+            return $this->datetimeHTML($el);
         case 'select':
             return $this->selectHTML($el);
         case 'static':

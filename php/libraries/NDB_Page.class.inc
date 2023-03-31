@@ -321,6 +321,35 @@ class NDB_Page extends \LORIS\Http\Endpoint implements RequestHandlerInterface
     }
 
     /**
+     * Adds a datetime field (without an accompanying not answered option) to the
+     * current page.
+     *
+     * @param string $field   The name of the date field
+     * @param string $label   Label to attach to the date field in the frontend
+     * @param array  $options Options to pass to HTML_QuickForm
+     * @param array  $attribs Extra HTML attributes to add to the date group.
+     *
+     * @return void
+     *
+     * @note The 'style' information was removed because it is not an attribute
+     *       added to an element in the LorisForm library. -Alexandra Livadas
+     */
+    function addBasicDatetime(
+        $field,
+        $label,
+        $options=[],
+        $attribs=[
+            'class' => 'form-control input-sm',
+            'style' => 'max-width:33%; display:inline-block;',
+        ]
+    ) {
+        if ($options === [] && !empty($this->dateOptions)) {
+            $options = $this->dateOptions;
+        }
+        $this->form->addElement('datetime', $field, $label, $options, $attribs);
+    }
+
+    /**
      * Wrapper to create a checkbox
      *
      * @param string $name    The field name of this checkbox
