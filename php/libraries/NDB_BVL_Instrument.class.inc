@@ -246,6 +246,7 @@ abstract class NDB_BVL_Instrument extends NDB_Page
         ) {
             return null;
         }
+        error_log('Looking for $baseproject/instruments/$instrument');
         if (file_exists($base."project/instruments/$instrument.linst")
         ) {
             include_once 'NDB_BVL_Instrument_LINST.class.inc';
@@ -264,7 +265,7 @@ abstract class NDB_BVL_Instrument extends NDB_Page
                 && ($guarantee_exists === true
                 && !file_exists($base."project/instruments/$class.class.inc"))
             ) {
-                throw new NotFound("Instrument does not exist");
+                throw new NotFound("Instrument $class does not exist");
             }
             if (!class_exists($class)) {
                 include_once $base."project/instruments/$class.class.inc";
