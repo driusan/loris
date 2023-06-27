@@ -31,33 +31,26 @@ jobs:
           name=`tr [:upper:] [:lower:] <<< ${{env.REGISTRY }}/${{env.IMAGE_NAME}}:raisinbreaddb-${{ steps.rbhash.outputs.rbhash }}`
           echo "lowercase=$name" >> $GITHUB_OUTPUT
 
-      - name: Check if image already exists
-        id: imagecheck
-        run: |
-          if [ "$(docker pull ${{steps.rblower.outputs.lowercase}})" ]; then
-              echo "alreadybuilt=1" >> $GITHUB_OUTPUT
-          else 
-              echo "alreadybuilt=0" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Log in to the Container registry
-        if: ${{ steps.imagecheck.outputs.alreadybuilt == false}}
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Docker image
-        if: ${{ steps.imagecheck.outputs.alreadybuilt == false}}
         uses: docker/build-push-action@v4
         with:
           context: .
           push: false
-          tags: ${{steps.rblower.outputs.lowercase}}
+          tags: raisinbreaddb
           file: Dockerfile.test.raisinbread.db
-      - name: Push Docker Image
-        if: ${{ steps.imagecheck.outputs.alreadybuilt == false}}
-        run: docker push ${{steps.rblower.outputs.lowercase}}
+
+      - name: Export Docker image
+        run: docker image save --output=raisinbreaddb.tar raisinbreaddb
+
+      - name: Compress image
+        run: gzip raisinbreaddb.tar
+
+      - uses: actions/upload-artifact@v3
+        name: Upload Docker image artifact
+        with:
+          name: raisinbreaddb
+          path: raisinbreaddb.tar.gz
+
   api:
     runs-on: ubuntu-latest
     needs: raisinbreaddb
@@ -77,8 +70,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - uses: actions/download-artifact@v3
+      name: Download Raisinbread DB artifact
+      with:
+        name: raisinbreaddb
+        path: .
+
     - name: Start Raisinbread database
-      run: docker run -d -p :3306:3306 ${{env.RBIMAGE}}
+      run: |
+        gunzip raisinbreaddb.tar.gz
+        docker image load -i=raisinbreaddb.tar
+        docker run -d -p :3306:3306 raisinbreaddb
 
     - name: Create SQL User
       run: |
