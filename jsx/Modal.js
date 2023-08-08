@@ -3,6 +3,7 @@
  *
  * @author Henri Rabalais
  * @version 1.1.0
+ *
  */
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
@@ -29,6 +30,7 @@ import swal from 'sweetalert2';
 class Modal extends Component {
   /**
    * @constructor
+   * @param {object} props - React Component properties
    */
   constructor() {
     super();
@@ -48,7 +50,17 @@ class Modal extends Component {
         showCancelButton: true,
         confirmButtonText: 'Proceed',
         cancelButtonText: 'Cancel',
-      }).then((result) => result.value && this.props.onClose());
+      }).then((result) => {
+          console.log(result);
+          if (this.props.onCancel) {
+              if (result.value === true) {
+                  this.props.onCancel();
+              }
+          } else {
+              this.props.onClose();
+          }
+          return result.value;
+        });
     } else {
       this.props.onClose();
     }
@@ -170,6 +182,7 @@ class Modal extends Component {
 Modal.propTypes = {
   title: PropTypes.string,
   onSubmit: PropTypes.func,
+  onCancel: PropTypes.func,
   onClose: PropTypes.func.isRequired,
   show: PropTypes.bool.isRequired,
   throwWarning: PropTypes.bool,
