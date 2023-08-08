@@ -288,6 +288,11 @@ components:
         field:
           type: string
           example: "CandID"
+        visits:
+          description: The visit labels for this field for session-level data
+          type: array
+          items:
+            type: string
       required:
         - module
         - category
