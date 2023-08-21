@@ -174,7 +174,7 @@ FormElement.defaultProps = {
  * The form elements can be passed by nesting Form components directly inside <FieldsetElement></FieldsetElement>.
  *
  */
-class FieldsetElement extends Component {
+export class FieldsetElement extends Component {
   /**
    * @constructor
    * @param {object} props - React Component properties
@@ -464,7 +464,7 @@ SearchableDropdown.defaultProps = {
  * Select Component
  * React wrapper for a simple or 'multiple' <select> element.
  */
-class SelectElement extends Component {
+export class SelectElement extends Component {
   /**
    * @constructor
    * @param {object} props - React Component properties
@@ -1094,7 +1094,7 @@ TextareaElement.defaultProps = {
  * Textbox Component
  * React wrapper for a <input type="text"> element.
  */
-class TextboxElement extends Component {
+export class TextboxElement extends Component {
   /**
    * @constructor
    * @param {object} props - React Component properties
@@ -1683,7 +1683,7 @@ DateElement.defaultProps = {
  * Time Component
  * React wrapper for a <input type="time"> element.
  */
-class TimeElement extends Component {
+export class TimeElement extends Component {
   /**
    * @constructor
    * @param {object} props - React Component properties
@@ -1875,7 +1875,7 @@ DateTimeElement.defaultProps = {
  * Numeric Component
  * React wrapper for a <input type="number"> element.
  */
-class NumericElement extends Component {
+export class NumericElement extends Component {
   /**
    * @constructor
    * @param {object} props - React Component properties
@@ -1980,7 +1980,7 @@ NumericElement.defaultProps = {
  * File Component
  * React wrapper for a simple or 'multiple' <input type="file"> element.
  */
-class FileElement extends Component {
+export class FileElement extends Component {
   /**
    * @constructor
    * @param {object} props - React Component properties
@@ -2326,7 +2326,7 @@ LinkElement.defaultProps = {
  * Checkbox Component
  * React wrapper for a <input type="checkbox"> element.
  */
-class CheckboxElement extends React.Component {
+export class CheckboxElement extends React.Component {
   /**
    * @constructor
    */
@@ -2426,7 +2426,7 @@ CheckboxElement.defaultProps = {
  * Button component
  * React wrapper for <button> element, typically used to submit forms
  */
-class ButtonElement extends Component {
+export class ButtonElement extends Component {
   /**
    * @constructor
    * @param {object} props - React Component properties
