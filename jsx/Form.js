@@ -1520,7 +1520,7 @@ PasswordElement.defaultProps = {
  * Date Component
  * React wrapper for a <input type="date"> element.
  */
-class DateElement extends Component {
+export class DateElement extends Component {
   /**
    * @constructor
    * @param {object} props - React Component properties
