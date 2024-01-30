@@ -195,7 +195,9 @@ class Instruments extends Endpoint implements \LORIS\Middleware\ETagCalculator
         }
         print "I AM HERE1";
         foreach ($requestdata['Instruments'] as $instrument) {
+            print "I AM HERE1$instrument";
             try {
+                print "INITIALIZING FACTORY";
                 $instrument = \NDB_BVL_Instrument::factory(
                     $loris,
                     $instrument,
@@ -203,6 +205,7 @@ class Instruments extends Endpoint implements \LORIS\Middleware\ETagCalculator
                     '',
                     true
                 );
+                print "INITIALIZED FACTORY";
                 if (!$instrument->_hasAccess($user)) {
                     return new \LORIS\Http\Response\JSON\Forbidden();
                 }
@@ -211,11 +214,16 @@ class Instruments extends Endpoint implements \LORIS\Middleware\ETagCalculator
                     "Instrument does not exist"
                 );
             } catch (\Exception $e) {
+                print "EXCEPTION";
+                print $e->getMessage();
+
+
                 var_dump($e);
                 exit;
                 return new \LORIS\Http\Response\JSON\InternalServerError($e->getMessage());
             }
         }
+        print "I AM DONE THE LOOP";
         $battery = new \NDB_BVL_Battery();
         $battery->selectBattery($this->_visit->getSessionID());
         $existingBattery = $battery->getBattery();
