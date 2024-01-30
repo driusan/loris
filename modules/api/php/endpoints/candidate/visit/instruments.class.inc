@@ -214,24 +214,25 @@ class Instruments extends Endpoint implements \LORIS\Middleware\ETagCalculator
                     "Instrument does not exist"
                 );
             } catch (\Exception $e) {
-                print "EXCEPTION";
-                print $e->getMessage();
-
-
-                var_dump($e);
-                exit;
                 return new \LORIS\Http\Response\JSON\InternalServerError($e->getMessage());
             }
         }
         print "I AM DONE THE LOOP";
         $battery = new \NDB_BVL_Battery();
+        print "BVL BATTERY";
         $battery->selectBattery($this->_visit->getSessionID());
+        print "SELECT BATTERY";
         $existingBattery = $battery->getBattery();
+        print "GET BATTERY";
         foreach ($requestdata['Instruments'] as $instrument) {
+            print "GET BATTERY $instrument";
             if (in_array($instrument, $existingBattery, true)) {
+                print "SKIPPING";
                 continue;
             }
+            print "ADDING";
             $battery->addInstrument($loris, $instrument);
+            print "ADDED";
         }
 
         print "I AM HERE2";
