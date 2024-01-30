@@ -192,13 +192,16 @@ class NDB_BVL_Battery
      */
     function addInstrument($loris, $testName)
     {
+        print "ADD INSTRUMENT";
         $DB = \NDB_Factory::singleton()->database();
         // assert that a battery has already been selected
         $this->_assertBatterySelected();
 
+        print "ASSERTING VALID";
         // assert that the instrument is valid
         $error = $this->_assertValidInstrument($testName);
         if ($error !== true) {
+            print "INVALID";
             throw new \LorisException("Invalid instrument");
         }
 
@@ -206,10 +209,12 @@ class NDB_BVL_Battery
         $query = "SELECT ID as SessionID, UserID FROM session WHERE ID=:SID";
         $rows  = $DB->pselect($query, ['SID' => $this->sessionID]);
         if (count($rows)==0) {
+            print "NO USERID";
             throw new Exception(
                 "Failed to get SessionID, and UserID when trying to add $testName"
             );
         }
+        print "CREATING COMMENTID";
         $sessionData = $rows[0];
 
         // generate a commentID
@@ -218,8 +223,10 @@ class NDB_BVL_Battery
         // generate the double data entry commentid
         $ddeCommentID = 'DDE_'.$commentID;
 
+        print "DOING FACTORY";
         // instantiate instrument object to get table name attribute
         $obj = NDB_BVL_Instrument::factory($loris, $testName, '', '');
+        print "DONE FACTORY";
 
         if ($obj->usesJSONdata() !== true) {
             // insert into the test table
@@ -229,6 +236,7 @@ class NDB_BVL_Battery
             $DB->insert($obj->table, ['CommentID' => $ddeCommentID]);
         }
 
+        print "INSERT INTO FLAG";
         // insert into the flag table
         $DB->insert(
             'flag',
@@ -250,6 +258,7 @@ class NDB_BVL_Battery
                 'UserID'    => $sessionData['UserID'],
             ]
         );
+        print "RETURNING COMMENTID";
 
         return $commentID ?? '';
     } // end addInstrument()
