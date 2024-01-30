@@ -210,7 +210,8 @@ class Instruments extends Endpoint implements \LORIS\Middleware\ETagCalculator
                     "Instrument does not exist"
                 );
             } catch (\Exception $e) {
-                throw $e;
+                var_dump($e);
+                exit;
                 return new \LORIS\Http\Response\JSON\InternalServerError();
             }
         }
