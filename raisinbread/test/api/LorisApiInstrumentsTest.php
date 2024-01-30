@@ -103,6 +103,9 @@ class LorisApiInstrumentsTest extends LorisApiAuthenticatedTest
             ]
         );
         var_dump($response);
+        if ($response->getStatusCode() == 500) {
+            var_dump($response->getBody()->__toString());
+        }
         $this->assertEquals(200, $response->getStatusCode());
         // Verify the endpoint has a body
         $body = $response->getBody();
