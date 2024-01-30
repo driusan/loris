@@ -193,6 +193,7 @@ class Instruments extends Endpoint implements \LORIS\Middleware\ETagCalculator
         if (empty($requestdata)) {
             return new \LORIS\Http\Response\JSON\BadRequest();
         }
+        print "I AM HERE1";
         foreach ($requestdata['Instruments'] as $instrument) {
             try {
                 $instrument = \NDB_BVL_Instrument::factory(
@@ -212,7 +213,7 @@ class Instruments extends Endpoint implements \LORIS\Middleware\ETagCalculator
             } catch (\Exception $e) {
                 var_dump($e);
                 exit;
-                return new \LORIS\Http\Response\JSON\InternalServerError();
+                return new \LORIS\Http\Response\JSON\InternalServerError($e->getMessage());
             }
         }
         $battery = new \NDB_BVL_Battery();
@@ -224,6 +225,8 @@ class Instruments extends Endpoint implements \LORIS\Middleware\ETagCalculator
             }
             $battery->addInstrument($loris, $instrument);
         }
+
+        print "I AM HERE2";
 
         $view = (new \LORIS\api\Views\Visit\Instruments(
             $this->_visit
