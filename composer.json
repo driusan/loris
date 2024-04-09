@@ -26,14 +26,11 @@
         "php-webdriver/webdriver" : "dev-main"
 
     },
-    "scripts": {
-      "pre-install-cmd": "mkdir -p project/libraries"
-    },
     "autoload" : {
         "psr-4": {
             "LORIS\\": "src/"
         },
-        "classmap": ["project/libraries", "php"]
+        "classmap": ["php"]
     },
     "config": {
         "allow-plugins": {
