@@ -33,9 +33,7 @@
         "classmap": ["php"]
     },
     "scripts": {
-        "post-create-project-cmd" : {
-            "mkdir htdocs"
-        }
+        "post-package-install" : "mkdir htdocs"
     },
     "config": {
         "allow-plugins": {
