@@ -32,6 +32,11 @@
         },
         "classmap": ["php"]
     },
+    "scripts": {
+        "post-create-project-cmd" : {
+            "mkdir htdocs"
+        }
+    },
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
