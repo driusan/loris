@@ -545,6 +545,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
         $criteria = $this->getCriteria();
 
         if ($criteria) {
+	    error_log("with criteria");
             $candidates = $this->_candidateMatches($criteria);
         } else {
             $candidates = $this->_allCandidates();
@@ -564,6 +565,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
         array $candIDs,
         \User $user,
     ) : iterable {
+	error_log("filtering" . (new \DateTime)->format("U"));
         if (count($candIDs) == 0) {
             return [];
         }
@@ -628,8 +630,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
                         \ProjectID::singleton($row['SProjectID']),
                         \CenterID::singleton($row['SCenterID']),
                     )
-                );
-            }
+		);
         }
 
         // check the last candidate that wouldn't have entered the check in the
@@ -650,10 +651,10 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
     private function _allCandidates() : array
     {
         $db      = $this->loris->getDatabaseConnection();
-        $results = $db->pselectCol(
+        $results = iterator_to_array($db->pselectCol(
             "SELECT CandID FROM candidate WHERE Active='Y' ORDER BY CandID ",
             [],
-        );
+        ));
 
         return array_map(
             function ($row) {
@@ -677,8 +678,10 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
             throw new \LorisException("Bad criteria");
         }
 
+	error_log("checking groups");
         foreach ($criteria['group'] as $crit) {
             if (isset($crit['group'])) {
+		error_log("subgroup");
                 $subresults = $this->_candidateMatches($crit);
                 if (is_array($subresults)) {
                     $results[] = $subresults;
@@ -747,12 +750,15 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
                 $visitlist = $query['visits'];
             }
 
+	    error_log("Calling engine get matches");
             $matches = $engine->getCandidateMatches($term, $visitlist);
             if (is_array($matches)) {
                 $results[] = $matches;
             } else {
+		 error_log("Iterator_to_arraying");
                 $results[] = iterator_to_array($matches);
             }
+	    error_log("Done group");
         }
         $combinedresult = [];
         if (count($results) == 1) {

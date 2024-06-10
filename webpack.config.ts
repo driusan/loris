@@ -76,6 +76,7 @@ let lorisModules: { [x: string]: string[] } = {
   schedule_module: ['scheduleIndex'],
   api_docs: ['swagger-ui_custom'],
   dashboard: ['welcome'],
+  neurohub: ['widgets'],
 };
 
 /*

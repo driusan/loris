@@ -223,8 +223,6 @@ class Instrument_List extends \NDB_Menu_Filter
                 $status = new \NDB_BVL_InstrumentStatus($this->loris);
                 $status->select($instrument['CommentID']);
 
-                $ddeStatus = new \NDB_BVL_InstrumentStatus($this->loris);
-                $ddeStatus->select($instrument['DDECommentID']);
 
                 $Ins = "instruments";
 
@@ -247,13 +245,18 @@ class Instrument_List extends \NDB_Menu_Filter
                 $ins = \NDB_BVL_Battery::isDoubleDataEntryEnabledForInstrument(
                     $instrument['Test_name']
                 );
-                $this->tpl_data[$Ins][$x][$i]['isDdeEnabled'] = $ins;
+		if ($ins) {
+			$ddeStatus = new \NDB_BVL_InstrumentStatus($this->loris);
+			$ddeStatus->select($instrument['DDECommentID']);
 
-                $ins = $instrument['DDECommentID'];
-                $this->tpl_data[$Ins][$x][$i]['ddeCommentID'] = $ins;
+			$this->tpl_data[$Ins][$x][$i]['isDdeEnabled'] = $ins;
 
-                $ins = $ddeStatus->getDataEntryStatus();
-                $this->tpl_data[$Ins][$x][$i]['ddeDataEntryStatus'] =  $ins;
+			$ins = $instrument['DDECommentID'];
+			$this->tpl_data[$Ins][$x][$i]['ddeCommentID'] = $ins;
+
+			$ins = $ddeStatus->getDataEntryStatus();
+			$this->tpl_data[$Ins][$x][$i]['ddeDataEntryStatus'] =  $ins;
+		}
 
                 $ins = $instrument['isDirectEntry'];
                 $this->tpl_data[$Ins][$x][$i]['isDirectEntry'] = $ins;

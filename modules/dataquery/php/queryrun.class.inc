@@ -94,9 +94,11 @@ class QueryRun implements \LORIS\StudyEntities\AccessibleResource,
     /**
      * Get the candidates that matched this run.
      *
+     * @param \User $user The LORIS user to retrieve matching candidates for
+     *
      * @return CandID[]
      */
-    public function getCandidates() : array
+    public function getCandidates($user) : array
     {
         $DB      = $this->loris->getDatabaseConnection();
         $candIDs = $DB->pselectCol(
@@ -133,6 +135,16 @@ class QueryRun implements \LORIS\StudyEntities\AccessibleResource,
             'QueryRunID' => $this->runID,
         ];
         return $result;
+    }
+
+    /**
+     * Returns the RunID that this QueryRun is for
+     *
+     * @return int
+     */
+    public function getRunId() : int
+    {
+        return $this->runID;
     }
 }
 
