@@ -142,15 +142,14 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
 
         $DB     = \NDB_Factory::singleton()->database();
         $visits = $DB->pselectCol(
-            "SELECT DISTINCT s.Visit_Label
-                FROM flag f
-                   JOIN test_names tn ON (tn.ID=f.TestID)
-                   JOIN session s ON (f.SessionID=s.ID)
-                   JOIN candidate c ON (c.CandID=s.CandID)
-                WHERE s.Active='Y' AND c.Active='Y' and tn.Test_name=:tn
-            ORDER BY s.Visit_label",
+            "SELECT DISTINCT v.VisitLabel
+                FROM v_used_instrument_visit_rel rel
+		   JOIN test_names tn ON (rel.TestID=tn.ID)
+                   JOIN visit v ON (rel.VisitID=v.VisitID)
+                WHERE tn.Test_name=:tn
+            ORDER BY v.VisitLabel",
             ['tn' => $inst->getName()]
-        );
+	);
 
         $this->visitcache[$inst->getName()] = $visits;
 

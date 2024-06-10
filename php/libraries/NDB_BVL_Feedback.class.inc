@@ -501,7 +501,7 @@ class NDB_BVL_Feedback
                 $timepoint->isAccessibleBy($user)
             );
         }
-        if (!empty($this->_feedbackObjectInfo['CommentID'])) {
+        if (!empty($this->_feedbackCandidateProfileInfo['CommentID'])) {
             $query           .= " AND ft.CommentID = :ComID";
             $qparams['ComID'] = $this->_feedbackCandidateProfileInfo['CommentID'];
         }

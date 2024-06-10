@@ -230,10 +230,10 @@ class NDB_BVL_Battery
             $DB->insert($obj->table, ['CommentID' => $ddeCommentID]);
         }
 
-        $testId = $DB->pselectOne(
-            "SELECT ID FROM test_names WHERE Test_name=:tn",
-            ['tn' => $testName]
-        );
+	$testID = $DB->pselectOne(
+		"SELECT ID FROM test_names WHERE Test_name=:tn",
+		['tn' => $testName]
+	);
         // insert into the flag table
         $DB->insert(
             'flag',

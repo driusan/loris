@@ -61,6 +61,7 @@ foreach ($instruments as $instrument) {
         // no SQL need to be generated.
         case "title":
             $title = $bits[1];
+	    continue 2;
 
         case "header":
             continue 2;

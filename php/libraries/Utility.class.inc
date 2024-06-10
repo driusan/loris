@@ -263,11 +263,9 @@ class Utility
         }
         $query  = "SELECT DISTINCT Visit_label FROM session s
             JOIN candidate c ON (s.CandID = c.Candid)
-            JOIN psc ON (s.CenterID = psc.CenterID)
             WHERE c.Active = 'Y'
             AND s.Active = 'Y'
             AND c.Entity_type != 'Scanner'
-            AND psc.CenterID!= '1'
             $ExtraProject_Criteria ORDER BY Visit_label";
         $result = $db->pselect($query, $qparams);
         // The result has several columns; we only want the visit labels.

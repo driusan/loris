@@ -390,11 +390,10 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                 'Elements'  => [],
                 'Delimiter' => $this->_GUIDelimiter,
             ];
-
             // Buffer = 128KB
-            while (($line = fgets($fp, 131072)) !== false) {
+            while (($line = fgets($fp, 10*131072)) !== false) {
                 $pieces = preg_split("/{@}/", $line);
-                $this->LinstLines[] = $pieces;
+                // $this->LinstLines[] = $pieces;
 
                 $type      = $pieces[0];
                 $fieldname = isset($pieces[1]) ? $pieces[1] : null;
@@ -412,6 +411,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                     }
                     continue;
                 }
+		$addElements = false;
                 switch ($type) {
                 case 'page':
                     $pageDescription  = trim($pieces[2]);
