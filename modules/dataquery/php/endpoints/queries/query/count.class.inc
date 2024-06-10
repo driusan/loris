@@ -58,6 +58,7 @@ class Count extends \LORIS\Http\Endpoint
     public function countResults(\User $user, int $queryID) : ResponseInterface
     {
         try {
+		error_log("Creating query");
             $query = new \LORIS\dataquery\Query($this->loris, $queryID);
 
             $candidates = \iterator_to_array($query->matchCandidates($user));

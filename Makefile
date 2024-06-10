@@ -89,3 +89,5 @@ dashboard:
 publication:
 	target=publication npm run compile
 
+neurohub:
+	target=neurohub npm run compile

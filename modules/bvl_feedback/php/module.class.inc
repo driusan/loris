@@ -89,6 +89,7 @@ class Module extends \Module
             $query      .= " AND s.ProjectID IN ({$project_arr}) 
                 ORDER BY Testdate DESC LIMIT 4";
 
+		error_log($query);
             $bvl_feedback = $DB->pselect(
                 $query,
                 []

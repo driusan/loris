@@ -29,6 +29,7 @@ session_cache_limiter("");
 // phpcs:ignore
 // See: https://www.php.net/manual/en/session.configuration.php#ini.session.use-strict-mode
 ini_set('session.use_strict_mode', '1');
+ini_set('memory_limit', '256M');
 
 // FIXME: The code in NDB_Client should mostly be replaced by middleware.
 $client = new \NDB_Client;

@@ -51,8 +51,8 @@ class ExceptionHandlingMiddleware implements MiddlewareInterface, LoggerAwareInt
             }
         );
 
-        try {
             return $handler->handle($request);
+        try {
             /* The order of these catch statements matter and should go from
              * most to least specific. Otherwise all Exceptions will be caught
              * as their more generic parent class which reduces precision.

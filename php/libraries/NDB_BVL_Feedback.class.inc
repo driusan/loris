@@ -209,6 +209,7 @@ class NDB_BVL_Feedback
                 "Error, unable to select data for the feedback object"
             );
         }
+	$result = iterator_to_array($result);
 
         $this->_feedbackCandidateProfileInfo['CandID'] = $result[0]['CandID'];
         if (isset($result[0]['SessionID'])
@@ -501,7 +502,7 @@ class NDB_BVL_Feedback
                 $timepoint->isAccessibleBy($user)
             );
         }
-        if (!empty($this->_feedbackObjectInfo['CommentID'])) {
+        if (!empty($this->_feedbackCandidateProfileInfo['CommentID'])) {
             $query           .= " AND ft.CommentID = :ComID";
             $qparams['ComID'] = $this->_feedbackObjectInfo['CommentID'];
         }

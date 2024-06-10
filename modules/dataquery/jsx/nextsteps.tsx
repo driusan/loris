@@ -3,6 +3,18 @@ import {APIQueryField} from './types';
 import {ButtonElement} from 'jsx/Form';
 import {QueryGroup} from './querydef';
 
+
+export enum Tabs {
+	Info,
+	Fields,
+	Filters,
+	Data,
+};
+
+interface TabSteps{
+    [tab: string]: string
+}
+
 /**
  * Next steps options for query navigation
  *
@@ -16,51 +28,100 @@ import {QueryGroup} from './querydef';
 function NextSteps(props: {
     fields: APIQueryField[]
     filters: QueryGroup,
-    page: string,
-    changePage: (newpage: string) => void,
-}) {
-  const [expanded, setExpanded] = useState(true);
-  const steps: React.ReactElement[] = [];
+    page: Tabs,
+    changePage: (newpage: Tabs) => void,
+    extrasteps: TabSteps,
+}) : React.ReactElement {
+    const [expanded, setExpanded] = useState(true);
+    const steps: React.ReactElement[] = [];
 
 
-  const canRun = (props.fields && props.fields.length > 0);
-  const fieldLabel = (props.fields && props.fields.length > 0)
-    ? 'Modify Fields'
-    : 'Choose Fields';
-  const filterLabel = (props.filters && props.filters.group.length > 0)
-    ? 'Modify Filters'
-    : 'Add Filters';
-  switch (props.page) {
-  case 'Info':
-    if (canRun) {
-      // A previous query was loaded, it can be either
-      // modified or run
-      steps.push(<ButtonElement
-        label={fieldLabel}
-        columnSize='col-sm-12'
-        key='fields'
-        onUserInput={() => props.changePage('DefineFields')}
-      />);
-      steps.push(<ButtonElement
-        label={filterLabel}
-        columnSize='col-sm-12'
-        key='filters'
-        onUserInput={() => props.changePage('DefineFilters')}
-      />);
-      steps.push(<ButtonElement
-        label='Run Query'
-        columnSize='col-sm-12'
-        key='runquery'
-        onUserInput={() => props.changePage('ViewData')}
-      />);
-    } else {
-      // No query loaded, must define fields
-      steps.push(<ButtonElement
-        label={fieldLabel}
-        columnSize='col-sm-12'
-        key='fields'
-        onUserInput={() => props.changePage('DefineFields')}
-      />);
+    const canRun = (props.fields && props.fields.length > 0);
+    const fieldLabel = (props.fields && props.fields.length > 0)
+        ? 'Modify Fields'
+        : 'Choose Fields';
+    const filterLabel = (props.filters && props.filters.group.length > 0)
+        ? 'Modify Filters'
+        : 'Add Filters';
+    switch (props.page) {
+    case Tabs.Info:
+        if (canRun) {
+            // A previous query was loaded, it can be either
+            // modified or run
+            steps.push(<ButtonElement
+                    label={fieldLabel}
+                    columnSize='col-sm-12'
+                    key='fields'
+                    onUserInput={() => props.changePage(Tabs.Fields)}
+            />);
+            steps.push(<ButtonElement
+                    label={filterLabel}
+                    columnSize='col-sm-12'
+                    key='filters'
+                    onUserInput={() => props.changePage(Tabs.Filters)}
+            />);
+            steps.push(<ButtonElement
+                    label='Run Query'
+                    columnSize='col-sm-12'
+                    key='runquery'
+                    onUserInput={() => props.changePage(Tabs.Data)}
+            />);
+        } else {
+            // No query loaded, must define fields
+            steps.push(<ButtonElement
+                    label={fieldLabel}
+                    columnSize='col-sm-12'
+                    key='fields'
+                    onUserInput={() => props.changePage(Tabs.Fields)}
+            />);
+        }
+        break;
+    case Tabs.Fields:
+        steps.push(<ButtonElement
+                label={filterLabel}
+                columnSize='col-sm-12'
+                key='filters'
+                onUserInput={() => props.changePage(Tabs.Filters)}
+        />);
+        if (canRun) {
+            steps.push(<ButtonElement
+                    label='Run Query'
+                    columnSize='col-sm-12'
+                    key='runquery'
+                    onUserInput={() => props.changePage(Tabs.Data)}
+            />);
+        }
+        break;
+    case Tabs.Filters:
+        if (canRun) {
+            steps.push(<ButtonElement
+                    label='Run Query'
+                    key='runquery'
+                    columnSize='col-sm-12'
+                    onUserInput={() => props.changePage(Tabs.Data)}
+            />);
+        }
+        steps.push(<ButtonElement
+                label={fieldLabel}
+                key='fields'
+                columnSize='col-sm-12'
+                onUserInput={() => props.changePage(Tabs.Fields)}
+        />);
+        break;
+    case Tabs.Data:
+        steps.push(<ButtonElement
+                label={fieldLabel}
+                key='fields'
+                columnSize='col-sm-12'
+                onUserInput={() => props.changePage(Tabs.Fields)}
+        />);
+        steps.push(<ButtonElement
+                label={filterLabel}
+                key='filters'
+                columnSize='col-sm-12'
+                onUserInput={() => props.changePage(Tabs.Filters)}
+        />);
+        break;
     }
     break;
   case 'DefineFields':

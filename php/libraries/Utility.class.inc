@@ -268,7 +268,7 @@ class Utility
             AND c.Entity_type != 'Scanner'
             AND s.CenterID!= '1'
             $ExtraProject_Criteria ORDER BY Visit_label";
-        $result = $db->pselect($query, $qparams);
+        $result = iterator_to_array($db->pselect($query, $qparams));
         // The result has several columns; we only want the visit labels.
         $visitLabels = array_column(iterator_to_array($result), 'Visit_label');
 

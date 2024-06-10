@@ -105,6 +105,7 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
         }
 
         $inst   = \NDB_BVL_Instrument::factory($this->loris, $testname);
+	error_log("Factory! " . (new \DateTime())->format("U"));
         $values = $inst->bulkLoadInstanceData(
             null,
             $term,
@@ -148,7 +149,7 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
                 WHERE s.Active='Y' AND c.Active='Y' and tn.Test_name=:tn
             ORDER BY s.Visit_label",
             ['tn' => $inst->getName()]
-        );
+	);
 
         $this->visitcache[$inst->getName()] = $visits;
 
