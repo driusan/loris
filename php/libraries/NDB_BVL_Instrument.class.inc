@@ -2350,7 +2350,7 @@ abstract class NDB_BVL_Instrument extends NDB_Page
                     session.Visit_Label as VisitLabel,
                     session.ID as SessionID, t.*
                  FROM $this->table t
-                    JOIN flag f ON (t.CommentID=f.CommentID)
+                    JOIN flag f ON (t.FlagID=f.ID)
 		    JOIN test_names tn ON (tn.ID=f.TestID)
                     JOIN session ON (f.SessionID=session.ID)
 		 $where";

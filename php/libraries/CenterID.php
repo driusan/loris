@@ -7,6 +7,15 @@
  */
 class CenterID extends ValidatableIdentifier implements \JsonSerializable
 {
+
+    private $cache = [];
+    static public function singleton(int $id) {
+        if (!isset($cache[$id])) {
+		$cache[$id] = new \CenterID(strval($id));
+	}
+	return $cache[$id];
+    }
+
     /**
      * Acts as a constructor for a CenterID, using a cached instantiation
      * if available

@@ -411,7 +411,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                     }
                     continue;
                 }
-		$addElements = false;
+		// $addElements = false;
                 switch ($type) {
                 case 'page':
                     $pageDescription  = trim($pieces[2]);
@@ -615,7 +615,7 @@ class NDB_BVL_Instrument_LINST extends \NDB_BVL_Instrument
                     break;
                 case 'date':
                     if ($addElements) {
-                        if ($pieces[3] == 1900 && $pieces[4] == 2100) {
+                        if (($pieces[3] ?? 1900) == 1900 && ($pieces[4] ?? 2100) == 2100) {
                             $dateOptions = [];
                         } else {
                             $dateOptions = [

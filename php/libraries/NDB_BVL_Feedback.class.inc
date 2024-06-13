@@ -209,6 +209,7 @@ class NDB_BVL_Feedback
                 "Error, unable to select data for the feedback object"
             );
         }
+	$result = iterator_to_array($result);
 
         $this->_feedbackCandidateProfileInfo['CandID'] = $result[0]['CandID'];
         if (isset($result[0]['SessionID'])

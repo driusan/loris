@@ -27,6 +27,7 @@ class VisitList extends \NDB_Page
     public function handle(ServerRequestInterface $request) : ResponseInterface
     {
         if ($this->dictionaryitem === null) {
+		error_log("HELLO" . print_r(\Utility::getVisitList(), true));
             return new \LORIS\Http\Response\JSON\OK(
                 [
                     'Visits' => array_values(\Utility::getVisitList()),

@@ -571,7 +571,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
             return [];
         }
         $DB = $this->loris->getNewDatabaseConnection();
-        $DB->setBuffering(false);
+	$DB->setBuffering(false);
 
         // Put candidates into a temporary table so that it can be used in a join
         // clause. Directly using "c.CandID IN (candid1, candid2, candid3, etc)" is
@@ -631,8 +631,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
                         \ProjectID::singleton($row['SProjectID']),
                         \CenterID::singleton($row['SCenterID']),
                     )
-                );
-            }
+		);
         }
 
         // check the last candidate that wouldn't have entered the check in the
@@ -654,10 +653,10 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
     private function _allCandidates() : array
     {
         $db      = $this->loris->getDatabaseConnection();
-        $results = $db->pselectCol(
+        $results = iterator_to_array($db->pselectCol(
             "SELECT CandID FROM candidate WHERE Active='Y' ORDER BY CandID ",
             [],
-        );
+        ));
 
         return array_map(
             function ($row) {
@@ -681,6 +680,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
             throw new \LorisException("Bad criteria");
         }
 
+	error_log("checking groups");
         foreach ($criteria['group'] as $crit) {
             \Profiler::checkpoint("Checking groups");
             if (isset($crit['group'])) {
@@ -758,6 +758,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
             if (is_array($matches)) {
                 $results[] = $matches;
             } else {
+		 error_log("Iterator_to_arraying");
                 $results[] = iterator_to_array($matches);
             }
             \Profiler::checkpoint("Done group");
