@@ -102,9 +102,10 @@ class LorisApiInstrumentsTest extends LorisApiAuthenticatedTest
                 'json'    => $json_data,
             ]
         );
+        $body = $response->getBody();
+	var_dump($body);
         $this->assertEquals(200, $response->getStatusCode());
         // Verify the endpoint has a body
-        $body = $response->getBody();
         $this->assertNotEmpty($body);
 
         $instrArray = json_decode(
