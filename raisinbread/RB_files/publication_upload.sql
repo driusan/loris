@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE publication_upload;
+LOAD DATA LOCAL INFILE 'publication_upload.txt' INTO TABLE publication_upload IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

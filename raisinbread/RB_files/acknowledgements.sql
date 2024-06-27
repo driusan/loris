@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE acknowledgements;
+LOAD DATA LOCAL INFILE 'acknowledgements.txt' INTO TABLE acknowledgements IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

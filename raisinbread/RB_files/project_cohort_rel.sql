@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE project_cohort_rel;
+LOAD DATA LOCAL INFILE 'project_cohort_rel.txt' INTO TABLE project_cohort_rel IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

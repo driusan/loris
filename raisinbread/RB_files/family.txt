@@ -1,0 +1,4 @@
+ID	FamilyID	CandID	Relationship_type
+21	1	587630	full_sibling
+24	1	284119	full_sibling
+26	2	300005	half_sibling

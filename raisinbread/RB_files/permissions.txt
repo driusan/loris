@@ -1,0 +1,65 @@
+permID	code	description	moduleID	action	categoryID
+1	superuser	Superuser - supersedes all permissions	\N	\N	1
+2	user_accounts	User Accounts - Own Sites	38	View/Create/Edit	2
+3	user_accounts_multisite	User Accounts - All Sites	38	View/Create/Edit	2
+4	context_help	Help documentation	19	Edit	2
+5	bvl_feedback	Feedback Threads	5	Create/Edit	1
+6	imaging_browser_qc	Status	20	Edit	2
+8	send_to_dcc	Send to DCC	24	\N	2
+9	unsend_to_dcc	Reverse Send from DCC	24	\N	2
+10	access_all_profiles	Candidates and Timepoints - All Sites	6	View	2
+11	data_entry	Candidates and Timepoints - Own Sites	6	View/Create	1
+12	examiner_view	Add and Certify Examiners - Own Sites	17	\N	2
+13	examiner_multisite	Add and Certify Examiners - All Sites	17	\N	2
+17	conflict_resolver	Resolve Conflicts	9	\N	2
+18	data_dict_view	Parameter Type Descriptions	46	View	2
+19	violated_scans_view_allsites	Violated Scans - All Sites	30	View	2
+22	config	Settings	8	View/Edit	2
+23	imaging_browser_view_site	Imaging Scans - Own Sites	20	View	2
+24	imaging_browser_view_allsites	Imaging Scans - All Sites	20	View	2
+25	dicom_archive_view_allsites	DICOMs - All Sites	15	View	2
+28	instrument_builder	Instrument Forms	23	Create/Edit	2
+29	data_dict_edit	Parameter Type Descriptions	46	Edit	2
+31	candidate_parameter_view	Candidate Information	7	View	2
+32	candidate_parameter_edit	Candidate Information	7	Edit	2
+33	genomic_browser_view_site	Genomic Data - Own Sites	18	View	2
+34	genomic_browser_view_allsites	Genomic Data - All Sites	18	View	2
+35	document_repository_view	Documents	16	View	2
+36	document_repository_delete	Documents	16	Delete	2
+37	server_processes_manager	Processes	34	View	2
+38	imaging_uploader	Imaging Scans	22	View/Upload	2
+39	acknowledgements_view	Acknowledgee List	1	View	2
+40	acknowledgements_edit	Acknowledgee List	1	Edit	2
+41	dataquery_view	Cross-Modality Data	44	View/Download	2
+42	genomic_data_manager	Genomic Files	18	Upload	2
+43	media_write	Candidate Media Files	29	Edit/Upload/Delete	2
+44	media_read	Candidate Media Files	29	View/Download	2
+45	issue_tracker_reporter	Create/Edit Own Issues and Comment on All Issues	27	\N	2
+46	issue_tracker_developer	Close/Edit/Re-assign/Comment on All Issues	27	\N	2
+47	imaging_browser_phantom_allsites	Phantom Scans - All Sites	20	View	2
+48	imaging_browser_phantom_ownsite	Phantom Scans - Own Sites	20	View	2
+49	instrument_manager_read	Installed Instruments	25	View	2
+50	instrument_manager_write	Upload and Install Instruments	25	\N	2
+51	data_release_upload	Release Files	12	Upload	2
+52	data_release_edit_file_access	Grant Other Users Access to Releases	12	\N	2
+53	publication_view	Publication Projects	33	View	2
+54	publication_propose	Propose Publication Projects	33	\N	2
+55	publication_approve	Accept/Reject Publication Projects	33	\N	2
+56	data_release_view	Release Files	12	View	2
+57	candidate_dob_edit	Dates of Birth	7	Edit	2
+58	battery_manager_view	Battery Entries	39	View	2
+59	battery_manager_edit	Battery Entries	39	Create/Edit	2
+60	electrophysiology_browser_view_allsites	EEGs - All Sites	41	View	2
+61	electrophysiology_browser_view_site	EEGs - Own Sites	41	View	2
+62	module_manager_view	Installed Modules	40	View	2
+63	module_manager_edit	Installed Modules	40	Edit	2
+64	candidate_dod_edit	Dates of Death	7	Edit	2
+65	violated_scans_view_ownsite	Violated Scans - Own Sites	30	View	2
+66	document_repository_edit	Documents	16	Edit/Upload	2
+67	survey_accounts_view	Candidate Surveys	36	View	2
+68	imaging_quality_control_view	Flagged Imaging Entries	21	View	2
+69	behavioural_quality_control_view	Flagged Behavioural Entries	3	View	2
+70	api_docs	LORIS API Manual	45	View	2
+71	electrophysiology_browser_edit_annotations	Annotations	41	Create/Edit	2
+72	monitor_eeg_uploads	Monitor EEG uploads	47	Create/Edit	2
+73	schedule_module	Schedule Module: edit and delete appointment	48	View/Create/Edit	2

@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE issues_categories;
+LOAD DATA LOCAL INFILE 'issues_categories.txt' INTO TABLE issues_categories IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE server_processes;
+LOAD DATA LOCAL INFILE 'server_processes.txt' INTO TABLE server_processes IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

@@ -1,0 +1,5 @@
+CNVID	CandID	Description	Type	EventName	Common_CNV	Characteristics	CopyNumChange	Inheritance	ArrayReport	Markers	ArrayReportDetail	ValidationMethod	PlatformID	Chromosome	Strand	EndLoc	StartLoc	Symbol	Name	NCBIID	OfficialSymbol	OfficialName
+1	300165	\N	gain	\N	Y	Unknown	\N	unknown	Normal	\N	\N	\N	1	chr1	+	11007	11008	\N	\N	\N	\N	\N
+2	300165	\N	unknown	\N	Y	Unknown	\N	unknown	Normal	\N	\N	\N	1	chr1	-	11009	11010	\N	\N	\N	\N	\N
+3	300141	\N	unknown	\N	Y	Unknown	\N	unknown	Normal	\N	\N	\N	1	chr1	+	11007	11008	\N	\N	\N	\N	\N
+4	300162	\N	unknown	\N	Y	Unknown	\N	unknown	Normal	\N	\N	\N	1	chr1	+	11007	11008	\N	\N	\N	\N	\N

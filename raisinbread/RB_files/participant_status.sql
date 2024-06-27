@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE participant_status;
+LOAD DATA LOCAL INFILE 'participant_status.txt' INTO TABLE participant_status IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

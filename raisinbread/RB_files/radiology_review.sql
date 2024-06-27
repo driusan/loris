@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE radiology_review;
+LOAD DATA LOCAL INFILE 'radiology_review.txt' INTO TABLE radiology_review IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

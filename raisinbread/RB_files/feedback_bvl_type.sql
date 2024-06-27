@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE feedback_bvl_type;
+LOAD DATA LOCAL INFILE 'feedback_bvl_type.txt' INTO TABLE feedback_bvl_type IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

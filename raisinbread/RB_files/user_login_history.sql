@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE user_login_history;
+LOAD DATA LOCAL INFILE 'user_login_history.txt' INTO TABLE user_login_history IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

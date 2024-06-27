@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE hed_schema_nodes;
+LOAD DATA LOCAL INFILE 'hed_schema_nodes.txt' INTO TABLE hed_schema_nodes IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

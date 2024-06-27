@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE parameter_session;
+LOAD DATA LOCAL INFILE 'parameter_session.txt' INTO TABLE parameter_session IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

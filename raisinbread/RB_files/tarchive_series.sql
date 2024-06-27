@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE tarchive_series;
+LOAD DATA LOCAL INFILE 'tarchive_series.txt' INTO TABLE tarchive_series IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

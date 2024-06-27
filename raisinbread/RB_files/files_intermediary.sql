@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE files_intermediary;
+LOAD DATA LOCAL INFILE 'files_intermediary.txt' INTO TABLE files_intermediary IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

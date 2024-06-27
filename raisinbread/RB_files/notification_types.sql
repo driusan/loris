@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE notification_types;
+LOAD DATA LOCAL INFILE 'notification_types.txt' INTO TABLE notification_types IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

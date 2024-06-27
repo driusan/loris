@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE examiners_psc_rel;
+LOAD DATA LOCAL INFILE 'examiners_psc_rel.txt' INTO TABLE examiners_psc_rel IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

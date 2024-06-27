@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE participant_emails;
+LOAD DATA LOCAL INFILE 'participant_emails.txt' INTO TABLE participant_emails IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

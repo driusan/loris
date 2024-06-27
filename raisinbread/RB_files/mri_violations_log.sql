@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE mri_violations_log;
+LOAD DATA LOCAL INFILE 'mri_violations_log.txt' INTO TABLE mri_violations_log IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE mri_parameter_form;
+LOAD DATA LOCAL INFILE 'mri_parameter_form.txt' INTO TABLE mri_parameter_form IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

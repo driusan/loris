@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE medical_history;
+LOAD DATA LOCAL INFILE 'medical_history.txt' INTO TABLE medical_history IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE publication_status;
+LOAD DATA LOCAL INFILE 'publication_status.txt' INTO TABLE publication_status IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

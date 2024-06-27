@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE issues_comments;
+LOAD DATA LOCAL INFILE 'issues_comments.txt' INTO TABLE issues_comments IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

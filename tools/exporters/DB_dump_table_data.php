@@ -66,48 +66,32 @@ if (empty($adminUser) || empty($adminPassword) || empty($dbHost)) {
     die();
 }
 
-/*
- * Definitions of the flags used in the command below (ORDERING is IMPORTANT):
- * --complete-insert -> Use complete INSERT statements that include column names
- * --no-create-db    -> Do not write CREATE DATABASE statements
- * --no-create-info  -> Do not write CREATE TABLE statements that re-create each
- *                      dumped table
- * --skip-opt        -> Do not add any of the --opt options (--opt is shorthand for:
- *                      --add-drop-table --add-locks --create-options --disable-keys
- *                      --extended-insert --lock-tables --quick --set-charset)
- * --compact         -> This option enables the --skip-add-drop-table,
- *                      --skip-add-locks, --skip-comments, --skip-disable-keys,
- *                      and --skip-set-charset
- * --add-locks       -> To undo part of --compact. Surround each table dump with
- *                      LOCK TABLES and UNLOCK TABLES statements
- * --verbose         -> Print more information about what the program does.
- * --skip-tz-utc     -> This option prevents MySQL from modifying TIMESTAMP
- *                      values to accommodate for timezone differences.
- */
-
-
-// Loop through all tables to generate insert statements for each.
 foreach ($tableNames as $tableName) {
     $paths    = \NDB_Config::singleton()->getSetting('paths');
-    $filename = $paths['base'] . "/raisinbread/RB_files/RB_$tableName.sql";
+    $filename = $paths['base'] . "/raisinbread/RB_files/$tableName.txt";
     exec(
-        'mysqldump -u '.escapeshellarg($adminUser).
+        'mysql -u '.escapeshellarg($adminUser).
         ' -p'.escapeshellarg($adminPassword).' -h '.escapeshellarg($dbHost).' '.
         escapeshellarg($databaseInfo['database']).' '.
-        '--column-statistics=0 '.
-        '--complete-insert '.
-        '--no-create-db '.
-        '--no-create-info '.
-        '--skip-opt '.
-        '--compact '.
-        '--add-locks '.
-        '--verbose '.
-        '--skip-tz-utc '.
-        $tableName .
-        ' | sed -E \'s/LOCK TABLES (`[^`]+`)/SET FOREIGN_KEY_CHECKS=0;\n'.
-        'TRUNCATE TABLE \1;\n'.
-        'LOCK TABLES \1/g\''.
-        ' > '. $filename .
-        '&& echo "SET FOREIGN_KEY_CHECKS=1;" >> '. $filename
+        "-e ". escapeshellarg("SELECT * FROM $tableName")
+        . ' | sed -e ' . escapeshellarg("s/NULL/\\\\N/g") . " > $filename"
     );
+
+    /*
+    exec(
+        'mysql -u '.escapeshellarg($adminUser).
+        ' -p'.escapeshellarg($adminPassword).' -h '.escapeshellarg($dbHost).' '.
+        escapeshellarg($databaseInfo['database']).' '.
+        "-e ". escapeshellarg("SELECT * FROM $tableName")
+        . ' > '. $filename
+    );
+    $filename = $paths['base'] . "/raisinbread/RB_files/$tableName.sql";
+    $fp = fopen($filename, "w");
+    fwrite($fp, <<<EOF
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE $tableName;
+LOAD DATA LOCAL INFILE '$tableName.txt' INTO TABLE $tableName IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;
+EOF);
+     */
 }

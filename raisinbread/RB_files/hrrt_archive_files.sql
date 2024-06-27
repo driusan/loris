@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE hrrt_archive_files;
+LOAD DATA LOCAL INFILE 'hrrt_archive_files.txt' INTO TABLE hrrt_archive_files IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;

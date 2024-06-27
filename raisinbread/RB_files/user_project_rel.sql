@@ -1,0 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE user_project_rel;
+LOAD DATA LOCAL INFILE 'user_project_rel.txt' INTO TABLE user_project_rel IGNORE 1 LINES;
+SET FOREIGN_KEY_CHECKS=1;
