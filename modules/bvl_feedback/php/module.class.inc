@@ -113,7 +113,7 @@ class Module extends \Module
 
                 case 'instrument':
                     $instrument = $DB->pselectOne(
-                        "SELECT Test_name from flag WHERE CommentID=:cid",
+                        "SELECT Test_name from flag f JOIN test_names tn ON (tn.ID=f.TestID) WHERE CommentID=:cid",
                         ['cid' => $row['CommentID']]
                     );
                     if (!empty($instrument)) {

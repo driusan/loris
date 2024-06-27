@@ -229,12 +229,16 @@ class NDB_BVL_Battery
             $DB->insert($obj->table, ['CommentID' => $ddeCommentID]);
         }
 
+	$testID = $DB->pselectOne(
+		"SELECT ID FROM test_names WHERE Test_name=:tn",
+		['tn' => $testName]
+	);
         // insert into the flag table
         $DB->insert(
             'flag',
             [
                 'SessionID' => $sessionData['SessionID'],
-                'Test_name' => $testName,
+                'TestID' => $testID,
                 'CommentID' => $commentID,
                 'UserID'    => $sessionData['UserID'],
             ]
@@ -245,7 +249,7 @@ class NDB_BVL_Battery
             'flag',
             [
                 'SessionID' => $sessionData['SessionID'],
-                'Test_name' => $testName,
+                'TestID' => $testID,
                 'CommentID' => $ddeCommentID,
                 'UserID'    => $sessionData['UserID'],
             ]
@@ -286,8 +290,9 @@ class NDB_BVL_Battery
         $this->_assertBatterySelected();
 
         // craft the select query
-        $query   = "SELECT f.Test_name FROM flag f JOIN session s
-            ON (s.ID=f.SessionID)
+	$query   = "SELECT tn.Test_name FROM flag f
+			JOIN session s ON (s.ID=f.SessionID)
+			JOIN test_names tn ON (tn.ID=f.TestID)
             JOIN candidate c ON (c.CandID=s.CandID)
             WHERE f.SessionID=:SID AND s.Active='Y' AND c.Active='Y'
                AND f.CommentID NOT LIKE 'DDE%'";
@@ -318,7 +323,7 @@ class NDB_BVL_Battery
         $this->_assertBatterySelected();
 
         // craft the select query
-        $query = "SELECT f.Test_name,
+        $query = "SELECT t.Test_name,
                       t.Full_name,
                       f.CommentID,
                       CONCAT('DDE_', f.CommentID) AS DDECommentID,
@@ -327,7 +332,7 @@ class NDB_BVL_Battery
                       t.isDirectEntry,
                       MAX(b.instr_order) as instrument_order
                   FROM flag f
-            	      JOIN test_names t ON (f.Test_name=t.Test_name)
+            	      JOIN test_names t ON (f.TestID=t.ID)
             	      JOIN test_subgroups ts ON (ts.ID = t.Sub_group)
             	      LEFT JOIN session s ON (s.ID=f.SessionID)
             	      LEFT JOIN test_battery b
@@ -337,7 +342,7 @@ class NDB_BVL_Battery
        	                AND (s.CenterID=b.CenterID OR b.CenterID IS NULL))
        	          WHERE f.SessionID=:SID
                       AND LEFT(f.CommentID, 4) != 'DDE_'
-                  GROUP BY f.Test_name,
+                  GROUP BY t.Test_name,
                            t.Full_name,
                            f.CommentID,
                            DDECommentID,
@@ -391,7 +396,9 @@ class NDB_BVL_Battery
     {
         return \NDB_Factory::singleton()->database()
             ->pselectOne(
-                "SELECT Test_name FROM flag WHERE CommentID=:CID",
+		    "SELECT tn.Test_name FROM flag f JOIN test_names
+			ON (flag.TestID=test_names.ID)
+			WHERE CommentID=:CID",
                 ['CID' => $commentId]
             );
     }
