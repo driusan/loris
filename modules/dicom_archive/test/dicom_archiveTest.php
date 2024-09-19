@@ -38,24 +38,6 @@ class DicomArchiveTestIntegrationTest extends LorisIntegrationTest
     static $clearFilter = '.nav-tabs a';
 
     /**
-     * Insert testing data into the database
-     *
-     * @return void
-     */
-    function setUp(): void
-    {
-        parent::setUp();
-    }
-    /**
-     * Delete testing data from database
-     *
-     * @return void
-     */
-    function tearDown(): void
-    {
-        parent::tearDown();
-    }
-    /**
      * Tests that, when loading the dicom_archive module > viewDetails subtest, some
      * text appears in the body.
      *
