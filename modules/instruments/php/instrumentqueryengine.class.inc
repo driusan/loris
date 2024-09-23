@@ -70,7 +70,7 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
      *                                               match for session scoped
      *                                               variables
      *
-     * @return iterable
+     * @return Generator<CandID>
      */
     public function getCandidateMatches(
         \LORIS\Data\Query\QueryTerm $term,
@@ -104,40 +104,14 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
             throw new \DomainException("Field for unknown instrument");
         }
 
-        $query       = "SELECT c.CandID, f.CommentID
-            FROM flag f 
-		JOIN test_names tn ON (f.TestID=tn.ID)
-            JOIN session s ON (s.ID=f.SessionID AND s.Active='Y')
-            JOIN candidate c ON (s.CandID=c.CandID AND c.Active='Y')
-            WHERE tn.Test_name=:tn AND f.CommentID NOT LIKE 'DDE%'";
-        $queryparams = ['tn' => $testname];
-        if ($visitlist !== null) {
-            $query .= ' AND s.Visit_label IN (';
-            foreach ($visitlist as $vnum => $visit) {
-                if ($vnum !== 0) {
-                    $query .=', ';
-                }
-                $query .= ":visit$vnum";
-                $queryparams["visit$vnum"] = $visit;
-            }
-            $query .= ')';
-        }
-        $data   = $DB->pselect($query, $queryparams);
         $inst   = \NDB_BVL_Instrument::factory($this->loris, $testname);
         $values = $inst->bulkLoadInstanceData(
-            array_map(
-                function ($row) {
-                    return $row['CommentID'];
-                },
-                iterator_to_array($data),
-            )
+            null,
+            $term,
         );
-
-        $map = [];
-        foreach ($data as $row) {
-            $map[$row['CommentID']] = new CandID($row['CandID']);
+        foreach ($values as $match) {
+            yield $match->getCandID();
         }
-        return $this->_filtered($values, $map, $fieldname, $term->criteria);
     }
 
     /**
