@@ -118,6 +118,105 @@ class InstrumentQueryEngine implements \LORIS\Data\Query\QueryEngine
     }
 
     /**
+     * Filter out candidates which do not match a criteria
+     *
+     * @param array                      $values    The values from the
+     *                                              instrument
+     * @param array                      $candidmap CandID map from
+     *                                              commentID=>candID
+     *                                              commentID=>candID
+     * @param string                     $fieldname The field to compare
+     * @param \LORIS\Data\Query\Criteria $criteria  The criteria which the field
+     *                                              must match.
+     *
+     * @return \Traversable CandIDs that matched criteria
+     */
+    private function _filtered(
+        $values,
+        $candidmap,
+        $fieldname,
+        $criteria
+    ) : \Traversable {
+        foreach ($values as $inst) {
+            $value = $inst->getFieldValue($fieldname);
+
+            switch (get_class($criteria)) {
+            case \LORIS\Data\Query\Criteria\In::class:
+                foreach ($criteria->getValue() as $valuecandidate) {
+                    if ($value == $valuecandidate) {
+                        yield $candidmap[$inst->getCommentID()];
+                    }
+                }
+                break;
+            case \LORIS\Data\Query\Criteria\LessThan::class:
+                if ($value !== null && $value < $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\Criteria\LessThanOrEqual::class:
+                if ($value !== null && $value <= $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\Criteria\Equal::class:
+                if ($value !== null && $value == $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\Criteria\NotEqual::class:
+                if ($value !== null && $value != $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\Criteria\GreaterThanOrEqual::class:
+                if ($value !== null && $value >= $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\Criteria\GreaterThan::class:
+                if ($value !== null && $value > $criteria->getValue()) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+
+            case \LORIS\Data\Query\Criteria\IsNull::class:
+                if ($value === null) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\Criteria\NotNull::class:
+                if ($value !== null) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+
+            case \LORIS\Data\Query\Criteria\StartsWith::class:
+                if ($value !== null && strpos($value, $criteria->getValue()) === 0) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\Criteria\EndsWith::class:
+                $critval = $criteria->getValue();
+                $matches = strrpos($value, $critval)
+                    === strlen($value)-strlen($critval);
+                if ($value !== null && $matches) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            case \LORIS\Data\Query\Criteria\Substring::class:
+                if ($value !== null
+                    && strpos($value, $criteria->getValue()) !== false
+                ) {
+                    yield $candidmap[$inst->getCommentID()];
+                }
+                break;
+            default:
+                throw new \Exception("Unhandled operator: " . get_class($criteria));
+            }
+        }
+    }
+
+    /**
      * Get list of visits that an instrument is valid at
      *
      * @param \LORIS\Data\Dictionary\Category       $inst The instrument

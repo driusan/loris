@@ -571,7 +571,7 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
             return [];
         }
         $DB = $this->loris->getNewDatabaseConnection();
-	$DB->setBuffering(false);
+        $DB->setBuffering(false);
 
         // Put candidates into a temporary table so that it can be used in a join
         // clause. Directly using "c.CandID IN (candid1, candid2, candid3, etc)" is
@@ -631,7 +631,8 @@ class Query implements \LORIS\StudyEntities\AccessibleResource,
                         \ProjectID::singleton($row['SProjectID']),
                         \CenterID::singleton($row['SCenterID']),
                     )
-		);
+                );
+            }
         }
 
         // check the last candidate that wouldn't have entered the check in the
