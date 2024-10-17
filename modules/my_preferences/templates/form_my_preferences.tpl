@@ -92,7 +92,7 @@
     <div id="module_preferences" style="display: flex">
     {section name=widget loop=$module_userpreference_widgets}
         {assign var="widget" value=$module_userpreference_widgets[widget]}
-        <div id="widget_{$widget->componentname}">
+        <div style="flex: 1" id="widget_{$widget->componentname}">
             <h3>{$widget->title}</h3>
             {* Include the widget's javascript before trying to invoke it *}
             <script src="{$widget->jsurl}" type="text/javascript"></script>
