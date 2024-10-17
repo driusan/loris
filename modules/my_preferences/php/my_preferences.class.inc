@@ -165,15 +165,31 @@ class My_Preferences extends \NDB_Form
         if ($values['Password_hash'] == '') {
             unset($values['Password_hash']);
         }
-        foreach ($values as $key => $value) {
+	// Only update keys that are stored in the user tables. Password_hash
+	// and potentially values from widgets may also have been submitted.
+	$validkeys = [
+		'Real_name',
+		'First_name',
+		'Last_name',
+		'Degree',
+		'Position_title',
+		'Institution',
+		'Department',
+		'Address',
+		'City',
+		'State',
+		'Zip_code',
+		'Country',
+		'Phone',
+		'Fax',
+		'Email',
+		'language_preference',
+	];
+        foreach ($validkeys as $key) {
             // Password updates are handled separately. Password_hash is removed
             // from the initial update as otherwise it will be recorded in the
             // history table unencrypted.
-            if (!empty($value) && $key != 'Password_hash') {
-                $set[$key] = $value;
-            } else {
-                $set[$key] = null;
-            }
+	    $set[$key] = $values[$key] ?? null;
         }
         // update the user
         $user->update($set);
@@ -433,6 +449,26 @@ class My_Preferences extends \NDB_Form
             $errors['Email'] = $emailError;
         }
 
+        $modules = $this->loris->getActiveModules();
+	$user = $factory->user();
+        foreach ($modules as $module) {
+            if ($module->hasAccess($user)) {
+                $mwidgets = $module->getWidgets(
+                    'userpreference',
+                    $user,
+                    [],
+                );
+                foreach ($mwidgets as $widget) {
+                    if (!($widget instanceof UserPreferenceWidget)) {
+                        continue;
+                    }
+		    $newerror =$widget->onSave($values); 
+		    if(!empty($newerror)){
+                    	$errors[] = $newerror;
+		    }
+                }
+            }
+        }
         return $errors;
     }
 

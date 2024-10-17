@@ -23,6 +23,7 @@ class UserPreferenceWidget implements \LORIS\GUI\Widget
      *                              component.
      */
     public function __construct(
+	protected \LORIS\LorisInstance $loris,
         public string $title,
         public string $jsurl,
         public string $componentname,
@@ -39,5 +40,9 @@ class UserPreferenceWidget implements \LORIS\GUI\Widget
     public function __toString()
     {
         return $this->jsurl;
+    }
+
+    public function onSave(array $values): string{
+	    return '';
     }
 }

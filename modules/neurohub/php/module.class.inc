@@ -19,7 +19,8 @@ class Module extends \Module
         switch ($type) {
         case 'userpreference':
             return [
-                new \LORIS\my_preferences\UserPreferenceWidget(
+                new NeuroHubTokenWidget(
+		    $this->loris,
                     "Neurohub Token",
                     "/neurohub/js/widgets.js",
                     "lorisjs.neurohub.widgets.NeurohubTokenPreference",
