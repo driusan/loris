@@ -636,6 +636,76 @@ export class RadioElement {
     forceUpdate(): void
 }
 
+/**
+ * TextboxElement class. See Form.js
+ */
+export class PasswordElement {
+    props: textboxProps
+    state: any
+    context: object
+    refs: {[key: string]: ReactInstance}
+
+    /**
+     * Construct a TextboxElement
+     *
+     * @param {textboxProps} props - React props
+     */
+    constructor(props: textboxProps)
+
+    /**
+     * React lifecycle method
+     *
+     * @returns {ReactNode} - the element
+     */
+    render(): ReactNode
+
+    /**
+     * React lifecycle method
+     *
+     * @param {object} newstate - the state to override
+     */
+    setState(newstate: object): void
+
+    /**
+     * React lifecycle method.
+     */
+    forceUpdate(): void
+}
+/**
+ * TextboxElement class. See Form.js
+ */
+export class EmailElement {
+    props: textboxProps
+    state: any
+    context: object
+    refs: {[key: string]: ReactInstance}
+
+    /**
+     * Construct a TextboxElement
+     *
+     * @param {textboxProps} props - React props
+     */
+    constructor(props: textboxProps)
+
+    /**
+     * React lifecycle method
+     *
+     * @returns {ReactNode} - the element
+     */
+    render(): ReactNode
+
+    /**
+     * React lifecycle method
+     *
+     * @param {object} newstate - the state to override
+     */
+    setState(newstate: object): void
+
+    /**
+     * React lifecycle method.
+     */
+    forceUpdate(): void
+}
 
 export default {
   FormElement,
@@ -645,6 +715,7 @@ export default {
   TextboxElement,
   SearchableDropdown,
   TextareaElement,
+  EmailElement,
   PasswordElement,
   DateElement,
   TimeElement,

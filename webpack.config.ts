@@ -60,6 +60,7 @@ let lorisModules: { [x: string]: string[] } = {
   instrument_manager: ['instrumentManagerIndex'],
   survey_accounts: ['surveyAccountsIndex'],
   mri_violations: ['mriViolationsIndex'],
+  my_preferences: ['index'],
   user_accounts: ['userAccountsIndex'],
   examiner: ['examinerIndex'],
   help_editor: ['help_editor', 'helpEditorForm'],

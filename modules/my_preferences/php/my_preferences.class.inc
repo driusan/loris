@@ -7,8 +7,9 @@ namespace LORIS\my_preferences;
  *
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  */
-class My_Preferences extends \NDB_Form
+class My_Preferences extends \NDB_Page
 {
+    public $skipTemplate = true;
     private const PASSWORD_ERROR_IS_EMAIL  = 'Your password cannot be your email.';
     private const PASSWORD_ERROR_IS_USER   = 'Your password cannot be ' .
                                         'your user name.';
@@ -20,6 +21,7 @@ class My_Preferences extends \NDB_Form
      *
      * @return array the default values for the initial state of this page.
      */
+    /*
     function _getDefaults()
     {
         $user = \User::factory($this->identifier);
@@ -90,6 +92,7 @@ class My_Preferences extends \NDB_Form
         }
         return $defaults;
     }
+     */
 
     /**
      * Processes the data entered in the form.
@@ -98,6 +101,7 @@ class My_Preferences extends \NDB_Form
      *
      * @return void
      */
+    /*
     function _process($values)
     {
         $factory = \NDB_Factory::singleton();
@@ -214,6 +218,7 @@ class My_Preferences extends \NDB_Form
 
         $this->tpl_data['success'] = true;
     }
+     */
 
     /**
      * Does the setup required for this page. By default, sets up elements
@@ -222,6 +227,7 @@ class My_Preferences extends \NDB_Form
      *
      * @return void
      */
+    /*
     function setup()
     {
         parent::setup();
@@ -388,6 +394,7 @@ class My_Preferences extends \NDB_Form
         // unique key and password rules
         $this->form->addFormRule([&$this, '_validateMyPreferences']);
     }
+     */
 
 
     /**
@@ -397,6 +404,7 @@ class My_Preferences extends \NDB_Form
      *
      * @return array $errors all the errors found.
      */
+    /*
     function _validateMyPreferences(array $values): array
     {
         // create DB object
@@ -471,6 +479,7 @@ class My_Preferences extends \NDB_Form
         }
         return $errors;
     }
+     */
 
 
     /**
@@ -482,6 +491,7 @@ class My_Preferences extends \NDB_Form
      *
      * @return ?string error message if email is invalid, null otherwise.
      */
+    /*
     private function _getEmailError(\Database $DB, $email): ?string
     {
         // remove illegal characters
@@ -507,6 +517,7 @@ class My_Preferences extends \NDB_Form
 
         return null;
     }
+     */
 
     /**
      * Add dependency for password visibility
@@ -522,9 +533,7 @@ class My_Preferences extends \NDB_Form
         return array_merge(
             $baseDeps,
             [
-                $baseurl . '/js/passwordVisibility.js',
-                $baseurl . '/my_preferences/js/my_preferences_helper.js',
-                $baseurl . '/js/components/CSSGrid.js',
+                $baseurl . '/my_preferences/js/index.js',
             ]
         );
     }
@@ -535,6 +544,7 @@ class My_Preferences extends \NDB_Form
      *
      * @return array of CSS to be inserted
      */
+    /*
     function getCSSDependencies()
     {
         $factory = \NDB_Factory::singleton();
@@ -547,5 +557,6 @@ class My_Preferences extends \NDB_Form
             ]
         );
     }
+     */
 }
 

@@ -74,6 +74,9 @@ module_manager:
 mri_violations:
 	target=mri_violations npm run compile
 
+my_preferences:
+	target=my_preferences npm run compile
+
 issue_tracker:
 	target=issue_tracker npm run compile
 
